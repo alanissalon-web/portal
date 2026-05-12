@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import serviceColor from '@/assets/service-color.jpg';
 import serviceCut from '@/assets/service-cut.jpg';
 import serviceTreatment from '@/assets/service-treatment.jpg';
-import serviceSpa from '@/assets/salon-products.jpg';
+import transformation1 from '@/assets/transformation-1.jpg';
 import { EditableText } from './cms/EditableText';
 
 const services = [
@@ -30,7 +30,7 @@ const services = [
   {
     title: 'Hair Extensions',
     description: 'Great Lengths, Mago, CombLine, tape-ins, and Micro Point. 20+ years customizing extensions for all hair types. Free consultations available.',
-    image: serviceSpa,
+    image: transformation1,
     price: 'Free Consult',
   },
 ];
