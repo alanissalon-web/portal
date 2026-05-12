@@ -9,17 +9,40 @@ import { FinalCTA } from '@/components/FinalCTA';
 import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { SalonFooter } from '@/components/SalonFooter';
 
+import { useCMS } from '@/contexts/CMSContext';
+
+const sectionComponents: Record<string, React.FC> = {
+  hero: HeroSection,
+  booking: BookingWizard,
+  about: AboutSection,
+  services: ServicesSection,
+  transformations: TransformationsSection,
+  experience: ExperienceSection,
+  cta: FinalCTA,
+};
+
 const Index = () => {
+  const { content } = useCMS();
+  
+  const defaultSections = [
+    { id: 'hero' },
+    { id: 'booking' },
+    { id: 'about' },
+    { id: 'services' },
+    { id: 'transformations' },
+    { id: 'experience' },
+    { id: 'cta' },
+  ];
+
+  const sections = content['page_layout']?.sections || defaultSections;
+
   return (
     <div className="min-h-screen">
       <SalonNavbar />
-      <HeroSection />
-      <BookingWizard />
-      <AboutSection />
-      <ServicesSection />
-      <TransformationsSection />
-      <ExperienceSection />
-      <FinalCTA />
+      {sections.map((section: any) => {
+        const Component = sectionComponents[section.id];
+        return Component ? <Component key={section.id} /> : null;
+      })}
       <SalonFooter />
       <WhatsAppFloat />
     </div>

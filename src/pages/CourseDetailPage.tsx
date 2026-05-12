@@ -162,7 +162,7 @@ const CourseDetailPage = () => {
       <SalonNavbar />
 
       {/* Hero */}
-      <section className="relative pt-24 pb-16 md:pb-24 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
+      <section className="relative pt-40 pb-16 md:pt-56 md:pb-24 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0">
           <img src={course.image} alt={course.title} className="w-full h-full object-cover opacity-25" />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/70 via-charcoal/50 to-charcoal" />

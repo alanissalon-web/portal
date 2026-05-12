@@ -26,6 +26,9 @@ import AdminContent from "./pages/admin/AdminContent.tsx";
 import AdminWaitlist from "./pages/admin/AdminWaitlist.tsx";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { CustomCursor } from "@/components/CustomCursor";
+import { CMSProvider } from "@/contexts/CMSContext";
+import { VisualCMSBar } from "@/components/cms/VisualCMSBar";
+import { VisualSidebar } from "@/components/cms/VisualSidebar";
 
 const queryClient = new QueryClient();
 
@@ -47,7 +50,10 @@ const App = () => (
         <CustomCursor />
         <SmoothScroll />
         <AdminAuthProvider>
-          <Routes>
+          <CMSProvider>
+            <VisualCMSBar />
+            <VisualSidebar />
+            <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<AboutPage />} />
@@ -71,6 +77,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </CMSProvider>
         </AdminAuthProvider>
       </BrowserRouter>
     </TooltipProvider>

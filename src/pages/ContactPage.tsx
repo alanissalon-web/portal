@@ -10,7 +10,7 @@ const ContactPage = () => {
     <div className="min-h-screen">
       <SalonNavbar />
       {/* Hero banner */}
-      <section className="relative pt-24 pb-16 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
+      <section className="relative pt-40 pb-16 md:pt-56 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0">
           <img src={salonLounge} alt="Alanís Salon lounge" className="w-full h-full object-cover opacity-30" />
         </div>

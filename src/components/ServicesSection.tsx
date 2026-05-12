@@ -6,6 +6,7 @@ import serviceColor from '@/assets/service-color.jpg';
 import serviceCut from '@/assets/service-cut.jpg';
 import serviceTreatment from '@/assets/service-treatment.jpg';
 import serviceSpa from '@/assets/salon-products.jpg';
+import { EditableText } from './cms/EditableText';
 
 const services = [
   {
@@ -42,10 +43,10 @@ export function ServicesSection() {
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            Our Services
+            <EditableText section="services" field="badge" defaultText="Our Services" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            Every service, a premium experience
+            <EditableText section="services" field="title" defaultText="Every service, a premium experience" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>

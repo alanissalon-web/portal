@@ -15,7 +15,7 @@ const AcademyPage = () => {
       <SalonNavbar />
 
       {/* Premium Hero */}
-      <section className="relative pt-24 pb-20 md:pb-28 bg-charcoal overflow-hidden min-h-[60vh] flex items-center">
+      <section className="relative pt-40 pb-20 md:pt-56 md:pb-28 bg-charcoal overflow-hidden min-h-[60vh] flex items-center">
         <div className="absolute inset-0">
           <img src={salonStyling} alt="Alanís Academy" className="w-full h-full object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-charcoal/40 to-charcoal" />

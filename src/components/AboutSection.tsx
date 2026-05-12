@@ -2,6 +2,7 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Award, Calendar, Heart, Users, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import salonLoungeImage from '@/assets/salon-lounge-real.jpg';
+import { EditableText } from './cms/EditableText';
 
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -72,10 +73,12 @@ export function AboutSection() {
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium inline-flex items-center gap-2 mb-4">
               <Sparkles className="w-3.5 h-3.5" />
-              About Us
+              <EditableText section="about" field="badge" defaultText="About Us" as="span" />
               <Sparkles className="w-3.5 h-3.5" />
             </span>
-            <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mb-6">Our Legacy of Excellence</h2>
+            <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mb-6">
+              <EditableText section="about" field="title" defaultText="Our Legacy of Excellence" as="span" />
+            </h2>
             <div className="luxury-divider mx-auto" />
           </div>
 
@@ -89,15 +92,27 @@ export function AboutSection() {
               />
             </div>
             <div className="space-y-6">
-              <p className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
-                Alanis Salon, established in 2013, is centrally located near Downtown, Montrose, and River Oaks in Houston. Before opening, founder Rosie Alanis spent over 20 years honing her skills, exploring innovative techniques, and understanding the profound impact of personal appearance on confidence and self-esteem.
-              </p>
-              <p className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
-                We specialize in hair extensions, hair replacement, and holistic hair health — providing solutions that not only enhance your appearance but also promote your hair's vitality. Our approach is tailored, focusing on individual needs to achieve results that are both transformative and sustainable.
-              </p>
-              <p className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
-                As an Educator, Rosie brings the latest advancements and techniques directly to the salon, ensuring our team is at the forefront of the industry.
-              </p>
+              <div className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
+                <EditableText 
+                  section="about" 
+                  field="para1" 
+                  defaultText="Alanis Salon, established in 2013, is centrally located near Downtown, Montrose, and River Oaks in Houston. Before opening, founder Rosie Alanis spent over 20 years honing her skills, exploring innovative techniques, and understanding the profound impact of personal appearance on confidence and self-esteem." 
+                />
+              </div>
+              <div className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
+                <EditableText 
+                  section="about" 
+                  field="para2" 
+                  defaultText="We specialize in hair extensions, hair replacement, and holistic hair health — providing solutions that not only enhance your appearance but also promote your hair's vitality. Our approach is tailored, focusing on individual needs to achieve results that are both transformative and sustainable." 
+                />
+              </div>
+              <div className="font-body text-muted-foreground leading-relaxed text-lg text-pretty">
+                <EditableText 
+                  section="about" 
+                  field="para3" 
+                  defaultText="As an Educator, Rosie brings the latest advancements and techniques directly to the salon, ensuring our team is at the forefront of the industry." 
+                />
+              </div>
             </div>
           </div>
         </div>

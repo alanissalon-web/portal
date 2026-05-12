@@ -3,6 +3,7 @@ import { MessageCircle, Star, Users, Award, ChevronDown } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import heroImage from '@/assets/hero-salon-real.jpg';
+import { EditableText } from './cms/EditableText';
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -27,7 +28,7 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent opacity-60" />
       </motion.div>
 
-      <div className="relative z-10 container mx-auto px-6 pt-32 pb-20 md:py-0">
+      <div className="relative z-10 container mx-auto px-6 pt-40 pb-20 md:pt-56">
         <div className="max-w-3xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -36,9 +37,13 @@ export function HeroSection() {
             className="inline-flex items-center gap-2 bg-accent/15 border border-accent/20 backdrop-blur-md rounded-full px-5 py-2 mb-8"
           >
             <Award className="w-4 h-4 text-accent" />
-            <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-              25+ Years of Excellence in Houston
-            </span>
+            <EditableText 
+              section="hero" 
+              field="badge" 
+              defaultText="25+ Years of Excellence in Houston" 
+              as="span"
+              className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium"
+            />
           </motion.div>
 
           <motion.h1
@@ -47,9 +52,19 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="font-display text-6xl md:text-8xl font-light text-primary-foreground leading-[1.1] mb-8 text-balance"
           >
-            Transform your hair into its{' '}
+            <EditableText 
+              section="hero" 
+              field="title_part1" 
+              defaultText="Transform your hair into its" 
+              as="span"
+            />{' '}
             <span className="text-gold-gradient font-medium italic relative">
-              best version
+              <EditableText 
+                section="hero" 
+                field="title_highlight" 
+                defaultText="best version" 
+                as="span"
+              />
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: '100%' }}
@@ -65,7 +80,11 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="font-body text-xl md:text-2xl text-primary-foreground/70 max-w-xl mb-12 leading-relaxed"
           >
-            Personalized diagnosis meets premium artistry. Experience the pinnacle of hair extensions and styling.
+            <EditableText 
+              section="hero" 
+              field="description" 
+              defaultText="Personalized diagnosis meets premium artistry. Experience the pinnacle of hair extensions and styling." 
+            />
           </motion.p>
 
           <motion.div 
