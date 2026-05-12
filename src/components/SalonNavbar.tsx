@@ -4,6 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, Phone, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo-alanis.png';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
+import { useCMS } from '@/contexts/CMSContext';
+import { Layout } from 'lucide-react';
 
 const navLinks = [
   { label: 'About', href: '/about' },
@@ -20,6 +23,8 @@ export function SalonNavbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
   const isHome = location.pathname === '/';
+  const { isAdmin } = useAdminAuth();
+  const { setIsEditing } = useCMS();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -46,7 +51,7 @@ export function SalonNavbar() {
             <motion.img
               src={logo}
               alt="Alanís Salon & Spa"
-              className={`transition-all duration-500 ${scrolled ? 'h-14' : 'h-24 md:h-32'}`}
+              className={`transition-all duration-500 ${scrolled ? 'h-20' : 'h-24 md:h-32'}`}
               whileHover={{ scale: 1.02 }}
             />
           </Link>
@@ -73,6 +78,19 @@ export function SalonNavbar() {
             })}
             
             <div className="flex items-center gap-4 ml-4">
+              {isAdmin && (
+                <Link to="/">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="rounded-full gap-2 border-accent text-accent hover:bg-accent hover:text-white"
+                    onClick={() => setIsEditing(true)}
+                  >
+                    <Layout className="w-3.5 h-3.5" />
+                    CMS
+                  </Button>
+                </Link>
+              )}
               <Link to="/shop" className={`${textColor} hover:text-accent transition-colors`}>
                 <ShoppingBag className="w-5 h-5" />
               </Link>
@@ -110,7 +128,7 @@ export function SalonNavbar() {
             className="fixed inset-0 z-[60] bg-white lg:hidden flex flex-col"
           >
             <div className="flex items-center justify-between p-6 border-b border-black/5">
-              <img src={logo} alt="Alanís Salon & Spa" className="h-16" />
+              <img src={logo} alt="Alanís Salon & Spa" className="h-20" />
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-2 bg-charcoal/5 rounded-full text-charcoal"

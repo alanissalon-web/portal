@@ -11,6 +11,10 @@ import { SalonFooter } from '@/components/SalonFooter';
 
 import { useCMS } from '@/contexts/CMSContext';
 
+import { PricingSection } from '@/components/PricingSection';
+import { ExtensionsSection } from '@/components/ExtensionsSection';
+import { HairLossSection } from '@/components/HairLossSection';
+
 const sectionComponents: Record<string, React.FC> = {
   hero: HeroSection,
   booking: BookingWizard,
@@ -19,6 +23,9 @@ const sectionComponents: Record<string, React.FC> = {
   transformations: TransformationsSection,
   experience: ExperienceSection,
   cta: FinalCTA,
+  pricing: PricingSection,
+  extensions: ExtensionsSection,
+  hairloss: HairLossSection,
 };
 
 const Index = () => {

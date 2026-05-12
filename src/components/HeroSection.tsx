@@ -5,6 +5,8 @@ import { useRef } from 'react';
 import heroImage from '@/assets/hero-salon-real.jpg';
 import { EditableText } from './cms/EditableText';
 
+import { EditableImage } from './cms/EditableImage';
+
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
@@ -18,11 +20,12 @@ export function HeroSection() {
         style={{ y: y1 }}
         className="absolute inset-0 z-0"
       >
-        <img
-          src={heroImage}
+        <EditableImage 
+          section="hero" 
+          field="bg_image" 
+          defaultImage={heroImage} 
+          className="w-full h-full object-cover scale-110" 
           alt="Alanís Salon & Spa luxury interior"
-          className="w-full h-full object-cover scale-110"
-          loading="eager"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/90 via-charcoal/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent opacity-60" />
