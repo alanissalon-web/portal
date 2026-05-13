@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { MessageSquare, Search, Trash2, Mail, Phone, Clock, Loader2, Check, Send, Reply, X as CloseIcon, Plus, Camera, Image as ImageIcon, Mic, Smile, ThumbsUp, User } from 'lucide-react';
+import { MessageSquare, Search, Trash2, Mail, Phone, Clock, Loader2, Check, Send, Reply, X as CloseIcon, Plus, Camera, Image as ImageIcon, Mic, Smile, ThumbsUp, User, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
@@ -49,6 +49,28 @@ const AdminMessages = () => {
     });
     setReplyText('');
     fetchMessages();
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      LocalDB.saveMessage({
+        name: 'Alanís Salon',
+        email: 'admin@alanissalon.com',
+        message: '[Imagen]',
+        image: base64String,
+        date: 'Justo ahora',
+        status: 'read',
+        type: 'chat',
+        to: selectedUser || ''
+      });
+      fetchMessages();
+    };
+    reader.readAsDataURL(file);
   };
 
   // Group messages by user for the sidebar (exclude admin's own entries)
@@ -148,7 +170,11 @@ const AdminMessages = () => {
                           ? 'bg-accent text-white rounded-tr-none' 
                           : 'bg-white border border-black/5 text-gray-800 rounded-tl-none'
                       }`}>
-                        {msg.message}
+                        {msg.image ? (
+                          <img src={msg.image} className="max-w-xs rounded-lg shadow-sm" alt="Imagen enviada" />
+                        ) : (
+                          msg.message
+                        )}
                       </div>
                       <p className={`text-[9px] mt-1 text-muted-foreground px-1 ${msg.email === 'admin@alanissalon.com' ? 'text-right' : 'text-left'}`}>
                         {msg.date || 'Hoy'} {msg.status === 'read' && msg.email === 'admin@alanissalon.com' && '· Leído'}
@@ -161,9 +187,19 @@ const AdminMessages = () => {
               <div className="p-4 border-t border-border bg-white">
                 <div className="flex items-center gap-4 text-accent mb-3 px-1">
                   <Plus className="w-5 h-5 cursor-pointer hover:scale-110 transition-all" />
-                  <Camera className="w-5 h-5 cursor-pointer hover:scale-110 transition-all" />
-                  <ImageIcon className="w-5 h-5 cursor-pointer hover:scale-110 transition-all" />
+                  
+                  <label className="cursor-pointer hover:scale-110 transition-all">
+                    <Camera className="w-5 h-5" />
+                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+                  </label>
+
+                  <label className="cursor-pointer hover:scale-110 transition-all">
+                    <ImageIcon className="w-5 h-5" />
+                    <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                  </label>
+
                   <Mic className="w-5 h-5 cursor-pointer hover:scale-110 transition-all" />
+                  <Gift className="w-5 h-5 cursor-pointer hover:scale-110 transition-all" />
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 bg-muted rounded-full px-4 py-2.5 flex items-center gap-2 border border-black/5">

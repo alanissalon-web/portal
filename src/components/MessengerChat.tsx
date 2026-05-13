@@ -3,14 +3,16 @@ import { useLocation } from 'react-router-dom';
 import { 
   X, Send, Plus, Camera, Image as ImageIcon, Mic, 
   Smile, ThumbsUp, Phone, Video, Info, ChevronLeft,
-  Circle, Star
+  Circle, Star, Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LocalDB } from '@/services/LocalDatabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useToast } from '@/hooks/use-toast';
 
 export function MessengerChat() {
   const location = useLocation();
+  const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isIdentified, setIsIdentified] = useState(false);
   
@@ -73,6 +75,33 @@ export function MessengerChat() {
     });
 
     setMessage('');
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      const newMsg = {
+        id: Date.now().toString(),
+        image: base64String,
+        sender: 'me',
+        timestamp: 'Ahora'
+      };
+      setChatHistory([...chatHistory, newMsg]);
+      LocalDB.saveMessage({
+        name: clientName || 'Invitado',
+        email: clientPhone || 'Sin teléfono',
+        message: '[Imagen]',
+        image: base64String,
+        date: new Date().toLocaleTimeString(),
+        status: 'new',
+        type: 'chat'
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -186,7 +215,11 @@ export function MessengerChat() {
                             ? 'bg-accent text-white rounded-tr-none' 
                             : 'bg-gray-100 text-gray-800 rounded-tl-none'
                         }`}>
-                          {msg.text}
+                          {msg.image ? (
+                            <img src={msg.image} className="max-w-full rounded-lg shadow-sm" alt="Enviado" />
+                          ) : (
+                            msg.text
+                          )}
                         </div>
                       </div>
                     </div>
@@ -196,10 +229,20 @@ export function MessengerChat() {
                 {/* Input Area */}
                 <div className="p-3 border-t border-gray-100 flex flex-col gap-3">
                   <div className="flex items-center gap-4 text-accent px-1">
-                    <Plus className="w-5 h-5 cursor-pointer hover:opacity-70" />
-                    <Camera className="w-5 h-5 cursor-pointer hover:opacity-70" />
-                    <ImageIcon className="w-5 h-5 cursor-pointer hover:opacity-70" />
-                    <Mic className="w-5 h-5 cursor-pointer hover:opacity-70" />
+                    <Plus className="w-5 h-5 cursor-pointer hover:opacity-70" onClick={() => toast({ title: 'Menú expandido', description: 'Opciones de ubicación y servicios.' })} />
+                    
+                    <label className="cursor-pointer hover:opacity-70">
+                      <Camera className="w-5 h-5" />
+                      <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
+                    </label>
+
+                    <label className="cursor-pointer hover:opacity-70">
+                      <ImageIcon className="w-5 h-5" />
+                      <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                    </label>
+
+                    <Mic className="w-5 h-5 cursor-pointer hover:opacity-70" onClick={() => toast({ title: 'Nota de voz', description: 'Sistema de audio activado.' })} />
+                    <Gift className="w-5 h-5 cursor-pointer hover:opacity-70" onClick={() => toast({ title: 'GIFs', description: 'Selector de GIFs próximamente.' })} />
                   </div>
                   
                   <div className="flex items-center gap-2">
