@@ -3,6 +3,7 @@ import { MessageSquare, Search, Trash2, Mail, Phone, Clock, Loader2, Check, Send
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const AdminMessages = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -16,6 +17,7 @@ const AdminMessages = () => {
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [incomingCall, setIncomingCall] = useState<any>(null);
 
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isRecording, setIsRecording] = useState(false);
@@ -24,7 +26,13 @@ const AdminMessages = () => {
     const data = LocalDB.getMessages();
     setMessages(data);
     
-    // Auto-select first conversation only once
+    // Detect incoming call
+    const call = data.find((m: any) => m.type === 'call' && m.status === 'new');
+    if (call && (!incomingCall || incomingCall.id !== call.id)) {
+      setIncomingCall(call);
+    }
+
+    // Auto-select first conversation
     if (!selectedUser && data.length > 0) {
       const firstChat = data.find((m: any) => (m.type === 'chat' || !m.type) && m.name !== 'Alanís Salon');
       if (firstChat) setSelectedUser(firstChat.name);
@@ -311,6 +319,55 @@ const AdminMessages = () => {
           )}
         </div>
       </div>
+
+      {/* Incoming Call Overlay */}
+      <AnimatePresence>
+        {incomingCall && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-charcoal/95 flex flex-col items-center justify-center text-white backdrop-blur-md"
+          >
+            <div className="relative mb-12">
+              <motion.div 
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="w-32 h-32 bg-accent rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(var(--accent-rgb),0.5)]"
+              >
+                <Phone className="w-16 h-16 animate-bounce" />
+              </motion.div>
+              <div className="absolute inset-0 border-4 border-white/20 rounded-full animate-ping" />
+            </div>
+            
+            <h2 className="text-3xl font-display mb-2">Llamada Entrante</h2>
+            <p className="text-xl font-body opacity-80 mb-12">{incomingCall.name} · {incomingCall.email}</p>
+            
+            <div className="flex gap-8">
+              <button 
+                onClick={() => {
+                  LocalDB.updateMessageStatus(incomingCall.id, 'read');
+                  setIncomingCall(null);
+                  setSelectedUser(incomingCall.email);
+                  toast({ title: 'Llamada conectada', description: 'Ahora estás en línea con el cliente.' });
+                }}
+                className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-green-500/30"
+              >
+                <Check className="w-10 h-10" />
+              </button>
+              <button 
+                onClick={() => {
+                  LocalDB.deleteMessage(incomingCall.id);
+                  setIncomingCall(null);
+                }}
+                className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-red-500/30"
+              >
+                <CloseIcon className="w-10 h-10" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
