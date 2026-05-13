@@ -217,9 +217,9 @@ export const LocalDB = {
   getMessages: () => {
     const data = localStorage.getItem(STORAGE_KEYS.MESSAGES);
     return data ? JSON.parse(data) : [
-      { id: '1', name: 'Laura Garcia', email: 'l.garcia88@yahoo.com', phone: '+1 713-123-4567', message: 'Hola Rosie, me gustaría agendar una cita para Balayage y un tratamiento de hidratación profunda.', date: 'hace 2 horas', status: 'new' },
-      { id: '2', name: 'Carlos Ruiz', email: 'c.ruiz.salon@gmail.com', phone: '+1 281-987-6543', message: 'Buen día, ¿el curso de extensiones de queratina incluye certificación internacional?', date: 'hace 5 horas', status: 'read' },
-      { id: '3', name: 'Maria Jose Williams', email: 'mjwilliams@outlook.com', phone: '+1 832-555-0199', message: '¿Venden los productos de Oribe directamente en el salón o solo por la web?', date: 'ayer', status: 'new' },
+      { id: '1', name: 'Laura Garcia', email: 'l.garcia88@yahoo.com', phone: '+1 713-123-4567', message: 'Hola Rosie, me gustaría agendar una cita para Balayage.', date: 'hace 2 horas', status: 'new', type: 'form' },
+      { id: '2', name: 'Laura Garcia', email: 'user@example.com', phone: '', message: '¡Claro que sí! ¿Qué día te gustaría venir?', date: 'hace 1 hora', status: 'read', type: 'chat' },
+      { id: '3', name: 'Laura Garcia', email: 'l.garcia88@yahoo.com', phone: '', message: 'El próximo martes a las 4:00 PM si es posible.', date: 'hace 30 min', status: 'new', type: 'chat' },
     ];
   },
   saveMessage: (msg: any) => {
@@ -270,7 +270,7 @@ export const LocalDB = {
     return data ? JSON.parse(data) : {
       siteName: 'Alanís Salon & Spa',
       contactEmail: 'info@alanissalon.com',
-      phone: '+1 (713) 524-2610',
+      phone: '713-524-2610',
       address: 'Houston, TX'
     };
   },

@@ -43,7 +43,7 @@ export function SalonFooter() {
             <div className="space-y-3">
               <a href="tel:7135242610" className="flex items-center gap-2 font-body text-sm text-primary-foreground/50 hover:text-accent transition-colors">
                 <Phone className="w-4 h-4" />
-                (713) 524-2610
+                713-524-2610
               </a>
               <div className="flex items-center gap-2 font-body text-sm text-primary-foreground/50">
                 <MapPin className="w-4 h-4 flex-shrink-0" />

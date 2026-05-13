@@ -34,6 +34,8 @@ import { CustomCursor } from "@/components/CustomCursor";
 import { CMSProvider } from "@/contexts/CMSContext";
 import { VisualCMSBar } from "@/components/cms/VisualCMSBar";
 import { VisualSidebar } from "@/components/cms/VisualSidebar";
+import { MessengerChat } from "@/components/MessengerChat";
+import { NotificationManager } from "@/components/admin/NotificationManager";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +60,8 @@ const App = () => (
           <CMSProvider>
             <VisualCMSBar />
             <VisualSidebar />
+            <MessengerChat />
+            <NotificationManager />
             <Routes>
             {/* Public routes */}
             <Route path="/" element={<Index />} />

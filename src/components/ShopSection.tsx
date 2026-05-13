@@ -1,6 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldCheck } from 'lucide-react';
+import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldCheck, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
@@ -329,10 +329,10 @@ export function ShopSection() {
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <span className="font-display text-2xl font-medium text-foreground">${product.price}</span>
                   {product.amazon_url ? (
-                    <a href={product.amazon_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="gold" size="sm" className="gap-2">
-                        <ArrowRight className="w-4 h-4" />
-                        Amazon Link
+                    <a href={product.amazon_url} target="_blank" rel="noopener noreferrer" className="block">
+                      <Button variant="gold" size="sm" className="gap-2 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white border-none shadow-md">
+                        <ExternalLink className="w-4 h-4" />
+                        Buy on Amazon
                       </Button>
                     </a>
                   ) : (

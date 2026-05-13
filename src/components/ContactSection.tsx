@@ -1,6 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { Phone, MapPin, Clock, Instagram, Facebook, MessageCircle, Mail, ArrowRight, Send } from 'lucide-react';
+import { Phone, MapPin, Clock, Instagram, Facebook, MessageCircle, Mail, ArrowRight, Send, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import salonAmbienceImage from '@/assets/salon-ambience-real.jpg';
@@ -24,7 +24,8 @@ export function ContactSection() {
       subject: `Interest in ${formData.service || 'Salon Services'}`,
       message: formData.message,
       date: new Date().toISOString(),
-      status: 'unread'
+      status: 'unread',
+      type: 'form'
     });
 
     setFormSubmitted(true);
@@ -53,7 +54,7 @@ export function ContactSection() {
                 </div>
                 <div>
                   <p className="font-display text-sm font-medium text-foreground">Phone</p>
-                  <p className="font-body text-sm text-muted-foreground">(713) 524-2610</p>
+                  <p className="font-body text-sm text-muted-foreground">713-524-2610</p>
                 </div>
               </a>
               <a href="mailto:alanissalon@gmail.com" className="flex items-start gap-4 bg-cream rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
@@ -95,8 +96,8 @@ export function ContactSection() {
               <a href="https://www.facebook.com/alanissalon" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
                 <Facebook className="w-5 h-5 text-foreground/70" />
               </a>
-              <a href="https://wa.me/17135242610" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
-                <MessageCircle className="w-5 h-5 text-foreground/70" />
+              <a href="sms:17135242610" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
+                <MessageSquare className="w-5 h-5 text-foreground/70" />
               </a>
             </div>
 
@@ -192,10 +193,10 @@ export function ContactSection() {
                   Call Now
                 </Button>
               </a>
-              <a href="https://wa.me/17135242610" target="_blank" rel="noopener noreferrer" className="flex-1">
-                <Button variant="outline" size="lg" className="w-full">
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
+              <a href="sms:17135242610" className="flex-1">
+                <Button variant="outline" size="lg" className="w-full border-accent/20 text-accent">
+                  <MessageSquare className="w-4 h-4" />
+                  Text SMS
                 </Button>
               </a>
             </div>

@@ -100,7 +100,7 @@ export function SalonNavbar() {
                   className="rounded-full px-6"
                 >
                   <Phone className="w-3.5 h-3.5 mr-2" />
-                  (713) 524-2610
+                  713-524-2610
                 </Button>
               </a>
             </div>
