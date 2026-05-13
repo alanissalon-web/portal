@@ -48,6 +48,8 @@ export function MessengerChat() {
       setChatHistory(filtered.map((m: any) => ({
         id: m.id,
         text: m.message,
+        image: m.image,
+        voice: m.voice,
         sender: m.name === clientName ? 'me' : 'them',
         timestamp: m.date || 'Just now'
       })));
