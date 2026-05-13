@@ -18,7 +18,7 @@ const AdminMessages = () => {
     const data = LocalDB.getMessages();
     setMessages(data);
     if (!selectedUser && data.length > 0) {
-      const firstChat = data.find((m: any) => m.type === 'chat' || !m.type);
+      const firstChat = data.find((m: any) => (m.type === 'chat' || !m.type) && m.name !== 'Alanís Salon');
       if (firstChat) setSelectedUser(firstChat.name);
     }
     setLoading(false);
@@ -172,6 +172,18 @@ const AdminMessages = () => {
                       }`}>
                         {msg.image ? (
                           <img src={msg.image} className="max-w-xs rounded-lg shadow-sm" alt="Imagen enviada" />
+                        ) : msg.voice ? (
+                          <div className="flex items-center gap-3 py-1 text-inherit">
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                              <div className="w-3 h-3 bg-white rounded-sm" />
+                            </div>
+                            <div className="flex gap-0.5 items-center">
+                              {[...Array(15)].map((_, i) => (
+                                <div key={i} className="w-1 bg-white/40 rounded-full" style={{ height: `${Math.random() * 20 + 5}px` }} />
+                              ))}
+                            </div>
+                            <span className="text-[10px] opacity-80">0:15</span>
+                          </div>
                         ) : (
                           msg.message
                         )}

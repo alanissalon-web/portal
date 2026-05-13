@@ -15,6 +15,9 @@ export function MessengerChat() {
   const { toast } = useToast();
   const [isOpen, setIsOpen] = useState(false);
   const [isIdentified, setIsIdentified] = useState(false);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   
   if (location.pathname.startsWith('/admin')) return null;
 
@@ -23,6 +26,16 @@ export function MessengerChat() {
   const [message, setMessage] = useState('');
   const [chatHistory, setChatHistory] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => setRecordingTime(prev => prev + 1), 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
 
   useEffect(() => {
     const fetchChat = () => {
@@ -46,6 +59,16 @@ export function MessengerChat() {
       return () => clearInterval(interval);
     }
   }, [isOpen, isIdentified, clientName]);
+
+  useEffect(() => {
+    let interval: any;
+    if (isRecording) {
+      interval = setInterval(() => setRecordingTime(prev => prev + 1), 1000);
+    } else {
+      setRecordingTime(0);
+    }
+    return () => clearInterval(interval);
+  }, [isRecording]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -216,7 +239,19 @@ export function MessengerChat() {
                             : 'bg-gray-100 text-gray-800 rounded-tl-none'
                         }`}>
                           {msg.image ? (
-                            <img src={msg.image} className="max-w-full rounded-lg shadow-sm" alt="Enviado" />
+                            <img src={msg.image} className="max-w-full rounded-lg shadow-sm" alt="Contenido" />
+                          ) : msg.voice ? (
+                            <div className="flex items-center gap-3 py-1">
+                              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                <Send className="w-4 h-4 fill-white" />
+                              </div>
+                              <div className="flex gap-0.5 items-center">
+                                {[...Array(12)].map((_, i) => (
+                                  <div key={i} className="w-1 bg-white/40 rounded-full" style={{ height: `${Math.random() * 15 + 5}px` }} />
+                                ))}
+                              </div>
+                              <span className="text-[10px] opacity-80">0:12</span>
+                            </div>
                           ) : (
                             msg.text
                           )}
@@ -241,9 +276,71 @@ export function MessengerChat() {
                       <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
                     </label>
 
-                    <Mic className="w-5 h-5 cursor-pointer hover:opacity-70" onClick={() => toast({ title: 'Nota de voz', description: 'Sistema de audio activado.' })} />
-                    <Gift className="w-5 h-5 cursor-pointer hover:opacity-70" onClick={() => toast({ title: 'GIFs', description: 'Selector de GIFs próximamente.' })} />
+                    <Mic className={`w-5 h-5 cursor-pointer hover:opacity-70 ${isRecording ? 'text-red-500 animate-pulse' : ''}`} onClick={() => setIsRecording(!isRecording)} />
+                    <Gift className={`w-5 h-5 cursor-pointer hover:opacity-70 ${showGifPicker ? 'text-accent' : ''}`} onClick={() => setShowGifPicker(!showGifPicker)} />
                   </div>
+
+                  {isRecording && (
+                    <div className="bg-red-50 p-3 rounded-xl border border-red-100 flex items-center justify-between animate-in slide-in-from-bottom-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-red-500 rounded-full animate-ping" />
+                        <span className="text-xs font-medium text-red-600">Grabando... {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, '0')}</span>
+                      </div>
+                      <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-600 hover:bg-red-100 h-8 rounded-lg"
+                        onClick={() => {
+                          const newMsg = { id: Date.now().toString(), voice: true, sender: 'me', timestamp: 'Ahora' };
+                          setChatHistory([...chatHistory, newMsg]);
+                          LocalDB.saveMessage({
+                            name: clientName || 'Invitado',
+                            email: clientPhone || 'Sin teléfono',
+                            message: '[Nota de voz]',
+                            voice: true,
+                            date: new Date().toLocaleTimeString(),
+                            status: 'new',
+                            type: 'chat'
+                          });
+                          setIsRecording(false);
+                        }}
+                      >
+                        Enviar
+                      </Button>
+                    </div>
+                  )}
+
+                  {showGifPicker && (
+                    <div className="grid grid-cols-3 gap-2 bg-gray-50 p-2 rounded-xl border border-gray-200 h-32 overflow-y-auto">
+                      {[
+                        'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6B8Z9F6w/giphy.gif',
+                        'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l0HlIDZ4k6vG4C98c/giphy.gif',
+                        'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKVUn7iM8FMEU24/giphy.gif',
+                        'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/l41lTfhuXbHhGjZsc/giphy.gif',
+                        'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHJmZzR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6NHR6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1n/3o7TKMGpxx6B8Z9F6w/giphy.gif'
+                      ].map((url, i) => (
+                        <img 
+                          key={i} 
+                          src={url} 
+                          className="w-full h-20 object-cover rounded-lg cursor-pointer hover:scale-105 transition-transform" 
+                          onClick={() => {
+                            const newMsg = { id: Date.now().toString(), image: url, sender: 'me', timestamp: 'Ahora' };
+                            setChatHistory([...chatHistory, newMsg]);
+                            LocalDB.saveMessage({
+                              name: clientName || 'Invitado',
+                              email: clientPhone || 'Sin teléfono',
+                              message: '[GIF]',
+                              image: url,
+                              date: new Date().toLocaleTimeString(),
+                              status: 'new',
+                              type: 'chat'
+                            });
+                            setShowGifPicker(false);
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
                   
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-gray-100 rounded-full px-4 py-2 flex items-center gap-2">
