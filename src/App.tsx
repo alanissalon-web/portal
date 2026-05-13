@@ -24,6 +24,7 @@ import AdminCourses from "./pages/admin/AdminCourses.tsx";
 import AdminProducts from "./pages/admin/AdminProducts.tsx";
 import AdminContent from "./pages/admin/AdminContent.tsx";
 import AdminWaitlist from "./pages/admin/AdminWaitlist.tsx";
+import AdminMedia from "./pages/admin/AdminMedia.tsx";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { CustomCursor } from "@/components/CustomCursor";
 import { CMSProvider } from "@/contexts/CMSContext";
@@ -73,6 +74,7 @@ const App = () => (
               <Route path="products" element={<AdminProducts />} />
               <Route path="content" element={<AdminContent />} />
               <Route path="waitlist" element={<AdminWaitlist />} />
+              <Route path="media" element={<AdminMedia />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />
