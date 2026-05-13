@@ -14,21 +14,22 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+import { LocalDB } from '@/services/LocalDatabase';
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ courses: 0, products: 0, waitlist: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      const [courses, products, waitlist] = await Promise.all([
-        supabase.from('courses').select('id', { count: 'exact', head: true }),
-        supabase.from('products').select('id', { count: 'exact', head: true }),
-        supabase.from('waitlist').select('id', { count: 'exact', head: true }),
-      ]);
+    const fetchStats = () => {
+      const courses = LocalDB.getCourses();
+      const products = LocalDB.getProducts();
+      const waitlist = LocalDB.getWaitlist();
+      
       setStats({
-        courses: courses.count ?? 0,
-        products: products.count ?? 0,
-        waitlist: waitlist.count ?? 0,
+        courses: courses.length,
+        products: products.length,
+        waitlist: waitlist.length,
       });
       setLoading(false);
     };

@@ -1,6 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import type { User } from '@supabase/supabase-js';
+import { LocalDB } from '@/services/LocalDatabase';
+
+interface User {
+  email: string;
+}
 
 interface AdminAuthContextType {
   user: User | null;
@@ -27,50 +30,26 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const checkAdmin = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .eq('role', 'admin')
-      .maybeSingle();
-    return !!data;
-  };
-
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        const admin = await checkAdmin(currentUser.id);
-        setIsAdmin(admin);
-      } else {
-        setIsAdmin(false);
-      }
-      setLoading(false);
-    });
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      if (currentUser) {
-        const admin = await checkAdmin(currentUser.id);
-        setIsAdmin(admin);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    const session = LocalDB.getSession();
+    if (session) {
+      setUser(session.user);
+      setIsAdmin(session.isAdmin);
+    }
+    setLoading(false);
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) return { error: error.message };
+    const { data, error } = LocalDB.login(email, password);
+    if (error) return { error };
+    
+    setUser(data.user);
+    setIsAdmin(data.isAdmin);
     return { error: null };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    LocalDB.logout();
     setUser(null);
     setIsAdmin(false);
   };

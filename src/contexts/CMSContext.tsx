@@ -1,55 +1,98 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { LocalDB } from '@/services/LocalDatabase';
+import { useToast } from '@/hooks/use-toast';
+
+interface SectionContent {
+  [key: string]: any;
+}
 
 interface CMSContextType {
-  content: Record<string, any>;
-  updateContent: (key: string, value: any) => void;
-  saveContent: (key: string) => Promise<void>;
   isEditing: boolean;
-  setIsEditing: (value: boolean) => void;
+  setIsEditing: (val: boolean) => void;
+  content: Record<string, SectionContent>;
+  updateContent: (sectionKey: string, field: string, value: any) => void;
+  saveChanges: () => Promise<void>;
+  addSection: (sectionType: string) => void;
+  removeSection: (index: number) => void;
+  reorderSections: (from: number, to: number) => void;
+  layout: string[];
 }
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
-export const CMSProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [content, setContent] = useState<Record<string, any>>({});
+export function CMSProvider({ children }: { children: ReactNode }) {
   const [isEditing, setIsEditing] = useState(false);
+  const [content, setContent] = useState<Record<string, SectionContent>>({});
+  const [layout, setLayout] = useState<string[]>(['hero', 'booking', 'about', 'services', 'transformations', 'experience', 'cta']);
+  const { toast } = useToast();
 
   useEffect(() => {
-    const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('*');
-      if (data) {
-        const map: Record<string, any> = {};
-        data.forEach(row => {
-          map[row.section_key] = row.content;
-        });
-        setContent(map);
-      }
-    };
-    fetchContent();
+    const data = LocalDB.getContent();
+    const map: Record<string, SectionContent> = {};
+    const layoutOrder: string[] = [];
+    
+    data.forEach((row: any) => {
+      map[row.section_key] = row.content;
+      layoutOrder.push(row.section_key);
+    });
+
+    if (Object.keys(map).length > 0) {
+      setContent(map);
+      setLayout(layoutOrder);
+    }
   }, []);
 
-  const updateContent = (key: string, value: any) => {
-    setContent(prev => ({ ...prev, [key]: value }));
+  const updateContent = (sectionKey: string, field: string, value: any) => {
+    setContent(prev => ({
+      ...prev,
+      [sectionKey]: { ...(prev[sectionKey] || {}), [field]: value }
+    }));
   };
 
-  const saveContent = async (key: string) => {
-    const sectionContent = content[key];
-    const { data: existing } = await supabase.from('site_content').select('id').eq('section_key', key).maybeSingle();
-
-    if (existing) {
-      await supabase.from('site_content').update({ content: sectionContent }).eq('section_key', key);
-    } else {
-      await supabase.from('site_content').insert([{ section_key: key, content: sectionContent }]);
+  const saveChanges = async () => {
+    try {
+      // Save each section to local DB
+      Object.entries(content).forEach(([key, val]) => {
+        LocalDB.saveContent(key, val);
+      });
+      
+      toast({ title: '¡Cambios Guardados!', description: 'El contenido se ha actualizado localmente.' });
+      setIsEditing(false);
+    } catch (err) {
+      toast({ title: 'Error', description: 'No se pudo guardar los cambios.', variant: 'destructive' });
     }
   };
 
+  const addSection = (type: string) => {
+    const newKey = `${type}_${Date.now()}`;
+    setLayout(prev => [...prev, newKey]);
+    setContent(prev => ({ ...prev, [newKey]: {} }));
+  };
+
+  const removeSection = (index: number) => {
+    const newLayout = [...layout];
+    const keyToRemove = newLayout[index];
+    newLayout.splice(index, 1);
+    setLayout(newLayout);
+    // Optional: remove from content state too
+  };
+
+  const reorderSections = (from: number, to: number) => {
+    const newLayout = [...layout];
+    const [moved] = newLayout.splice(from, 1);
+    newLayout.splice(to, 0, moved);
+    setLayout(newLayout);
+  };
+
   return (
-    <CMSContext.Provider value={{ content, updateContent, saveContent, isEditing, setIsEditing }}>
+    <CMSContext.Provider value={{ 
+      isEditing, setIsEditing, content, updateContent, saveChanges, 
+      addSection, removeSection, reorderSections, layout 
+    }}>
       {children}
     </CMSContext.Provider>
   );
-};
+}
 
 export const useCMS = () => {
   const context = useContext(CMSContext);
