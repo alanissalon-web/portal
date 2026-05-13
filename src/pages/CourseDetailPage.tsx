@@ -70,6 +70,8 @@ const curriculum = [
   { module: 'Module 5', title: 'Business & Marketing', lessons: 3, duration: '30 min' },
 ];
 
+import { LocalDB } from '@/services/LocalDatabase';
+
 const CourseDetailPage = () => {
   const { courseId } = useParams();
   const { ref, isVisible } = useScrollReveal();
@@ -80,39 +82,26 @@ const CourseDetailPage = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        // Try DB first
-        const { data, error } = await supabase.from('courses').select('*').eq('id', courseId).single();
-        if (data && !error) {
-          setCourse({
-            id: data.id,
-            title: data.title,
-            type: data.type === 'on-demand' ? 'On-Demand' : 'Live',
-            duration: data.duration || '2 hours',
-            level: data.level || 'All Levels',
-            image: data.image_url || '',
-            description: data.description || '',
-            topics: data.topics || [],
-            price: `$${data.price}`,
-            badge: data.badge,
-            meetLink: data.meet_link,
-          });
-        } else {
-          // Fallback to static
-          const slug = courseId || '';
-          const found = fallbackCourses.find(c => c.id === slug);
-          setCourse(found || null);
-        }
-      } catch (error) {
-        console.error('Error fetching course:', error);
-        // Fallback to static on error
-        const slug = courseId || '';
-        const found = fallbackCourses.find(c => c.id === slug);
-        setCourse(found || null);
-      } finally {
-        setLoading(false);
+    const fetchCourse = () => {
+      const allCourses = LocalDB.getCourses();
+      const data = allCourses.find((c: any) => c.id === courseId);
+      
+      if (data) {
+        setCourse({
+          id: data.id,
+          title: data.title,
+          type: data.type === 'on-demand' ? 'On-Demand' : 'Live',
+          duration: data.duration || '2 hours',
+          level: data.level || 'All Levels',
+          image: data.image_url || '',
+          description: data.description || '',
+          topics: data.topics || [],
+          price: `$${data.price}`,
+          badge: data.badge,
+          meetLink: data.meet_link,
+        });
       }
+      setLoading(false);
     };
     fetchCourse();
   }, [courseId]);
@@ -120,9 +109,9 @@ const CourseDetailPage = () => {
   const handleWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    await supabase.from('waitlist').insert([{ email, source: `course-${courseId}` }]);
+    LocalDB.addToWaitlist(email, `course-${courseId}`);
     setSubmitted(true);
-    toast({ title: "You're on the list!", description: "We'll notify you when this course launches." });
+    toast({ title: "¡Ya estás en la lista!", description: "Te notificaremos cuando el curso esté disponible." });
     setEmail('');
   };
 

@@ -13,8 +13,30 @@ const STORAGE_KEYS = {
 
 // Initial Data to seed the local database
 const INITIAL_CONTENT = [
-  { section_key: 'hero', content: { title: 'Elevate your hair, elevate your soul', subtitle: 'Experience luxury hair care and styling at Houston\'s premier salon.' } },
-  { section_key: 'services', content: { badge: 'Our Services', title: 'Every service, a premium experience' } },
+  { 
+    section_key: 'hero', 
+    content: { 
+      title: 'Expertos en Extensiones y Cuidado Capilar de Lujo', 
+      subtitle: 'Transformamos tu cabello con las mejores técnicas del mundo. Especialistas en extensiones de queratina y balayage avanzado en Houston, TX.',
+      cta_text: 'Reservar Cita'
+    } 
+  },
+  { 
+    section_key: 'about', 
+    content: { 
+      title: 'Nuestra Filosofía', 
+      description: 'En Alanís Salon & Spa, creemos que tu cabello es el reflejo de tu alma. Liderados por Rosie Alanís, nuestro equipo combina años de experiencia internacional con las técnicas más innovadoras de la industria.',
+      mission: 'Nuestra misión es empoderar a cada cliente a través de una transformación personalizada, utilizando solo productos de la más alta gama.'
+    } 
+  },
+  { 
+    section_key: 'services', 
+    content: { 
+      badge: 'Experiencia Alanís', 
+      title: 'Servicios Exclusivos para un Cabello Radiante',
+      subtitle: 'Desde aplicaciones de extensiones Great Lengths hasta correcciones de color complejas.'
+    } 
+  },
 ];
 
 const generateId = () => {
@@ -72,8 +94,8 @@ export const LocalDB = {
     const data = localStorage.getItem(STORAGE_KEYS.COURSES);
     return data ? JSON.parse(data) : [
       { id: 'extensions-masterclass', title: 'Master en Extensiones de Queratina', type: 'on-demand', duration: '8 horas', level: 'Intermedio', image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', description: 'Aprende la técnica de fusión en frío y caliente de Great Lengths.', topics: ['Fusión de Queratina', 'Corte de Mezcla', 'Color Matching'], price: 499, badge: 'Certificado', status: 'published' },
-      { id: 'color-balayage', title: 'Ciencia del Color y Balayage 2024', type: 'on-demand', duration: '5 horas', level: 'Avanzado', image_url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', description: 'Técnicas de difuminado y formulación avanzada para rubios perfectos.', topics: ['Formulación', 'Seccionamiento', 'Tonalización'], price: 299, badge: 'Top Ventas', status: 'published' },
-      { id: 'hair-loss', title: 'Soluciones para la Pérdida de Cabello', type: 'on-demand', duration: '4 horas', level: 'Todos los niveles', image_url: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=600&q=80', description: 'Implementa prótesis capilares y soluciones no quirúrgicas.', topics: ['Análisis de Cuero Cabelludo', 'Micro Point', 'Prótesis'], price: 199, status: 'published' },
+      { id: 'color-science-balayage', title: 'Ciencia del Color y Balayage 2024', type: 'on-demand', duration: '5 horas', level: 'Avanzado', image_url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', description: 'Técnicas de difuminado y formulación avanzada para rubios perfectos.', topics: ['Formulación', 'Seccionamiento', 'Tonalización'], price: 299, badge: 'Top Ventas', status: 'published' },
+      { id: 'hair-loss-solutions', title: 'Soluciones para la Pérdida de Cabello', type: 'on-demand', duration: '4 horas', level: 'Todos los niveles', image_url: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=600&q=80', description: 'Implementa prótesis capilares y soluciones no quirúrgicas.', topics: ['Análisis de Cuero Cabelludo', 'Micro Point', 'Prótesis'], price: 199, status: 'published' },
     ];
   },
   saveCourse: (course: any) => {
@@ -82,7 +104,7 @@ export const LocalDB = {
     if (index > -1) {
       courses[index] = course;
     } else {
-      courses.push({ ...course, id: generateId() });
+      courses.push({ ...course, id: course.id || generateId() });
     }
     localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
   },

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { ImagePlus, Link as LinkIcon, X, Image as ImageIcon, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { LocalDB } from '@/services/LocalDatabase';
 
 interface EditableImageProps {
   section: string;
@@ -26,6 +27,16 @@ export const EditableImage: React.FC<EditableImageProps> = ({
 
   const handleSave = () => {
     updateContent(section, field, tempUrl);
+    
+    // Si es una imagen nueva (Base64), la guardamos en la galería central
+    if (tempUrl.startsWith('data:image')) {
+      LocalDB.saveMedia({
+        name: `upload-${Date.now()}.png`,
+        size: 'Auto',
+        type: 'image/png',
+        url: tempUrl
+      });
+    }
   };
 
   if (!isEditing) {
