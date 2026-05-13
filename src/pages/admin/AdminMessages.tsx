@@ -13,6 +13,10 @@ const AdminMessages = () => {
   const { toast } = useToast();
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isRecording, setIsRecording] = useState(false);
 
@@ -105,6 +109,21 @@ const AdminMessages = () => {
     if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
+    }
+  };
+
+  const handleAudioPlayback = (id: string, audioUrl: string) => {
+    if (playingId === id) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+    } else {
+      if (audioRef.current) audioRef.current.pause();
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      setPlayingId(id);
+      audio.ontimeupdate = () => setAudioProgress((audio.currentTime / audio.duration) * 100);
+      audio.onended = () => { setPlayingId(null); setAudioProgress(0); };
+      audio.play().catch(() => toast({ title: 'Error', description: 'No se pudo reproducir.' }));
     }
   };
 
@@ -216,36 +235,45 @@ const AdminMessages = () => {
                         {msg.image ? (
                           <img src={msg.image} className="max-w-xs rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform" onClick={() => window.open(msg.image)} />
                         ) : msg.voice ? (
-                          <div className="flex items-center gap-3 py-1 min-w-[200px]">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
-                                  toast({ title: 'Audio antiguo', description: 'Este mensaje es de una versión anterior sin sonido real. Por favor graba uno nuevo.' });
-                                  return;
-                                }
-                                const audio = new Audio(msg.voice);
-                                audio.play().catch(err => toast({ title: 'Error de audio', description: 'No se pudo reproducir la nota de voz.' }));
-                              }} 
-                              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-90 ${
-                                msg.email === 'admin@alanissalon.com' ? 'bg-white/20 hover:bg-white/30' : 'bg-accent/10 hover:bg-accent/20 text-accent'
-                              }`}
-                            >
-                              <div className={`w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-b-[6px] border-b-transparent ml-1 ${
-                                msg.email === 'admin@alanissalon.com' ? 'border-l-white' : 'border-l-accent'
-                              }`} />
-                            </button>
-                            <div className="flex-1">
-                              <div className="flex gap-0.5 items-center mb-1">
-                                {[...Array(15)].map((_, i) => (
-                                  <div key={i} className={`w-1 rounded-full h-3 ${
-                                    msg.email === 'admin@alanissalon.com' ? 'bg-white/40' : 'bg-accent/20'
+                          <div className="flex flex-col gap-2 min-w-[220px]">
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
+                                    toast({ title: 'Audio antiguo', description: 'Sin sonido real.' });
+                                    return;
+                                  }
+                                  handleAudioPlayback(msg.id, msg.voice);
+                                }} 
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                                  msg.email === 'admin@alanissalon.com' ? 'bg-white/20' : 'bg-accent/10 text-accent'
+                                }`}
+                              >
+                                {playingId === msg.id ? (
+                                  <div className="flex gap-1">
+                                    <div className={`w-1 h-3 rounded-full ${msg.email === 'admin@alanissalon.com' ? 'bg-white' : 'bg-accent'}`} />
+                                    <div className={`w-1 h-3 rounded-full ${msg.email === 'admin@alanissalon.com' ? 'bg-white' : 'bg-accent'}`} />
+                                  </div>
+                                ) : (
+                                  <div className={`w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-b-[6px] border-b-transparent ml-1 ${
+                                    msg.email === 'admin@alanissalon.com' ? 'border-l-white' : 'border-l-accent'
                                   }`} />
-                                ))}
+                                )}
+                              </button>
+                              <div className="flex-1 space-y-1">
+                                <div className="h-1 w-full bg-black/10 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    className={`h-full ${msg.email === 'admin@alanissalon.com' ? 'bg-white' : 'bg-accent'}`}
+                                    animate={{ width: playingId === msg.id ? `${audioProgress}%` : '0%' }}
+                                    transition={{ duration: 0.1 }}
+                                  />
+                                </div>
+                                <div className="flex justify-between text-[10px] opacity-70">
+                                  <span>{playingId === msg.id ? 'Reproduciendo...' : 'Mensaje de voz'}</span>
+                                  <span>{msg.date || '0:15'}</span>
+                                </div>
                               </div>
-                              <p className={`text-[10px] font-medium ${
-                                msg.email === 'admin@alanissalon.com' ? 'text-white/70' : 'text-accent'
-                              }`}>Nota de voz • Reproducir</p>
                             </div>
                           </div>
                         ) : (
