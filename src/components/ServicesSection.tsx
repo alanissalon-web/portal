@@ -7,6 +7,7 @@ import serviceCut from '@/assets/service-cut.jpg';
 import serviceTreatment from '@/assets/service-treatment.jpg';
 import transformation1 from '@/assets/transformation-1.jpg';
 import { EditableText } from './cms/EditableText';
+import { EditableImage } from './cms/EditableImage';
 
 const services = [
   {
@@ -61,24 +62,27 @@ export function ServicesSection() {
               style={{ animationDelay: `${(i + 1) * 120}ms` }}
             >
               <div className="aspect-[4/3] overflow-hidden">
-                <img
-                  src={service.image}
+                <EditableImage
+                  section="services"
+                  field={`service_${i}_image`}
+                  defaultImage={service.image}
                   alt={service.title}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                  loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               </div>
               <div className="p-6 md:p-8">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-display text-2xl font-medium text-foreground">
-                    {service.title}
+                    <EditableText section="services" field={`service_${i}_title`} defaultText={service.title} as="span" />
                   </h3>
-                  <span className="font-body text-sm text-accent font-medium bg-accent/10 px-3 py-1 rounded-full">{service.price}</span>
+                  <span className="font-body text-sm text-accent font-medium bg-accent/10 px-3 py-1 rounded-full">
+                    <EditableText section="services" field={`service_${i}_price`} defaultText={service.price} as="span" />
+                  </span>
                 </div>
-                <p className="font-body text-muted-foreground text-sm leading-relaxed mb-5 text-pretty">
-                  {service.description}
-                </p>
+                <div className="font-body text-muted-foreground text-sm leading-relaxed mb-5 text-pretty">
+                  <EditableText section="services" field={`service_${i}_description`} defaultText={service.description} />
+                </div>
                 <Link to="/services">
                   <Button variant="outline" size="sm" className="group/btn">
                     Learn More

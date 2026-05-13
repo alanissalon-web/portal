@@ -3,6 +3,7 @@ import { Award, Calendar, Heart, Users, Sparkles } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import salonLoungeImage from '@/assets/salon-lounge-real.jpg';
 import { EditableText } from './cms/EditableText';
+import { EditableImage } from './cms/EditableImage';
 
 function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: string }) {
   const [count, setCount] = useState(0);
@@ -84,11 +85,12 @@ export function AboutSection() {
 
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
             <div className="rounded-2xl overflow-hidden shadow-2xl shadow-foreground/10 group aspect-[4/3] lg:aspect-auto lg:h-[500px]">
-              <img
-                src={salonLoungeImage}
+              <EditableImage
+                section="about"
+                field="image"
+                defaultImage={salonLoungeImage}
                 alt="Luxury lounge area inside Alanís Salon"
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                loading="lazy"
               />
             </div>
             <div className="space-y-6">
@@ -144,20 +146,25 @@ export function AboutSection() {
               style={{ animationDelay: `${500 + i * 150}ms` }}
             >
               <div className="relative w-48 h-48 mx-auto mb-6 rounded-full overflow-hidden shadow-lg shadow-foreground/5 group-hover:shadow-xl transition-all duration-500">
-                <img
-                  src={member.image}
+                <EditableImage
+                  section="about"
+                  field={`team_${i}_image`}
+                  defaultImage={member.image}
                   alt={member.name}
                   className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 rounded-full ring-2 ring-inset ring-accent/20 group-hover:ring-accent/40 transition-all duration-500" />
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               </div>
-              <h4 className="font-display text-xl font-medium text-foreground">{member.name}</h4>
-              <p className="font-body text-xs uppercase tracking-wider text-accent mt-1 mb-3">{member.role}</p>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed text-pretty max-w-xs mx-auto">
-                {member.bio}
+              <h4 className="font-display text-xl font-medium text-foreground">
+                <EditableText section="about" field={`team_${i}_name`} defaultText={member.name} as="span" />
+              </h4>
+              <p className="font-body text-xs uppercase tracking-wider text-accent mt-1 mb-3">
+                <EditableText section="about" field={`team_${i}_role`} defaultText={member.role} as="span" />
               </p>
+              <div className="font-body text-sm text-muted-foreground leading-relaxed text-pretty max-w-xs mx-auto">
+                <EditableText section="about" field={`team_${i}_bio`} defaultText={member.bio} />
+              </div>
             </div>
           ))}
         </div>
