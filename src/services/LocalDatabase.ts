@@ -81,6 +81,7 @@ export const LocalDB = {
       { id: 'p3', name: 'Gold Lust Oil', brand: 'Oribe', price: 56, image_url: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&q=80', category: 'Treatment', description: 'Aceite nutritivo que aporta brillo instantáneo sin dejar residuos grasos.', rating: 5, stock: 15, status: 'active' },
       { id: 'p4', name: 'Silver Brightening Shampoo', brand: 'Wella Professionals', price: 34, image_url: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=600&q=80', category: 'Shampoo', description: 'Elimina tonos amarillentos en cabellos rubios y canosos.', rating: 4, stock: 20, status: 'active' },
       { id: 'p5', name: 'Dry Texturizing Spray', brand: 'Oribe', price: 49, image_url: 'https://images.unsplash.com/photo-1585232004423-244e0e6904e3?w=600&q=80', category: 'Styling', description: 'El spray favorito de los estilistas para volumen y textura duradera.', rating: 5, badge: 'Iconic', stock: 10, status: 'active' },
+      { id: 'p6', name: 'Premium Hair Dryer', brand: 'Dyson', price: 429, image_url: 'https://images.unsplash.com/photo-1522338242992-e1a54906a8da?w=600&q=80', category: 'Productos en Amazon', description: 'Secador de pelo profesional de alta velocidad. Encuéntralo en nuestra tienda oficial de Amazon.', rating: 5, badge: 'Amazon Choice', stock: 0, status: 'active', amazon_url: 'https://amazon.com' },
     ];
   },
   saveProduct: (product: any) => {

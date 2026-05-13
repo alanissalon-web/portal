@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Save, X, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save, X, Upload, Wand2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type Product = {
@@ -21,6 +21,7 @@ type Product = {
 const empty = {
   name: '', brand: '', price: 0, image_url: '', category: '',
   description: '', rating: 5, badge: '', stock: 0, status: 'active',
+  amazon_url: '',
 };
 
 import { LocalDB } from '@/services/LocalDatabase';
@@ -44,7 +45,8 @@ const AdminProducts = () => {
     setCreating(false); setEditing(p);
     setForm({ name: p.name, brand: p.brand ?? '', price: p.price, image_url: p.image_url ?? '',
       category: p.category ?? '', description: p.description ?? '', rating: p.rating ?? 5,
-      badge: p.badge ?? '', stock: p.stock ?? 0, status: p.status });
+      badge: p.badge ?? '', stock: p.stock ?? 0, status: p.status, 
+      amazon_url: (p as any).amazon_url ?? '' });
   };
   const cancel = () => { setCreating(false); setEditing(null); };
 
@@ -110,7 +112,45 @@ const AdminProducts = () => {
                 <option>Kit</option>
                 <option>Scalp Care</option>
                 <option>Styling</option>
+                <option>Productos en Amazon</option>
               </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="font-body text-xs text-muted-foreground block mb-1">Amazon Link (Marketplace)</label>
+              <div className="flex gap-2">
+                <input value={form.amazon_url} onChange={e => setForm(p => ({ ...p, amazon_url: e.target.value }))}
+                  placeholder="https://www.amazon.com/dp/B0..."
+                  className="flex-1 bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  className="gap-2 bg-accent/5 border-accent/20 text-accent hover:bg-accent/10"
+                  onClick={() => {
+                    if (!form.amazon_url) return;
+                    // Mock Scraping / URL Parsing Logic
+                    try {
+                      const url = new URL(form.amazon_url);
+                      const parts = url.pathname.split('/');
+                      const namePart = parts.find(p => p.length > 10 && !p.includes('dp'));
+                      if (namePart) {
+                        const cleanName = namePart.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        setForm(prev => ({ 
+                          ...prev, 
+                          name: cleanName.substring(0, 50), 
+                          category: 'Productos en Amazon',
+                          badge: 'Amazon Prime'
+                        }));
+                        toast({ title: '¡Datos detectados!', description: 'Hemos completado el título y categoría automáticamente.' });
+                      }
+                    } catch (e) {
+                      toast({ variant: 'destructive', title: 'URL Inválida', description: 'Asegúrate de copiar el link completo de Amazon.' });
+                    }
+                  }}
+                >
+                  <Wand2 className="w-4 h-4" />
+                  Magic Fill
+                </Button>
+              </div>
             </div>
             <div>
               <label className="font-body text-xs text-muted-foreground block mb-1">Stock</label>

@@ -15,6 +15,7 @@ interface Product {
   description: string;
   rating: number;
   badge?: string;
+  amazon_url?: string;
 }
 
 const products: Product[] = [
@@ -145,6 +146,7 @@ export function ShopSection() {
           description: p.description || '',
           rating: p.rating || 5,
           badge: p.badge || undefined,
+          amazon_url: p.amazon_url || undefined,
         })));
       }
       setLoading(false);
@@ -326,10 +328,19 @@ export function ShopSection() {
                 </div>
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <span className="font-display text-2xl font-medium text-foreground">${product.price}</span>
-                  <Button variant="default" size="sm" onClick={() => addToCart(product)}>
-                    <ShoppingBag className="w-4 h-4" />
-                    Add to Cart
-                  </Button>
+                  {product.amazon_url ? (
+                    <a href={product.amazon_url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="gold" size="sm" className="gap-2">
+                        <ArrowRight className="w-4 h-4" />
+                        Amazon Link
+                      </Button>
+                    </a>
+                  ) : (
+                    <Button variant="default" size="sm" onClick={() => addToCart(product)}>
+                      <ShoppingBag className="w-4 h-4" />
+                      Add to Cart
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
