@@ -46,11 +46,12 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <SalonNavbar />
-      {sections.map((section: any) => {
+      {sections.map((section: any, index: number) => {
+        if (!section || !section.id) return null;
         // Extract base component name from ID (e.g., "hero-123" -> "hero")
         const baseId = section.id.split('-')[0];
         const Component = sectionComponents[baseId];
-        return Component ? <Component key={section.id} /> : null;
+        return Component ? <Component key={section.id || index} /> : null;
       })}
       <SalonFooter />
       <WhatsAppFloat />

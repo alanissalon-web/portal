@@ -1,113 +1,146 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Save, CheckCircle } from 'lucide-react';
+import { Save, Layout, Globe, ArrowRight, Eye, RefreshCw, Palette, Settings } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
-interface SectionContent {
-  [key: string]: string;
-}
-
-const sections = [
-  { key: 'hero', label: 'Hero Section', fields: ['title', 'subtitle', 'cta_text'] },
-  { key: 'about', label: 'About Section', fields: ['title', 'description', 'mission'] },
-  { key: 'services', label: 'Services Section', fields: ['title', 'subtitle'] },
-  { key: 'extensions', label: 'Extensions Section', fields: ['title', 'subtitle'] },
-  { key: 'contact', label: 'Contact Section', fields: ['phone', 'email', 'address', 'hours'] },
-];
+import { LocalDB } from '@/services/LocalDatabase';
+import { Link } from 'react-router-dom';
 
 const AdminContent = () => {
-  const [content, setContent] = useState<Record<string, SectionContent>>({});
-  const [saving, setSaving] = useState<string | null>(null);
-  const [saved, setSaved] = useState<string | null>(null);
+  const [sections, setSections] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchContent = async () => {
-      const { data } = await supabase.from('site_content').select('*');
-      if (data) {
-        const map: Record<string, SectionContent> = {};
-        data.forEach(row => { map[row.section_key] = (row.content as SectionContent) || {}; });
-        setContent(map);
-      }
-    };
-    fetchContent();
+    const data = LocalDB.getContent();
+    const layout = data.find((row: any) => row.section_key === 'page_layout')?.content?.sections;
+    
+    const defaultLayout = [
+      { id: 'hero', name: 'Hero Section' },
+      { id: 'booking', name: 'Booking Wizard' },
+      { id: 'about', name: 'About Section' },
+      { id: 'services', name: 'Services Section' },
+      { id: 'transformations', name: 'Transformations' },
+      { id: 'experience', name: 'Experience' },
+      { id: 'cta', name: 'Final CTA' },
+    ];
+
+    setSections(layout || defaultLayout);
+    setLoading(false);
   }, []);
 
-  const updateField = (sectionKey: string, field: string, value: string) => {
-    setContent(prev => ({
-      ...prev,
-      [sectionKey]: { ...(prev[sectionKey] || {}), [field]: value },
-    }));
-  };
-
-  const saveSection = async (sectionKey: string) => {
-    setSaving(sectionKey);
-    const sectionContent = content[sectionKey] || {};
-
-    const jsonContent = sectionContent as unknown as import('@/integrations/supabase/types').Json;
-    const { data: existing } = await supabase.from('site_content').select('id').eq('section_key', sectionKey).maybeSingle();
-
-    if (existing) {
-      await supabase.from('site_content').update({ content: jsonContent }).eq('section_key', sectionKey);
-    } else {
-      await supabase.from('site_content').insert([{ section_key: sectionKey, content: jsonContent }]);
+  const resetToDefault = () => {
+    if (confirm('¿Estás seguro de restablecer el diseño por defecto? Se perderá el orden personalizado.')) {
+      LocalDB.saveContent('page_layout', { sections: null });
+      window.location.reload();
     }
-
-    setSaving(null);
-    setSaved(sectionKey);
-    setTimeout(() => setSaved(null), 2000);
-    toast({ title: 'Content saved' });
   };
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="font-display text-3xl font-light text-foreground">Site Content</h1>
-        <p className="font-body text-sm text-muted-foreground mt-1">Edit text and information across the website</p>
+    <div className="p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-10">
+        <div>
+          <h1 className="font-display text-4xl font-light text-foreground tracking-tight">Diseño Visual</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Controla la estructura y el contenido de tu sitio web.</p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={resetToDefault} className="rounded-xl border-black/5 bg-white shadow-sm">
+            <RefreshCw className="w-4 h-4" /> Restablecer
+          </Button>
+          <Link to="/">
+            <Button className="bg-accent hover:bg-accent/90 shadow-lg shadow-accent/20 rounded-xl px-6 gap-2">
+              <Eye className="w-4 h-4" /> Ver en Vivo
+            </Button>
+          </Link>
+        </div>
       </div>
 
-      <div className="space-y-6 max-w-3xl">
-        {sections.map(section => (
-          <div key={section.key} className="bg-card rounded-2xl p-6 border border-border">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-display text-lg font-medium text-foreground">{section.label}</h2>
-              <Button
-                size="sm"
-                onClick={() => saveSection(section.key)}
-                disabled={saving === section.key}
-                variant={saved === section.key ? 'outline' : 'default'}
-              >
-                {saved === section.key ? (
-                  <><CheckCircle className="w-4 h-4" /> Saved</>
-                ) : (
-                  <><Save className="w-4 h-4" /> {saving === section.key ? 'Saving...' : 'Save'}</>
-                )}
-              </Button>
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Visual Builder Shortcut */}
+          <div className="bg-gradient-to-r from-accent/90 to-accent rounded-3xl p-8 text-white shadow-xl shadow-accent/20 relative overflow-hidden group">
+            <div className="relative z-10">
+              <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
+                <Globe className="w-6 h-6 text-white" />
+              </div>
+              <h2 className="font-display text-3xl font-medium mb-3">Editor Visual Interactivo</h2>
+              <p className="font-body text-white/70 mb-8 max-w-md leading-relaxed">
+                Edita textos, cambia imágenes y reordena secciones directamente en el sitio con nuestro constructor visual "Live".
+              </p>
+              <Link to="/">
+                <Button className="bg-white text-accent hover:bg-white/90 rounded-xl font-bold px-8 h-12">
+                  Abrir Editor <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
             </div>
+            <Layout className="absolute -right-8 -bottom-8 w-64 h-64 text-white/10 rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+          </div>
+
+          {/* Current Layout Summary */}
+          <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
+            <h3 className="font-display text-xl font-medium mb-6">Estructura Actual</h3>
             <div className="space-y-3">
-              {section.fields.map(field => (
-                <div key={field}>
-                  <label className="font-body text-xs text-muted-foreground block mb-1 capitalize">{field.replace('_', ' ')}</label>
-                  {field === 'description' || field === 'mission' ? (
-                    <textarea
-                      value={content[section.key]?.[field] ?? ''}
-                      onChange={e => updateField(section.key, field, e.target.value)}
-                      rows={3}
-                      className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm resize-none"
-                    />
-                  ) : (
-                    <input
-                      value={content[section.key]?.[field] ?? ''}
-                      onChange={e => updateField(section.key, field, e.target.value)}
-                      className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm"
-                    />
-                  )}
+              {sections.map((s, i) => (
+                <div key={s.id} className="flex items-center gap-4 p-4 bg-[#FAFAFA] rounded-2xl border border-black/5">
+                  <div className="w-8 h-8 bg-white border border-black/5 rounded-lg flex items-center justify-center font-display text-xs font-bold text-accent">
+                    {i + 1}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-body text-sm font-medium">{s.name}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{s.id.split('-')[0]}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold">Activo</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="space-y-6">
+          {/* Quick Settings */}
+          <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
+            <h3 className="font-display text-lg font-medium mb-6">Estilos Globales</h3>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Color de Acento</label>
+                <div className="flex gap-2">
+                  {['#C4A484', '#1A1A1A', '#E5DED5', '#D4AF37'].map(color => (
+                    <button 
+                      key={color}
+                      className="w-8 h-8 rounded-full border border-black/10 shadow-inner"
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                  <button className="w-8 h-8 rounded-full border border-dashed border-border flex items-center justify-center text-muted-foreground">
+                    <Settings className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tipografía Principal</label>
+                <select className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-3 text-sm font-body outline-none">
+                  <option>Cormorant Garamond (Display)</option>
+                  <option>Inter (Body)</option>
+                  <option>Playfair Display</option>
+                </select>
+              </div>
+              <Button variant="outline" className="w-full rounded-xl border-black/5 h-12 gap-2 text-xs font-bold">
+                <Palette className="w-4 h-4" /> Personalizar Tema
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-cream rounded-3xl p-8 border border-black/5">
+            <h3 className="font-display text-lg font-medium mb-3">SEO & Meta</h3>
+            <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
+              Configura cómo se ve tu sitio en Google y redes sociales.
+            </p>
+            <Button variant="ghost" className="w-full justify-between text-accent font-bold text-xs p-0 h-auto hover:bg-transparent group">
+              Configurar SEO <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -25,6 +25,10 @@ import AdminProducts from "./pages/admin/AdminProducts.tsx";
 import AdminContent from "./pages/admin/AdminContent.tsx";
 import AdminWaitlist from "./pages/admin/AdminWaitlist.tsx";
 import AdminMedia from "./pages/admin/AdminMedia.tsx";
+import AdminMessages from "./pages/admin/AdminMessages.tsx";
+import AdminAnalytics from "./pages/admin/AdminAnalytics.tsx";
+import AdminSettings from "./pages/admin/AdminSettings.tsx";
+import AdminBookings from "./pages/admin/AdminBookings.tsx";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { CustomCursor } from "@/components/CustomCursor";
 import { CMSProvider } from "@/contexts/CMSContext";
@@ -75,6 +79,10 @@ const App = () => (
               <Route path="content" element={<AdminContent />} />
               <Route path="waitlist" element={<AdminWaitlist />} />
               <Route path="media" element={<AdminMedia />} />
+              <Route path="messages" element={<AdminMessages />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="settings" element={<AdminSettings />} />
+              <Route path="bookings" element={<AdminBookings />} />
             </Route>
 
             <Route path="*" element={<NotFound />} />

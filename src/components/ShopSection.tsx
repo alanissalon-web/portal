@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { LocalDB } from '@/services/LocalDatabase';
 
 interface Product {
   id: string;
@@ -131,10 +131,11 @@ export function ShopSection() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      const { data } = await supabase.from('products').select('*').eq('status', 'active');
-      if (data && data.length > 0) {
-        setDbProducts(data.map(p => ({
+    const fetchProducts = () => {
+      const data = LocalDB.getProducts();
+      const active = data.filter((p: any) => p.status === 'active');
+      if (active.length > 0) {
+        setDbProducts(active.map((p: any) => ({
           id: p.id,
           name: p.name,
           brand: p.brand || '',

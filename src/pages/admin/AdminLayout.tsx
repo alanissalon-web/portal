@@ -11,7 +11,8 @@ import {
   Image as ImageIcon,
   MessageSquare,
   BarChart3,
-  Globe
+  Globe,
+  Calendar
 } from 'lucide-react';
 import logo from '@/assets/logo-alanis.png';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
   { label: 'Cursos Academy', icon: GraduationCap, path: '/admin/courses' },
   { label: 'Productos Shop', icon: ShoppingBag, path: '/admin/products' },
+  { label: 'Reservas', icon: Calendar, path: '/admin/bookings' },
   { label: 'Contenido Visual', icon: Globe, path: '/admin/content' },
   { label: 'Lista de Espera', icon: Users, path: '/admin/waitlist' },
   { label: 'Multimedia', icon: ImageIcon, path: '/admin/media' },

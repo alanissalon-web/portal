@@ -2,6 +2,7 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Star, Quote, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageComparison } from './ImageComparison';
+import { EditableText } from './cms/EditableText';
 
 // Placeholder images - in a real app these would be assets or from a CMS
 const beforeImage = 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712180689466-9VVMGVOL2BPRG27WO807/IMG_9818.jpeg';

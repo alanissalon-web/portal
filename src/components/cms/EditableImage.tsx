@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useCMS } from '@/contexts/CMSContext';
 import { cn } from '@/lib/utils';
-import { ImagePlus, Link as LinkIcon, X } from 'lucide-react';
+import { ImagePlus, Link as LinkIcon, X, Image as ImageIcon, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
@@ -49,15 +49,35 @@ export const EditableImage: React.FC<EditableImageProps> = ({
               <h4 className="font-display font-medium text-sm">Editar Imagen</h4>
               <div className="space-y-2">
                 <label className="text-xs text-muted-foreground flex items-center gap-1">
-                  <LinkIcon className="w-3 h-3" /> URL de la imagen
+                  <ImageIcon className="w-3 h-3" /> Subir o URL
                 </label>
-                <input 
-                  type="text" 
-                  value={tempUrl}
-                  onChange={(e) => setTempUrl(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-accent outline-none"
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    value={tempUrl}
+                    onChange={(e) => setTempUrl(e.target.value)}
+                    className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-xs focus:ring-1 focus:ring-accent outline-none"
+                    placeholder="https://..."
+                  />
+                  <label className="cursor-pointer bg-accent/10 hover:bg-accent/20 text-accent p-2 rounded-lg transition-colors">
+                    <Upload className="w-4 h-4" />
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setTempUrl(reader.result as string);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" className="flex-1 text-xs h-8" onClick={handleSave}>Guardar</Button>

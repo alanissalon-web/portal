@@ -22,7 +22,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
 
   const handleChange = (e: React.FocusEvent<any>) => {
     const newValue = e.currentTarget.innerText;
-    updateContent(section, { ...content[section], [field]: newValue });
+    updateContent(section, field, newValue);
   };
 
   if (!isEditing) {

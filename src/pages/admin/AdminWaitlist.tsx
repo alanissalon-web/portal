@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Users, Download, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LocalDB } from '@/services/LocalDatabase';
 
 type WaitlistEntry = {
   id: string;
@@ -14,9 +14,9 @@ const AdminWaitlist = () => {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
-      const { data } = await supabase.from('waitlist').select('*').order('created_at', { ascending: false });
-      if (data) setEntries(data);
+    const fetch = () => {
+      const data = LocalDB.getWaitlist();
+      setEntries(data);
     };
     fetch();
   }, []);

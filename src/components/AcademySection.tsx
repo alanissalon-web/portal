@@ -1,10 +1,10 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
 import { PlayCircle, Clock, Star, Users, BookOpen, Video, ArrowRight, CheckCircle, Award, GraduationCap } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
+import { LocalDB } from '@/services/LocalDatabase';
 
 interface CourseDisplay {
   id: string;
@@ -102,10 +102,11 @@ export function AcademySection() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      const { data } = await supabase.from('courses').select('*').eq('status', 'published');
-      if (data && data.length > 0) {
-        setDbCourses(data.map(c => ({
+    const fetchCourses = () => {
+      const data = LocalDB.getCourses();
+      const published = data.filter((c: any) => c.status === 'published');
+      if (published.length > 0) {
+        setDbCourses(published.map((c: any) => ({
           id: c.id,
           title: c.title,
           type: c.type === 'on-demand' ? 'On-Demand' : 'Live',
@@ -127,7 +128,7 @@ export function AcademySection() {
   const handleWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    await supabase.from('waitlist').insert([{ email, source: 'academy' }]);
+    LocalDB.addToWaitlist(email, 'academy');
     setSubmitted(true);
     toast({ title: "You're on the list!", description: "We'll notify you when courses launch." });
     setEmail('');

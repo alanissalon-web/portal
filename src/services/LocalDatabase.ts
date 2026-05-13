@@ -4,6 +4,10 @@ const STORAGE_KEYS = {
   COURSES: 'alanis_courses',
   PRODUCTS: 'alanis_products',
   WAITLIST: 'alanis_waitlist',
+  MEDIA: 'alanis_media',
+  MESSAGES: 'alanis_messages',
+  BOOKINGS: 'alanis_bookings',
+  SETTINGS: 'alanis_settings',
   AUTH: 'alanis_admin_session'
 };
 
@@ -12,6 +16,13 @@ const INITIAL_CONTENT = [
   { section_key: 'hero', content: { title: 'Elevate your hair, elevate your soul', subtitle: 'Experience luxury hair care and styling at Houston\'s premier salon.' } },
   { section_key: 'services', content: { badge: 'Our Services', title: 'Every service, a premium experience' } },
 ];
+
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+};
 
 export const LocalDB = {
   // --- Content Management ---
@@ -30,38 +41,24 @@ export const LocalDB = {
     localStorage.setItem(STORAGE_KEYS.CONTENT, JSON.stringify(current));
   },
 
-  // --- Courses Management ---
-  getCourses: () => {
-    const data = localStorage.getItem(STORAGE_KEYS.COURSES);
-    return data ? JSON.parse(data) : [];
-  },
-  saveCourse: (course: any) => {
-    const courses = LocalDB.getCourses();
-    if (course.id) {
-      const index = courses.findIndex((c: any) => c.id === course.id);
-      courses[index] = course;
-    } else {
-      courses.push({ ...course, id: crypto.randomUUID(), created_at: new Date().toISOString() });
-    }
-    localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
-  },
-  deleteCourse: (id: string) => {
-    const courses = LocalDB.getCourses().filter((c: any) => c.id !== id);
-    localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
-  },
-
   // --- Products Management ---
   getProducts: () => {
     const data = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    return data ? JSON.parse(data) : [];
+    return data ? JSON.parse(data) : [
+      { id: 'p1', name: 'Luxury Repair Shampoo', brand: 'Great Lengths', price: 42, image_url: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&q=80', category: 'Shampoo', description: 'Fórmula sin sulfatos diseñada específicamente para el cuidado de extensiones de queratina.', rating: 5, badge: 'Best Seller', stock: 12, status: 'active' },
+      { id: 'p2', name: 'Ultimate Repair Mask', brand: 'Kerastase', price: 68, image_url: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600&q=80', category: 'Treatment', description: 'Mascarilla intensiva para reconstruir la fibra capilar dañada por procesos químicos.', rating: 5, badge: 'Premium', stock: 8, status: 'active' },
+      { id: 'p3', name: 'Gold Lust Oil', brand: 'Oribe', price: 56, image_url: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=600&q=80', category: 'Treatment', description: 'Aceite nutritivo que aporta brillo instantáneo sin dejar residuos grasos.', rating: 5, stock: 15, status: 'active' },
+      { id: 'p4', name: 'Silver Brightening Shampoo', brand: 'Wella Professionals', price: 34, image_url: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=600&q=80', category: 'Shampoo', description: 'Elimina tonos amarillentos en cabellos rubios y canosos.', rating: 4, stock: 20, status: 'active' },
+      { id: 'p5', name: 'Dry Texturizing Spray', brand: 'Oribe', price: 49, image_url: 'https://images.unsplash.com/photo-1585232004423-244e0e6904e3?w=600&q=80', category: 'Styling', description: 'El spray favorito de los estilistas para volumen y textura duradera.', rating: 5, badge: 'Iconic', stock: 10, status: 'active' },
+    ];
   },
   saveProduct: (product: any) => {
     const products = LocalDB.getProducts();
-    if (product.id) {
-      const index = products.findIndex((p: any) => p.id === product.id);
+    const index = products.findIndex((p: any) => p.id === product.id);
+    if (index > -1) {
       products[index] = product;
     } else {
-      products.push({ ...product, id: crypto.randomUUID(), created_at: new Date().toISOString() });
+      products.push({ ...product, id: generateId() });
     }
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   },
@@ -70,15 +67,129 @@ export const LocalDB = {
     localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   },
 
+  // --- Academy Management ---
+  getCourses: () => {
+    const data = localStorage.getItem(STORAGE_KEYS.COURSES);
+    return data ? JSON.parse(data) : [
+      { id: 'extensions-masterclass', title: 'Master en Extensiones de Queratina', type: 'on-demand', duration: '8 horas', level: 'Intermedio', image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', description: 'Aprende la técnica de fusión en frío y caliente de Great Lengths.', topics: ['Fusión de Queratina', 'Corte de Mezcla', 'Color Matching'], price: 499, badge: 'Certificado', status: 'published' },
+      { id: 'color-balayage', title: 'Ciencia del Color y Balayage 2024', type: 'on-demand', duration: '5 horas', level: 'Avanzado', image_url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', description: 'Técnicas de difuminado y formulación avanzada para rubios perfectos.', topics: ['Formulación', 'Seccionamiento', 'Tonalización'], price: 299, badge: 'Top Ventas', status: 'published' },
+      { id: 'hair-loss', title: 'Soluciones para la Pérdida de Cabello', type: 'on-demand', duration: '4 horas', level: 'Todos los niveles', image_url: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=600&q=80', description: 'Implementa prótesis capilares y soluciones no quirúrgicas.', topics: ['Análisis de Cuero Cabelludo', 'Micro Point', 'Prótesis'], price: 199, status: 'published' },
+    ];
+  },
+  saveCourse: (course: any) => {
+    const courses = LocalDB.getCourses();
+    const index = courses.findIndex((c: any) => c.id === course.id);
+    if (index > -1) {
+      courses[index] = course;
+    } else {
+      courses.push({ ...course, id: generateId() });
+    }
+    localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
+  },
+  deleteCourse: (id: string) => {
+    const courses = LocalDB.getCourses().filter((c: any) => c.id !== id);
+    localStorage.setItem(STORAGE_KEYS.COURSES, JSON.stringify(courses));
+  },
+
   // --- Waitlist ---
   getWaitlist: () => {
     const data = localStorage.getItem(STORAGE_KEYS.WAITLIST);
-    return data ? JSON.parse(data) : [];
+    return data ? JSON.parse(data) : [
+      { id: '1', email: 'v.rodriguez@houstonmail.com', source: 'academy', created_at: '2024-05-10T10:00:00Z' },
+      { id: '2', email: 'jessica.smith@tx.rr.com', source: 'shop', created_at: '2024-05-11T14:30:00Z' },
+      { id: '3', email: 'm.williams@salonowner.org', source: 'academy', created_at: '2024-05-12T09:15:00Z' },
+    ];
   },
   addToWaitlist: (email: string, source: string) => {
     const waitlist = LocalDB.getWaitlist();
-    waitlist.push({ id: crypto.randomUUID(), email, source, created_at: new Date().toISOString() });
+    waitlist.push({ id: generateId(), email, source, created_at: new Date().toISOString() });
     localStorage.setItem(STORAGE_KEYS.WAITLIST, JSON.stringify(waitlist));
+  },
+
+  // --- Media Management ---
+  getMedia: () => {
+    const data = localStorage.getItem(STORAGE_KEYS.MEDIA);
+    return data ? JSON.parse(data) : [
+      { id: '1', name: 'hero-salon-houston.jpg', size: '2.4MB', type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800&q=80' },
+      { id: '2', name: 'balayage-technique.jpg', size: '1.1MB', type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=800&q=80' },
+      { id: '3', name: 'extension-install-detail.jpg', size: '980KB', type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=800&q=80' },
+      { id: '4', name: 'salon-interior-luxury.jpg', size: '3.2MB', type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1633681926022-84c23e8cb2d6?w=800&q=80' },
+      { id: '5', name: 'styling-station.jpg', size: '1.5MB', type: 'image/jpeg', url: 'https://images.unsplash.com/photo-1527799822367-a288a7228395?w=800&q=80' },
+    ];
+  },
+  saveMedia: (file: any) => {
+    const media = LocalDB.getMedia();
+    media.push({ ...file, id: generateId(), created_at: new Date().toISOString() });
+    localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(media));
+  },
+  deleteMedia: (id: string) => {
+    const media = LocalDB.getMedia().filter((m: any) => m.id !== id);
+    localStorage.setItem(STORAGE_KEYS.MEDIA, JSON.stringify(media));
+  },
+  
+  // --- Messages/Leads ---
+  getMessages: () => {
+    const data = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+    return data ? JSON.parse(data) : [
+      { id: '1', name: 'Laura Garcia', email: 'l.garcia88@yahoo.com', phone: '+1 713-123-4567', message: 'Hola Rosie, me gustaría agendar una cita para Balayage y un tratamiento de hidratación profunda.', date: 'hace 2 horas', status: 'new' },
+      { id: '2', name: 'Carlos Ruiz', email: 'c.ruiz.salon@gmail.com', phone: '+1 281-987-6543', message: 'Buen día, ¿el curso de extensiones de queratina incluye certificación internacional?', date: 'hace 5 horas', status: 'read' },
+      { id: '3', name: 'Maria Jose Williams', email: 'mjwilliams@outlook.com', phone: '+1 832-555-0199', message: '¿Venden los productos de Oribe directamente en el salón o solo por la web?', date: 'ayer', status: 'new' },
+    ];
+  },
+  saveMessage: (msg: any) => {
+    const msgs = LocalDB.getMessages();
+    msgs.push({ ...msg, id: generateId(), status: 'new', created_at: new Date().toISOString() });
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(msgs));
+  },
+  updateMessageStatus: (id: string, status: string) => {
+    const msgs = LocalDB.getMessages();
+    const index = msgs.findIndex((m: any) => m.id === id);
+    if (index > -1) {
+      msgs[index].status = status;
+      localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(msgs));
+    }
+  },
+  deleteMessage: (id: string) => {
+    const msgs = LocalDB.getMessages().filter((m: any) => m.id !== id);
+    localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(msgs));
+  },
+
+  // --- Bookings / Appointments ---
+  getBookings: () => {
+    const data = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
+    return data ? JSON.parse(data) : [
+      { id: 'b1', clientName: 'Ana Martinez', service: 'Keratin Fusion Install', date: '2024-05-15', time: '10:00 AM', status: 'confirmed', email: 'ana.m@gmail.com', phone: '+1 713-524-1010' },
+      { id: 'b2', clientName: 'Lucia Sosa', service: 'Color Correction', date: '2024-05-15', time: '02:30 PM', status: 'pending', email: 'lsosa@houstonisd.org', phone: '+1 832-555-9090' },
+      { id: 'b3', clientName: 'Katherine Pierce', service: 'Bridal Styling Trial', date: '2024-05-16', time: '09:00 AM', status: 'confirmed', email: 'kpierce@vampire.co', phone: '+1 281-444-2211' },
+    ];
+  },
+  saveBooking: (booking: any) => {
+    const bookings = LocalDB.getBookings();
+    const index = bookings.findIndex((b: any) => b.id === booking.id);
+    if (index > -1) {
+      bookings[index] = booking;
+    } else {
+      bookings.push({ ...booking, id: generateId(), created_at: new Date().toISOString() });
+    }
+    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+  },
+  deleteBooking: (id: string) => {
+    const bookings = LocalDB.getBookings().filter((b: any) => b.id !== id);
+    localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+  },
+
+  // --- Settings ---
+  getSettings: () => {
+    const data = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    return data ? JSON.parse(data) : {
+      siteName: 'Alanís Salon & Spa',
+      contactEmail: 'info@alanissalon.com',
+      phone: '+1 (713) 524-2610',
+      address: 'Houston, TX'
+    };
+  },
+  saveSettings: (settings: any) => {
+    localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
   },
 
   // --- Auth ---

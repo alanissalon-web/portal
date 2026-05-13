@@ -1,24 +1,53 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Image as ImageIcon, Upload, Trash2, Search, Filter } from 'lucide-react';
+import { Image as ImageIcon, Upload, Trash2, Search, Filter, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { LocalDB } from '@/services/LocalDatabase';
 
 const AdminMedia = () => {
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    // In a real app, we would list files from Supabase Storage
-    // For now, let's mock it with local assets or existing DB data
-    setFiles([
-      { name: 'hero-salon.jpg', size: '2.4MB', type: 'image/jpeg', url: '/src/assets/hero-salon-real.jpg' },
-      { name: 'service-color.jpg', size: '105KB', type: 'image/jpeg', url: '/src/assets/service-color.jpg' },
-      { name: 'transformation-1.jpg', size: '176KB', type: 'image/jpeg', url: '/src/assets/transformation-1.jpg' },
-    ]);
+  const fetchFiles = () => {
+    const data = LocalDB.getMedia();
+    setFiles(data);
     setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchFiles();
   }, []);
+
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const newMedia = {
+          name: file.name,
+          size: `${(file.size / 1024).toFixed(1)}KB`,
+          type: file.type,
+          url: reader.result as string
+        };
+        LocalDB.saveMedia(newMedia);
+        toast({ title: 'Archivo subido', description: `${file.name} se ha guardado en la biblioteca.` });
+        fetchFiles();
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('¿Estás seguro de eliminar este archivo?')) {
+      LocalDB.deleteMedia(id);
+      toast({ title: 'Archivo eliminado' });
+      fetchFiles();
+    }
+  };
+
+  const filteredFiles = files.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
@@ -27,9 +56,10 @@ const AdminMedia = () => {
           <h1 className="font-display text-3xl font-light text-foreground">Multimedia</h1>
           <p className="font-body text-sm text-muted-foreground mt-1">Gestiona las imágenes y archivos de tu sitio.</p>
         </div>
-        <Button className="gap-2 rounded-xl">
+        <label className="cursor-pointer bg-accent hover:bg-accent/90 text-white px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 flex items-center gap-2 font-body text-sm">
           <Upload className="w-4 h-4" /> Subir Archivo
-        </Button>
+          <input type="file" className="hidden" onChange={handleUpload} accept="image/*" />
+        </label>
       </div>
 
       <div className="flex gap-4 mb-8">
@@ -38,32 +68,49 @@ const AdminMedia = () => {
           <input 
             type="text" 
             placeholder="Buscar archivos..." 
-            className="w-full bg-white border border-black/5 rounded-xl pl-10 pr-4 py-2.5 font-body text-sm outline-none focus:ring-1 focus:ring-accent"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-white border border-black/5 rounded-xl pl-10 pr-4 py-2.5 font-body text-sm outline-none focus:ring-1 focus:ring-accent shadow-sm"
           />
         </div>
-        <Button variant="outline" className="gap-2 rounded-xl border-black/5">
+        <Button variant="outline" className="gap-2 rounded-xl border-black/5 bg-white shadow-sm">
           <Filter className="w-4 h-4" /> Filtros
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {files.map((file, i) => (
-          <div key={i} className="group relative bg-white border border-black/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-            <div className="aspect-square bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
-              <img src={file.url} alt={file.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 className="w-8 h-8 text-accent animate-spin" />
+          <p className="font-body text-sm text-muted-foreground">Cargando biblioteca...</p>
+        </div>
+      ) : filteredFiles.length === 0 ? (
+        <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">
+          <ImageIcon className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
+          <p className="font-body text-sm text-muted-foreground">No se encontraron archivos.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          {filteredFiles.map((file) => (
+            <div key={file.id} className="group relative bg-white border border-black/5 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all">
+              <div className="aspect-square bg-[#F5F5F5] flex items-center justify-center overflow-hidden">
+                <img src={file.url} alt={file.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              </div>
+              <div className="p-3">
+                <p className="font-body text-[10px] font-bold text-foreground truncate mb-0.5">{file.name}</p>
+                <p className="font-body text-[10px] text-muted-foreground">{file.size}</p>
+              </div>
+              <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={() => handleDelete(file.id)}
+                  className="bg-white/90 backdrop-blur-sm p-1.5 rounded-lg text-destructive shadow-sm hover:bg-white transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-            <div className="p-3">
-              <p className="font-body text-[10px] font-bold text-foreground truncate mb-0.5">{file.name}</p>
-              <p className="font-body text-[10px] text-muted-foreground">{file.size}</p>
-            </div>
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button className="bg-white/90 backdrop-blur-sm p-1.5 rounded-lg text-destructive shadow-sm hover:bg-white">
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
