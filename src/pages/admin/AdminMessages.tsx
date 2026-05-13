@@ -187,8 +187,24 @@ const AdminMessages = () => {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="icon" className="text-muted-foreground"><Phone className="w-4 h-4" /></Button>
-                  <Button variant="ghost" size="icon" className="text-muted-foreground" onClick={() => { if(confirm('¿Eliminar chat?')) { LocalDB.getMessages().filter(m => m.name === selectedUser || m.to === selectedUser).forEach(m => LocalDB.deleteMessage(m.id)); fetchMessages(); setSelectedUser(null); } }}><Trash2 className="w-4 h-4" /></Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="text-muted-foreground hover:text-red-500 transition-colors" 
+                    onClick={() => { 
+                      if(confirm('¿Estás seguro de que deseas eliminar este chat completo? Esta acción no se puede deshacer.')) { 
+                        const allMessages = LocalDB.getMessages();
+                        const toDelete = allMessages.filter(m => m.email === selectedUser || m.toEmail === selectedUser);
+                        toDelete.forEach(m => LocalDB.deleteMessage(m.id)); 
+                        
+                        toast({ title: 'Chat eliminado', description: 'La conversación se ha borrado correctamente.' });
+                        fetchMessages(); 
+                        setSelectedUser(null); 
+                      } 
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
 
@@ -200,14 +216,37 @@ const AdminMessages = () => {
                         {msg.image ? (
                           <img src={msg.image} className="max-w-xs rounded-lg shadow-lg cursor-pointer hover:scale-105 transition-transform" onClick={() => window.open(msg.image)} />
                         ) : msg.voice ? (
-                          <div className="flex items-center gap-3 py-1">
-                            <button onClick={() => new Audio(msg.voice).play()} className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/40 transition-colors">
-                              <div className="w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-l-white border-b-[6px] border-b-transparent ml-1" />
+                          <div className="flex items-center gap-3 py-1 min-w-[200px]">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
+                                  toast({ title: 'Audio antiguo', description: 'Este mensaje es de una versión anterior sin sonido real. Por favor graba uno nuevo.' });
+                                  return;
+                                }
+                                const audio = new Audio(msg.voice);
+                                audio.play().catch(err => toast({ title: 'Error de audio', description: 'No se pudo reproducir la nota de voz.' }));
+                              }} 
+                              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all shadow-sm active:scale-90 ${
+                                msg.email === 'admin@alanissalon.com' ? 'bg-white/20 hover:bg-white/30' : 'bg-accent/10 hover:bg-accent/20 text-accent'
+                              }`}
+                            >
+                              <div className={`w-0 h-0 border-t-[6px] border-t-transparent border-l-[10px] border-b-[6px] border-b-transparent ml-1 ${
+                                msg.email === 'admin@alanissalon.com' ? 'border-l-white' : 'border-l-accent'
+                              }`} />
                             </button>
-                            <div className="flex gap-0.5 items-center flex-1">
-                              {[...Array(15)].map((_, i) => <div key={i} className="w-1 bg-white/40 rounded-full h-4" />)}
+                            <div className="flex-1">
+                              <div className="flex gap-0.5 items-center mb-1">
+                                {[...Array(15)].map((_, i) => (
+                                  <div key={i} className={`w-1 rounded-full h-3 ${
+                                    msg.email === 'admin@alanissalon.com' ? 'bg-white/40' : 'bg-accent/20'
+                                  }`} />
+                                ))}
+                              </div>
+                              <p className={`text-[10px] font-medium ${
+                                msg.email === 'admin@alanissalon.com' ? 'text-white/70' : 'text-accent'
+                              }`}>Nota de voz • Reproducir</p>
                             </div>
-                            <span className="text-[10px] opacity-80">Escuchar</span>
                           </div>
                         ) : (
                           msg.message

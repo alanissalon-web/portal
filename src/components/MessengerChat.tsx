@@ -167,7 +167,40 @@ export function MessengerChat() {
                   {chatHistory.map((msg, i) => (
                     <div key={i} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
                       <div className={`p-3 rounded-2xl text-sm ${msg.sender === 'me' ? 'bg-accent text-white rounded-tr-none' : 'bg-gray-100 text-gray-800 rounded-tl-none'}`}>
-                        {msg.image ? <img src={msg.image} className="max-w-full rounded-lg" /> : msg.voice ? <div className="flex items-center gap-3"><button onClick={() => new Audio(msg.voice).play()} className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">▶</button><div className="flex gap-0.5">{[...Array(10)].map((_, i) => <div key={i} className="w-1 bg-white/40 h-3 rounded-full" />)}</div><span className="text-[10px]">Audio</span></div> : msg.text}
+                        {msg.image ? (
+                          <img src={msg.image} className="max-w-full rounded-lg" />
+                        ) : msg.voice ? (
+                          <div className="flex items-center gap-3 py-1 min-w-[180px]">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
+                                  toast({ title: 'Audio antiguo', description: 'Este mensaje no tiene sonido real. Graba uno nuevo para probar.' });
+                                  return;
+                                }
+                                const audio = new Audio(msg.voice);
+                                audio.play().catch(() => toast({ title: 'Error', description: 'Error al reproducir.' }));
+                              }} 
+                              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                                msg.sender === 'me' ? 'bg-white/20 hover:bg-white/30' : 'bg-accent/10 hover:bg-accent/20 text-accent'
+                              }`}
+                            >
+                              <div className={`w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-b-[5px] border-b-transparent ml-1 ${
+                                msg.sender === 'me' ? 'border-l-white' : 'border-l-accent'
+                              }`} />
+                            </button>
+                            <div className="flex-1">
+                              <div className="flex gap-0.5 items-center mb-1">
+                                {[...Array(12)].map((_, i) => (
+                                  <div key={i} className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white/40' : 'bg-accent/20'}`} />
+                                ))}
+                              </div>
+                              <span className={`text-[10px] font-medium ${msg.sender === 'me' ? 'text-white/70' : 'text-accent'}`}>Nota de voz</span>
+                            </div>
+                          </div>
+                        ) : (
+                          msg.text
+                        )}
                       </div>
                     </div>
                   ))}
