@@ -57,6 +57,27 @@ export const VisualSidebar: React.FC = () => {
     updateContent('page_layout', { sections: newSections });
   };
 
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData('index', index.toString());
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    const sourceIndex = parseInt(e.dataTransfer.getData('index'));
+    if (sourceIndex === targetIndex) return;
+
+    const newSections = [...currentSections];
+    const [moved] = newSections.splice(sourceIndex, 1);
+    newSections.splice(targetIndex, 0, moved);
+    updateContent('page_layout', { sections: newSections });
+  };
+
   if (!isEditing) return null;
 
   return (
@@ -81,10 +102,14 @@ export const VisualSidebar: React.FC = () => {
             {currentSections.map((section: Section, index: number) => (
               <div 
                 key={section.id} 
-                className="group bg-card border border-border p-3 rounded-xl flex items-center justify-between hover:border-accent/50 transition-all shadow-sm"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, index)}
+                className="group bg-card border border-border p-3 rounded-xl flex items-center justify-between hover:border-accent/50 transition-all shadow-sm cursor-move active:scale-95"
               >
                 <div className="flex items-center gap-3">
-                  <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab" />
+                  <GripVertical className="w-3 h-3 text-muted-foreground" />
                   <span className="text-sm font-medium truncate max-w-[120px]">{section.name}</span>
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -96,6 +121,15 @@ export const VisualSidebar: React.FC = () => {
                     disabled={index === 0}
                   >
                     <ArrowUp className="w-3 h-3" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-7 w-7" 
+                    onClick={() => moveSection(index, 'down')}
+                    disabled={index === currentSections.length - 1}
+                  >
+                    <ArrowDown className="w-3 h-3" />
                   </Button>
                   <Button 
                     variant="ghost" 

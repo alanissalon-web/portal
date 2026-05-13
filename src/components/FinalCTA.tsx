@@ -1,6 +1,7 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
 import { MessageCircle, MapPin, Clock, Phone } from 'lucide-react';
+import { EditableText } from './cms/EditableText';
 
 export function FinalCTA() {
   const { ref, isVisible } = useScrollReveal();
@@ -16,22 +17,22 @@ export function FinalCTA() {
             className="font-display text-4xl md:text-6xl font-light text-primary-foreground mb-6 text-balance"
             style={{ lineHeight: '1.1' }}
           >
-            Book your free consultation <span className="italic text-gold-gradient">today</span>
+            <EditableText section="cta" field="title" defaultText="Book your free consultation today" />
           </h2>
           <p className="font-body text-lg text-primary-foreground/70 mb-10 max-w-lg mx-auto text-pretty">
-            Limited spots available each week. Discover your hair's best version with a personalized diagnosis.
+            <EditableText section="cta" field="description" defaultText="Limited spots available each week. Discover your hair's best version with a personalized diagnosis." />
           </p>
 
           <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 ${isVisible ? 'animate-reveal-up delay-200' : 'opacity-0'}`}>
             <a href="#reservar">
               <Button variant="gold" size="xl" className="text-charcoal">
-                Book Consultation
+                <EditableText section="cta" field="btn_book" defaultText="Book Consultation" as="span" />
               </Button>
             </a>
             <a href="https://wa.me/17135242610" target="_blank" rel="noopener noreferrer">
               <Button variant="heroOutline" size="xl">
                 <MessageCircle className="w-5 h-5" />
-                WhatsApp
+                <EditableText section="cta" field="btn_whatsapp" defaultText="WhatsApp" as="span" />
               </Button>
             </a>
           </div>
@@ -40,17 +41,17 @@ export function FinalCTA() {
         <div className={`flex flex-col md:flex-row items-center justify-center gap-8 text-primary-foreground/60 ${isVisible ? 'animate-reveal-up delay-400' : 'opacity-0'}`}>
           <div className="flex items-center gap-2 font-body text-sm">
             <MapPin className="w-4 h-4" />
-            <span>Houston, TX — Montrose Area</span>
+            <EditableText section="cta" field="location" defaultText="Houston, TX — Montrose Area" as="span" />
           </div>
           <div className="hidden md:block h-4 w-px bg-primary-foreground/20" />
           <div className="flex items-center gap-2 font-body text-sm">
             <Clock className="w-4 h-4" />
-            <span>Mon – Sat: 9:00 AM – 7:00 PM</span>
+            <EditableText section="cta" field="hours" defaultText="Mon – Sat: 9:00 AM – 7:00 PM" as="span" />
           </div>
           <div className="hidden md:block h-4 w-px bg-primary-foreground/20" />
           <div className="flex items-center gap-2 font-body text-sm">
             <Phone className="w-4 h-4" />
-            <span>(713) 524-2610</span>
+            <EditableText section="cta" field="phone" defaultText="(713) 524-2610" as="span" />
           </div>
         </div>
       </div>

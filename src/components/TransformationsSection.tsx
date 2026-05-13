@@ -35,10 +35,10 @@ export function TransformationsSection() {
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="inline-flex items-center gap-2 font-body text-xs uppercase tracking-[0.2em] text-accent font-medium mb-2">
             <Sparkles className="w-3.5 h-3.5" />
-            Real Results
+            <EditableText section="transformations" field="badge" defaultText="Real Results" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-6xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.1' }}>
-            Transformations that speak for <span className="italic text-accent">themselves</span>
+            <EditableText section="transformations" field="title" defaultText="Transformations that speak for themselves" />
           </h2>
           <div className="luxury-divider mx-auto mt-8" />
         </div>
@@ -50,10 +50,11 @@ export function TransformationsSection() {
             <ImageComparison 
               beforeImage={beforeImage}
               afterImage={afterImage}
+              section="transformations"
             />
           </div>
           <p className="text-center mt-8 font-body text-sm text-muted-foreground italic">
-            Slide to see the magic of our Premium Extensions
+            <EditableText section="transformations" field="slider_hint" defaultText="Slide to see the magic of our Premium Extensions" as="span" />
           </p>
         </div>
 
@@ -61,7 +62,7 @@ export function TransformationsSection() {
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {testimonials.map((t, i) => (
             <motion.div
-              key={t.name}
+              key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1, duration: 0.8 }}
@@ -72,11 +73,13 @@ export function TransformationsSection() {
                 <Quote className="w-6 h-6 text-accent" />
               </div>
               <p className="font-body text-foreground/80 text-lg leading-relaxed mb-8 italic">
-                "{t.text}"
+                "<EditableText section="transformations" field={`testimonial_${i}_text`} defaultText={t.text} as="span" />"
               </p>
               <div className="flex items-center justify-between pt-6 border-t border-border/50">
                 <div>
-                  <p className="font-display text-xl font-medium text-foreground">{t.name}</p>
+                  <p className="font-display text-xl font-medium text-foreground">
+                    <EditableText section="transformations" field={`testimonial_${i}_name`} defaultText={t.name} as="span" />
+                  </p>
                   <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mt-1">Verified Client</p>
                 </div>
                 <div className="flex gap-0.5">

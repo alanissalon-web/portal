@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { EditableImage } from './cms/EditableImage';
 
 interface ImageComparisonProps {
   beforeImage: string;
   afterImage: string;
+  section?: string;
 }
 
-export function ImageComparison({ beforeImage, afterImage }: ImageComparisonProps) {
+export function ImageComparison({ beforeImage, afterImage, section = 'transformations' }: ImageComparisonProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -30,21 +32,25 @@ export function ImageComparison({ beforeImage, afterImage }: ImageComparisonProp
       onTouchMove={handleMove}
     >
       {/* After Image (Background) */}
-      <img
-        src={afterImage}
+      <EditableImage
+        section={section}
+        field="after_image"
+        defaultImage={afterImage}
         alt="After transformation"
         className="absolute inset-0 w-full h-full object-cover"
       />
 
       {/* Before Image (Foreground with Clip Path) */}
       <div 
-        className="absolute inset-0 w-full h-full"
+        className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
       >
-        <img
-          src={beforeImage}
+        <EditableImage
+          section={section}
+          field="before_image"
+          defaultImage={beforeImage}
           alt="Before transformation"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover pointer-events-auto"
         />
         <div className="absolute top-4 left-4 bg-charcoal/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-body uppercase tracking-wider">
           Before

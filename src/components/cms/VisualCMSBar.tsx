@@ -53,7 +53,12 @@ export const VisualCMSBar: React.FC = () => {
               <Edit3 className="w-4 h-4" />
               Editar Sitio
             </Button>
-            <Button variant="ghost" size="sm" className="rounded-full gap-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="rounded-full gap-2"
+              onClick={() => navigate('/admin')}
+            >
               <Settings className="w-4 h-4" />
               Configurar
             </Button>

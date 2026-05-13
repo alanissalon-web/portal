@@ -1,4 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { EditableText } from './cms/EditableText';
+import { EditableImage } from './cms/EditableImage';
 import experienceDiag from '@/assets/salon-color-bar-real.jpg';
 import experienceTreat from '@/assets/salon-styling-area.jpg';
 import experienceResult from '@/assets/salon-ambience-real.jpg';
@@ -33,10 +35,10 @@ export function ExperienceSection() {
         {/* Header */}
         <div className={`text-center max-w-2xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            Your Experience
+            <EditableText section="experience" field="badge" defaultText="Your Experience" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            More than a service, a ritual
+            <EditableText section="experience" field="title" defaultText="More than a service, a ritual" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>
@@ -50,19 +52,22 @@ export function ExperienceSection() {
               style={{ animationDelay: `${(i + 1) * 150}ms` }}
             >
               <div className="relative w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden shadow-lg shadow-foreground/5">
-                <img
-                  src={step.image}
+                <EditableImage
+                  section="experience"
+                  field={`step_${i}_image`}
+                  defaultImage={step.image}
                   alt={step.title}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
                 <div className="absolute inset-0 rounded-full ring-2 ring-inset ring-accent/20" />
               </div>
               <span className="font-display text-3xl text-accent/50 font-light">{step.number}</span>
-              <h3 className="font-display text-2xl font-medium text-foreground mt-2 mb-3">{step.title}</h3>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto text-pretty">
-                {step.description}
-              </p>
+              <h3 className="font-display text-2xl font-medium text-foreground mt-2 mb-3">
+                <EditableText section="experience" field={`step_${i}_title`} defaultText={step.title} as="span" />
+              </h3>
+              <div className="font-body text-sm text-muted-foreground leading-relaxed max-w-xs mx-auto text-pretty">
+                <EditableText section="experience" field={`step_${i}_description`} defaultText={step.description} />
+              </div>
             </div>
           ))}
         </div>
