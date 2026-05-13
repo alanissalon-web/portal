@@ -1,6 +1,5 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { ShopSection } from '@/components/ShopSection';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Sparkles, Truck, ShieldCheck, Award, ArrowRight } from 'lucide-react';
@@ -102,7 +101,6 @@ const ShopPage = () => {
       </section>
 
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

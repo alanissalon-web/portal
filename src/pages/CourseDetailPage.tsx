@@ -1,12 +1,14 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Clock, BookOpen, Video, Users, CheckCircle, Star, PlayCircle, Award, GraduationCap, MessageCircle, Lock as LockIcon } from 'lucide-react';
+import { 
+  ArrowLeft, Clock, BookOpen, Video, Users, CheckCircle, Star, 
+  PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
+  GraduationCap, MessageSquare, PhoneCall
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface CourseData {
@@ -18,86 +20,41 @@ interface CourseData {
   image: string;
   description: string;
   topics: string[];
-  curriculum: any[];
+  curriculum: {
+    module: string;
+    title: string;
+    lessons: number;
+    duration: string;
+    video_url?: string;
+    content?: string;
+  }[];
   price: string;
   badge?: string | null;
   meetLink?: string | null;
   accessCode?: string | null;
 }
 
-const fallbackCourses: CourseData[] = [
-  {
-    id: 'extensions-masterclass',
-    title: 'Extensions Masterclass',
-    type: 'On-Demand',
-    duration: '6 hours',
-    level: 'Intermediate',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1603381349501-NID1QSSHZLWD7A894B3U/Micro+Points++.jpg',
-    description: 'Learn keratin bonding, tape-ins, microlinks, and Mago techniques from a certified Great Lengths educator. This comprehensive course covers everything from client consultation to advanced placement techniques that create the most natural-looking results.',
-    topics: ['Keratin Fusion', 'Tape-In Application', 'Color Matching', 'Client Consultation', 'Removal Techniques', 'Maintenance Protocols'],
-    curriculum: [],
-    price: '$299',
-    badge: 'Best Seller',
-  },
-  {
-    id: 'color-balayage',
-    title: 'Color Science & Balayage',
-    type: 'On-Demand',
-    duration: '4 hours',
-    level: 'Advanced',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712180693376-7W0S5SXPIT7GDU3S4Q3G/IMG_5139.jpeg',
-    description: 'Master the art of dimensional color, balayage, and corrective color techniques. Learn formulation secrets, advanced painting methods, and how to achieve the most sought-after color trends.',
-    topics: ['Color Theory', 'Balayage Techniques', 'Toner Formulation', 'Color Correction', 'Foilayage', 'Lived-In Color'],
-    curriculum: [],
-    price: '$249',
-    badge: 'New',
-  },
-  {
-    id: 'hair-loss',
-    title: 'Hair Loss Solutions',
-    type: 'On-Demand',
-    duration: '3 hours',
-    level: 'All Levels',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712181291533-HY1UX4BEZ8J9BVSK20V3/IMG_6453.jpeg',
-    description: 'Understanding thinning hair, scalp analysis, and non-surgical volumizing solutions. Learn to confidently address hair loss concerns and offer innovative solutions that transform lives.',
-    topics: ['Scalp Analysis', 'Micro Point', 'Toppers & Wigs', 'Client Care', 'CombLine Technology', 'Business Integration'],
-    curriculum: [],
-    price: '$199',
-    badge: null,
-  },
-];
-
-const curriculum = [
-  { module: 'Module 1', title: 'Foundations & Theory', lessons: 4, duration: '45 min' },
-  { module: 'Module 2', title: 'Hands-On Techniques', lessons: 6, duration: '1.5 hrs' },
-  { module: 'Module 3', title: 'Advanced Applications', lessons: 5, duration: '1 hr' },
-  { module: 'Module 4', title: 'Client Management', lessons: 3, duration: '30 min' },
-  { module: 'Module 5', title: 'Business & Marketing', lessons: 3, duration: '30 min' },
-];
-
-import { LocalDB } from '@/services/LocalDatabase';
-
 const CourseDetailPage = () => {
   const { courseId } = useParams();
-  const { ref, isVisible } = useScrollReveal();
+  const { ref: revealRef, isVisible } = useScrollReveal();
+  const { toast } = useToast();
+  
   const [course, setCourse] = useState<CourseData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [isUnlocked, setIsUnlocked] = useState(false);
   const [inputCode, setInputCode] = useState('');
-  const { toast } = useToast();
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [activeLesson, setActiveLesson] = useState<number | null>(null);
 
   useEffect(() => {
-    const fetchCourse = () => {
-      const allCourses = LocalDB.getCourses();
-      const data = allCourses.find((c: any) => c.id === courseId);
+    const fetchCourse = async () => {
+      const { LocalDB } = await import('@/services/LocalDatabase');
+      const data = LocalDB.getCourseById(courseId || '');
       
       if (data) {
         setCourse({
           id: data.id,
           title: data.title,
-          type: data.type === 'on-demand' ? 'On-Demand' : 'Live',
+          type: data.type || 'on-demand',
           duration: data.duration || '2 hours',
           level: data.level || 'All Levels',
           image: data.image_url || '',
@@ -110,7 +67,7 @@ const CourseDetailPage = () => {
           accessCode: data.access_code
         });
 
-        // Check if already unlocked in this session
+        // Check if already unlocked
         const savedUnlock = sessionStorage.getItem(`unlocked_${courseId}`);
         if (savedUnlock === 'true' || !data.access_code) {
           setIsUnlocked(true);
@@ -118,6 +75,7 @@ const CourseDetailPage = () => {
       }
       setLoading(false);
     };
+
     fetchCourse();
   }, [courseId]);
 
@@ -132,283 +90,324 @@ const CourseDetailPage = () => {
     }
   };
 
-  const handleWaitlist = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    LocalDB.addToWaitlist(email, `course-${courseId}`);
-    setSubmitted(true);
-    toast({ title: "¡Ya estás en la lista!", description: "Te notificaremos cuando el curso esté disponible." });
-    setEmail('');
+  const renderVideo = (url: string) => {
+    if (!url) return null;
+    
+    let embedUrl = "";
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+      const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
+      embedUrl = `https://www.youtube.com/embed/${id}`;
+    } else if (url.includes('loom.com')) {
+      const id = url.split('/').pop();
+      embedUrl = `https://www.loom.com/embed/${id}`;
+    } else if (url.includes('vimeo.com')) {
+      const id = url.split('/').pop();
+      embedUrl = `https://player.vimeo.com/video/${id}`;
+    }
+
+    if (embedUrl) {
+      return (
+        <iframe 
+          className="w-full aspect-video rounded-3xl"
+          src={embedUrl} 
+          allowFullScreen
+          title="Lesson Video"
+        />
+      );
+    }
+
+    return <video src={url} controls className="w-full aspect-video rounded-3xl bg-black" />;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <SalonNavbar />
-        <div className="pt-32 pb-20 flex items-center justify-center">
-          <div className="animate-pulse text-center">
-            <div className="w-16 h-16 bg-accent/20 rounded-full mx-auto mb-4" />
-            <p className="font-body text-muted-foreground">Loading course...</p>
+        <div className="pt-40 flex items-center justify-center">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="w-12 h-12 bg-accent/20 rounded-full mb-4" />
+            <p className="font-body text-sm text-muted-foreground uppercase tracking-widest">Cargando Masterclass...</p>
           </div>
         </div>
-        <SalonFooter />
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="min-h-screen">
+      <div className="min-h-screen bg-background">
         <SalonNavbar />
-        <div className="pt-32 pb-20 text-center container mx-auto px-6">
-          <h1 className="font-display text-4xl text-foreground mb-4">Course Not Found</h1>
-          <p className="font-body text-muted-foreground mb-8">This course doesn't exist or has been removed.</p>
+        <div className="pt-40 text-center container mx-auto px-6">
+          <h1 className="font-display text-4xl text-foreground mb-4">Curso No Encontrado</h1>
+          <p className="font-body text-muted-foreground mb-8">El curso que buscas no existe o ha sido movido.</p>
           <Link to="/academy">
-            <Button variant="default"><ArrowLeft className="w-4 h-4" /> Back to Academy</Button>
+            <Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" /> Volver a Academy</Button>
           </Link>
         </div>
-        <SalonFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background">
       <SalonNavbar />
 
-      {/* Hero */}
-      <section className="relative pt-40 pb-16 md:pt-56 md:pb-24 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
-        <div className="absolute inset-0">
-          <img src={course.image} alt={course.title} className="w-full h-full object-cover opacity-25" />
-          <div className="absolute inset-0 bg-gradient-to-b from-charcoal/70 via-charcoal/50 to-charcoal" />
-        </div>
-        <div className="relative z-10 container mx-auto px-6">
-          <Link to="/academy" className="inline-flex items-center gap-2 text-primary-foreground/50 hover:text-accent transition-colors font-body text-sm mb-8">
-            <ArrowLeft className="w-4 h-4" /> Back to Academy
+      {/* Hero Section */}
+      <section className="relative pt-44 pb-20 overflow-hidden bg-background" ref={revealRef}>
+        <div className="container mx-auto px-6 relative z-10">
+          <Link to="/academy" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-10 group">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-body text-xs uppercase tracking-widest font-bold">Cursos Academy</span>
           </Link>
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <div className="flex flex-wrap gap-3 mb-6">
-                <span className="inline-flex items-center gap-1.5 bg-accent/15 border border-accent/25 text-accent rounded-full px-4 py-1.5 font-body text-xs uppercase tracking-wider">
-                  <Video className="w-3.5 h-3.5" /> {course.type}
+
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className={`space-y-6 ${isVisible ? 'animate-reveal-left' : ''}`}>
+              <div className="flex items-center gap-3">
+                <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
                 </span>
                 {course.badge && (
-                  <span className="inline-flex items-center gap-1.5 bg-primary/15 border border-primary/25 text-primary rounded-full px-4 py-1.5 font-body text-xs uppercase tracking-wider">
-                    <Award className="w-3.5 h-3.5" /> {course.badge}
+                  <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                    {course.badge}
                   </span>
                 )}
               </div>
-              <h1 className="font-display text-4xl md:text-6xl font-light text-primary-foreground mb-5 tracking-tight">
+              
+              <h1 className="font-display text-4xl md:text-6xl font-light text-foreground leading-[1.1]">
                 {course.title}
               </h1>
-              <p className="font-body text-primary-foreground/60 text-lg leading-relaxed mb-8 max-w-xl">
+              
+              <p className="font-body text-lg text-muted-foreground leading-relaxed max-w-xl">
                 {course.description}
               </p>
-              <div className="flex flex-wrap gap-6 text-primary-foreground/50 font-body text-sm">
-                <span className="flex items-center gap-2"><Clock className="w-4 h-4 text-accent" />{course.duration}</span>
-                <span className="flex items-center gap-2"><BookOpen className="w-4 h-4 text-accent" />{course.level}</span>
-                <span className="flex items-center gap-2"><Users className="w-4 h-4 text-accent" />500+ Enrolled</span>
-              </div>
-            </div>
-            {/* Price Card */}
-            <div className="bg-card/10 backdrop-blur-md border border-white/10 rounded-2xl p-8 text-center">
-              <div className="mb-6">
-                <span className="font-display text-5xl font-medium text-primary-foreground">{course.price}</span>
-                <p className="font-body text-sm text-primary-foreground/40 mt-1">One-time payment · Lifetime access</p>
-              </div>
-              <div className="space-y-3 mb-8">
-                {['Lifetime access', 'Certificate of completion', 'Private community', 'Monthly live Q&A'].map(f => (
-                  <div key={f} className="flex items-center gap-2.5 text-primary-foreground/60 font-body text-sm">
-                    <CheckCircle className="w-4 h-4 text-accent flex-shrink-0" />
-                    {f}
+
+              <div className="flex flex-wrap gap-8 pt-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-accent" />
                   </div>
-                ))}
-              </div>
-              <div className="space-y-3">
-                <a 
-                  href={`https://wa.me/17135242610?text=Hola%20Alanis%20Salon!%20Me%20gustaría%20más%20información%20sobre%20el%20curso:%20${encodeURIComponent(course.title)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full"
-                >
-                  <Button variant="gold" size="lg" className="w-full gap-2">
-                    <MessageCircle className="w-4 h-4" /> Reservar por WhatsApp
-                  </Button>
-                </a>
-                <p className="font-body text-[10px] text-primary-foreground/40">Inscripciones abiertas · Cupos limitados</p>
+                  <div>
+                    <p className="font-display text-sm font-medium">{course.duration}</p>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                    <GraduationCap className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <p className="font-display text-sm font-medium">{course.level}</p>
+                    <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Curriculum */}
-      <section className="py-20 bg-background" ref={ref}>
-        <div className="container mx-auto px-6">
-          <div className={`text-center mb-14 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
-            <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">Contenido del Curso</span>
-            <h2 className="font-display text-3xl md:text-4xl font-light text-foreground mt-3">Lo que aprenderás</h2>
-          </div>
-
-          {!isUnlocked ? (
-            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-0 overflow-hidden bg-card border border-border rounded-[2rem] shadow-2xl">
-              {/* Left Side: Info */}
-              <div className="p-8 md:p-12 flex flex-col justify-center bg-accent/[0.02]">
-                <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-                  <LockIcon className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="font-display text-3xl font-medium mb-4">Acceso Exclusivo</h3>
-                <p className="font-body text-sm text-muted-foreground mb-8 leading-relaxed">
-                  Este curso premium contiene técnicas avanzadas de nivel profesional. Para acceder al contenido completo y las lecciones en video, sigue estos pasos:
-                </p>
-                
-                <div className="space-y-6">
-                  {[
-                    { step: '1', text: 'Realiza tu pago vía Zelle o transferencia.' },
-                    { step: '2', text: 'Envía tu comprobante por WhatsApp.' },
-                    { step: '3', text: 'Recibe tu código de acceso personal.' },
-                  ].map(s => (
-                    <div key={s.step} className="flex gap-4">
-                      <div className="w-6 h-6 rounded-full bg-accent text-white font-display text-[10px] flex items-center justify-center flex-shrink-0 mt-0.5">
-                        {s.step}
-                      </div>
-                      <p className="font-body text-sm text-foreground/80">{s.text}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right Side: Action */}
-              <div className="p-8 md:p-12 bg-accent/5 flex flex-col justify-center border-l border-border/50">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-accent/10">
-                  <h4 className="font-display text-lg font-medium mb-6 text-center">¿Ya tienes tu código?</h4>
-                  <form onSubmit={handleUnlock} className="space-y-4">
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        value={inputCode}
-                        onChange={(e) => setInputCode(e.target.value)}
-                        placeholder="INGRESA TU CÓDIGO AQUÍ"
-                        className="w-full bg-[#FAFAFA] border border-border rounded-xl px-4 py-4 font-body text-sm text-center tracking-[0.2em] outline-none focus:ring-2 focus:ring-accent/50 uppercase font-bold"
-                      />
-                    </div>
-                    <Button type="submit" variant="gold" className="w-full h-12 rounded-xl text-sm font-bold shadow-lg shadow-accent/20">
-                      Desbloquear Contenido
-                    </Button>
-                  </form>
-                  
-                  <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
-                    <p className="font-body text-xs text-muted-foreground mb-4">¿Necesitas ayuda o quieres comprarlo?</p>
-                    <a 
-                      href={`https://wa.me/17135242610?text=Hola%20Alanis%20Salon!%20Quiero%20adquirir%20el%20acceso%20para:%20${encodeURIComponent(course.title)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <Button variant="outline" size="sm" className="rounded-full gap-2 border-accent/20 text-accent hover:bg-accent/5">
-                        <MessageCircle className="w-3.5 h-3.5" /> Contactar Soporte
+            <div className={`relative ${isVisible ? 'animate-reveal-right' : ''}`}>
+              <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+                <img 
+                  src={course.image} 
+                  alt={course.title} 
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                <div className="absolute bottom-10 left-10 right-10 text-white">
+                  <p className="font-body text-xs uppercase tracking-widest opacity-70 mb-2">Inversión</p>
+                  <p className="font-display text-5xl font-light">{course.price}</p>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20info%20del%20curso:%20${encodeURIComponent(course.title)}`}>
+                      <Button variant="gold" className="w-full h-14 rounded-xl gap-2 text-sm font-bold shadow-lg shadow-accent/20">
+                        <MessageSquare className="w-4 h-4" /> Reservar vía SMS
+                      </Button>
+                    </a>
+                    <a href="tel:17135242610">
+                      <Button variant="heroOutline" className="w-full h-14 rounded-xl gap-2 text-sm font-bold border-white/20">
+                        <PhoneCall className="w-4 h-4" /> Llamar ahora
                       </Button>
                     </a>
                   </div>
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="max-w-3xl mx-auto space-y-4">
-              <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 mb-8 flex items-center gap-3 animate-reveal-up">
-                <CheckCircle className="w-5 h-5 text-emerald-600" />
-                <p className="font-body text-sm text-emerald-800 font-medium">¡Acceso concedido! Disfruta de tu masterclass.</p>
-              </div>
-              {course.curriculum.map((mod, i) => (
-                <div
-                  key={i}
-                  className={`bg-card rounded-2xl p-6 border border-border hover:border-accent/30 hover:shadow-md transition-all duration-300 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}
-                  style={{ animationDelay: `${(i + 1) * 80}ms` }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent font-body text-sm font-semibold">
-                        {i + 1}
+          </div>
+        </div>
+      </section>
+
+      {/* Curriculum / Content Area */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-6">
+          {!isUnlocked ? (
+            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-0 overflow-hidden bg-card border border-border rounded-[2.5rem] shadow-2xl animate-reveal-up">
+              {/* Left Side: Steps */}
+              <div className="p-10 md:p-14 flex flex-col justify-center bg-accent/[0.02]">
+                <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
+                  <LockIcon className="w-6 h-6 text-accent" />
+                </div>
+                <h3 className="font-display text-3xl font-medium mb-4">Área de Estudiantes</h3>
+                <p className="font-body text-sm text-muted-foreground mb-10 leading-relaxed">
+                  Accede a las técnicas avanzadas que transformarán tu carrera profesional. Sigue estos pasos para desbloquear el contenido:
+                </p>
+                
+                <div className="space-y-6">
+                  {[
+                    { step: '1', text: 'Realiza tu pago vía Zelle o CashApp.' },
+                    { step: '2', text: 'Envía tu comprobante por WhatsApp.' },
+                    { step: '3', text: 'Ingresa tu código de acceso personal.' },
+                  ].map(s => (
+                    <div key={s.step} className="flex gap-5">
+                      <div className="w-7 h-7 rounded-full bg-accent text-white font-display text-xs flex items-center justify-center flex-shrink-0">
+                        {s.step}
                       </div>
-                      <div>
-                        <p className="font-body text-xs text-accent uppercase tracking-wider">{mod.module}</p>
-                        <h3 className="font-display text-lg font-medium text-foreground">{mod.title}</h3>
-                      </div>
+                      <p className="font-body text-sm text-foreground/80 pt-1">{s.text}</p>
                     </div>
-                    <div className="flex items-center gap-4 text-muted-foreground font-body text-xs">
-                      <span className="flex items-center gap-1"><PlayCircle className="w-3.5 h-3.5" />{mod.lessons} lecciones</span>
-                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{mod.duration}</span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Right Side: Form */}
+              <div className="p-10 md:p-14 bg-accent/5 flex flex-col justify-center border-l border-border/50">
+                <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl border border-accent/10">
+                  <h4 className="font-display text-xl font-medium mb-6 text-center italic">Desbloquear Masterclass</h4>
+                  <form onSubmit={handleUnlock} className="space-y-4">
+                    <input 
+                      type="text" 
+                      value={inputCode}
+                      onChange={(e) => setInputCode(e.target.value)}
+                      placeholder="INGRESA TU CÓDIGO AQUÍ"
+                      className="w-full bg-[#F8F8F8] border border-border rounded-2xl px-6 py-5 font-body text-sm text-center tracking-[0.3em] outline-none focus:ring-2 focus:ring-accent/40 uppercase font-black"
+                    />
+                    <Button type="submit" variant="gold" className="w-full h-14 rounded-2xl text-sm font-bold shadow-xl shadow-accent/20">
+                      Entrar al Curso
+                    </Button>
+                  </form>
+                  <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
+                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">¿Necesitas ayuda o quieres comprarlo?</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20acceso%20para:%20${encodeURIComponent(course.title)}`}>
+                        <Button variant="gold" size="lg" className="rounded-xl gap-2 shadow-lg shadow-accent/20">
+                          <MessageSquare className="w-4 h-4" /> SMS
+                        </Button>
+                      </a>
+                      <a href="tel:17135242610">
+                        <Button variant="outline" size="lg" className="rounded-xl gap-2 border-accent/20 text-accent hover:bg-accent/5">
+                          <PhoneCall className="w-4 h-4" /> Llamar
+                        </Button>
+                      </a>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          ) : (
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-12">
+                <div>
+                  <h2 className="font-display text-3xl font-medium">Contenido de la Masterclass</h2>
+                  <p className="font-body text-sm text-muted-foreground mt-1 tracking-wide uppercase">¡Bienvenido(a)! Selecciona una lección para comenzar.</p>
+                </div>
+                <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold border border-emerald-100">
+                  <CheckCircle className="w-4 h-4" /> Acceso Concedido
+                </div>
+              </div>
+
+              {/* Live Session if available */}
+              {course.meetLink && (
+                <div className="bg-accent text-white rounded-[2.5rem] p-8 md:p-12 mb-12 relative overflow-hidden group shadow-2xl shadow-accent/20">
+                  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="text-center md:text-left space-y-3">
+                      <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        <Video className="w-3.5 h-3.5" /> En Vivo
+                      </div>
+                      <h3 className="font-display text-3xl font-medium">Únete a la Próxima Sesión</h3>
+                      <p className="font-body text-white/70 max-w-md">Interacción directa con Alanis para resolver dudas y perfeccionar tu técnica.</p>
+                    </div>
+                    <a href={course.meetLink} target="_blank" rel="noopener noreferrer">
+                      <Button className="bg-white text-accent hover:bg-white/90 h-16 px-10 rounded-2xl font-bold shadow-xl">
+                        Entrar a la Clase <ExternalLink className="w-4 h-4 ml-2" />
+                      </Button>
+                    </a>
+                  </div>
+                  <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40 blur-3xl" />
+                </div>
+              )}
+
+              {/* Course Player */}
+              {activeLesson !== null && course.curriculum[activeLesson] && (
+                <div className="mb-16 animate-reveal-up" id="player">
+                  <div className="bg-black rounded-[2.5rem] overflow-hidden shadow-2xl mb-8 ring-1 ring-white/10">
+                    {course.curriculum[activeLesson].video_url ? (
+                      renderVideo(course.curriculum[activeLesson].video_url!)
+                    ) : (
+                      <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
+                        <Video className="w-20 h-20 mb-4" />
+                        <p className="font-display text-lg">Preparando Video...</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="px-6 space-y-4">
+                    <div className="flex items-center gap-3">
+                      <span className="text-accent font-display text-sm font-bold uppercase tracking-widest">{course.curriculum[activeLesson].module}</span>
+                      <div className="h-px flex-1 bg-border/50" />
+                    </div>
+                    <h2 className="font-display text-4xl font-light">{course.curriculum[activeLesson].title}</h2>
+                    <p className="font-body text-muted-foreground leading-relaxed text-lg max-w-3xl">
+                      {course.curriculum[activeLesson].content || 'Explora esta fase detalladamente en la masterclass.'}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Lessons List */}
+              <div className="space-y-4">
+                {course.curriculum.length > 0 ? (
+                  course.curriculum.map((lesson, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setActiveLesson(i);
+                        document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
+                      }}
+                      className={`w-full text-left bg-card rounded-2xl p-6 border transition-all duration-300 group flex items-center justify-between ${
+                        activeLesson === i 
+                          ? 'border-accent shadow-xl ring-1 ring-accent bg-accent/[0.02]' 
+                          : 'border-border hover:border-accent/40 hover:shadow-lg'
+                      }`}
+                    >
+                      <div className="flex items-center gap-6">
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-display text-sm font-bold transition-all ${
+                          activeLesson === i ? 'bg-accent text-white scale-110 shadow-lg shadow-accent/20' : 'bg-accent/10 text-accent group-hover:bg-accent/20'
+                        }`}>
+                          {activeLesson === i ? <PlayCircle className="w-6 h-6" /> : i + 1}
+                        </div>
+                        <div>
+                          <p className={`font-body text-[10px] uppercase tracking-widest font-bold mb-1 ${activeLesson === i ? 'text-accent' : 'text-muted-foreground'}`}>
+                            {lesson.module}
+                          </p>
+                          <h4 className="font-display text-lg font-medium">{lesson.title}</h4>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-6">
+                        <div className="hidden sm:flex items-center gap-2 text-muted-foreground font-body text-xs">
+                          <Clock className="w-3.5 h-3.5" /> {lesson.duration}
+                        </div>
+                        <ArrowLeft className={`w-5 h-5 transition-transform rotate-180 ${activeLesson === i ? 'text-accent translate-x-2' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-2'}`} />
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="text-center py-24 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
+                    <BookOpen className="w-16 h-16 text-accent/20 mx-auto mb-6" />
+                    <h3 className="font-display text-xl text-foreground mb-2">Contenido en Preparación</h3>
+                    <p className="font-body text-sm text-muted-foreground">Estamos cargando las lecciones. Vuelve pronto.</p>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* Topics covered */}
-      <section className="py-20 bg-cream">
-        <div className="container mx-auto px-6">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="font-display text-3xl font-light text-foreground text-center mb-10">Skills You'll Master</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {course.topics.map(topic => (
-                <div key={topic} className="flex items-center gap-3 bg-background rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow duration-300">
-                  <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="font-body text-sm text-foreground">{topic}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Instructor */}
-      <section className="py-20 bg-background">
-        <div className="container mx-auto px-6">
-          <div className="max-w-2xl mx-auto bg-card rounded-2xl p-8 shadow-sm flex flex-col sm:flex-row items-center gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0 shadow-lg">
-              <img
-                src="https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/10bd6834-c996-4676-b5bc-02a2a8487bb3/IMG_9440.png"
-                alt="Rosie Alanis"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <h3 className="font-display text-xl font-medium text-foreground">Rosie Alanis</h3>
-              <p className="font-body text-sm text-accent mb-2">Lead Instructor · CombLine National Educator</p>
-              <p className="font-body text-sm text-muted-foreground leading-relaxed">
-                With 25+ years of experience and certifications from Great Lengths, CombLine, and Mago, Rosie brings world-class expertise to every lesson.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 bg-cream">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <h2 className="font-display text-3xl font-light text-foreground text-center mb-10">What Students Say</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            {[
-              { text: "The techniques I learned completely transformed how I approach extensions. Worth every penny.", name: 'Sarah M.', role: 'Licensed Stylist, Dallas' },
-              { text: "The on-demand format is perfect. I can rewatch techniques before applying them on clients.", name: 'Maria G.', role: 'Independent Stylist, Houston' },
-            ].map((t, i) => (
-              <div key={i} className="bg-background rounded-2xl p-6 shadow-sm">
-                <div className="flex gap-0.5 mb-3">
-                  {[...Array(5)].map((_, j) => <Star key={j} className="w-3.5 h-3.5 fill-accent text-accent" />)}
-                </div>
-                <p className="font-body text-sm text-foreground/80 leading-relaxed mb-4 italic">"{t.text}"</p>
-                <p className="font-body text-sm font-medium text-foreground">{t.name}</p>
-                <p className="font-body text-xs text-muted-foreground">{t.role}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

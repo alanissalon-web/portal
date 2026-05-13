@@ -18,12 +18,23 @@ type Course = {
   status: string;
   badge: string | null;
   access_code: string | null;
+  curriculum: { 
+    module: string; 
+    title: string; 
+    lessons: number; 
+    duration: string;
+    video_url?: string;
+    content?: string;
+  }[];
+  next_date: string | null;
 };
 
 const empty: Omit<Course, 'id'> = {
   title: '', description: '', price: 0, image_url: '', type: 'on-demand',
   duration: '', level: 'All Levels', topics: [], meet_link: '', status: 'draft', badge: '',
   access_code: '',
+  curriculum: [],
+  next_date: '',
 };
 
 import { LocalDB } from '@/services/LocalDatabase';
@@ -34,6 +45,16 @@ const AdminCourses = () => {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState(empty);
   const [topicInput, setTopicInput] = useState('');
+  
+  // Curriculum item state
+  const [newModule, setNewModule] = useState({ 
+    module: 'Módulo 1', 
+    title: '', 
+    lessons: 1, 
+    duration: '30m',
+    video_url: '',
+    content: ''
+  });
   const { toast } = useToast();
 
   const fetchCourses = () => {
@@ -231,9 +252,100 @@ const AdminCourses = () => {
               placeholder="https://meet.google.com/..."
               className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
           </div>
-          <div className="flex gap-3 pt-2">
-            <Button onClick={save}><Save className="w-4 h-4" /> Save</Button>
-            <Button variant="outline" onClick={cancel}><X className="w-4 h-4" /> Cancel</Button>
+          <div className="pt-4 border-t border-border">
+            <h3 className="font-display text-lg font-medium text-foreground mb-4">Contenido del Curso (Temario)</h3>
+            <div className="space-y-3 mb-6">
+              {form.curriculum.map((curr, idx) => (
+                <div key={idx} className="flex items-center gap-4 bg-background border border-border p-3 rounded-xl">
+                  <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center text-accent font-bold text-xs">
+                    {idx + 1}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body text-sm font-medium truncate">{curr.title}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">{curr.module} · {curr.lessons} lecciones · {curr.duration}</p>
+                  </div>
+                  <Button 
+                    variant="ghost" size="icon" className="text-destructive h-8 w-8"
+                    onClick={() => setForm(p => ({ ...p, curriculum: p.curriculum.filter((_, i) => i !== idx) }))}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              ))}
+              {form.curriculum.length === 0 && (
+                <p className="text-center py-4 text-xs text-muted-foreground bg-background border border-dashed border-border rounded-xl">
+                  No hay módulos todavía. Añade el primero abajo.
+                </p>
+              )}
+            </div>
+
+            <div className="bg-accent/5 p-5 rounded-2xl border border-accent/10 space-y-4">
+              <div className="grid sm:grid-cols-4 gap-3 items-end">
+                <div className="sm:col-span-1">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Módulo / Fase</label>
+                  <input 
+                    value={newModule.module} onChange={e => setNewModule(p => ({ ...p, module: e.target.value }))}
+                    placeholder="Módulo 1" className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Título de la Lección</label>
+                  <input 
+                    value={newModule.title} onChange={e => setNewModule(p => ({ ...p, title: e.target.value }))}
+                    placeholder="Introducción a la técnica..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                </div>
+                <div className="sm:col-span-1">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Duración</label>
+                  <input 
+                    value={newModule.duration} onChange={e => setNewModule(p => ({ ...p, duration: e.target.value }))}
+                    placeholder="15 min" className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                </div>
+              </div>
+              
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block flex items-center gap-1">
+                    <Video className="w-3 h-3" /> Link del Video (YouTube/Loom/Vimeo)
+                  </label>
+                  <input 
+                    value={newModule.video_url} onChange={e => setNewModule(p => ({ ...p, video_url: e.target.value }))}
+                    placeholder="https://..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Descripción Corta</label>
+                  <input 
+                    value={newModule.content} onChange={e => setNewModule(p => ({ ...p, content: e.target.value }))}
+                    placeholder="En esta lección aprenderás..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button 
+                  type="button" 
+                  className="rounded-lg h-9 gap-2 text-xs bg-accent hover:bg-accent/90"
+                  onClick={() => {
+                    if (!newModule.title) return;
+                    setForm(p => ({ ...p, curriculum: [...p.curriculum, newModule] }));
+                    setNewModule({ 
+                      module: `Módulo ${form.curriculum.length + 2}`, 
+                      title: '', 
+                      lessons: 1, 
+                      duration: '30m',
+                      video_url: '',
+                      content: ''
+                    });
+                  }}
+                >
+                  <Plus className="w-3.5 h-3.5" /> Añadir Lección al Temario
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-6 border-t border-border">
+            <Button onClick={save} className="bg-black hover:bg-black/80 rounded-xl px-8 h-12 gap-2">
+              <Save className="w-4 h-4" /> Guardar Curso
+            </Button>
+            <Button variant="outline" onClick={cancel} className="rounded-xl px-8 h-12">Cancelar</Button>
           </div>
         </div>
       )}

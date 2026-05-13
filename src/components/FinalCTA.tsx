@@ -1,6 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { MessageCircle, MapPin, Clock, Phone } from 'lucide-react';
+import { MessageCircle, MapPin, Clock, Phone, MessageSquare, PhoneCall, ArrowRight } from 'lucide-react';
 import { EditableText } from './cms/EditableText';
 
 export function FinalCTA() {
@@ -25,14 +25,23 @@ export function FinalCTA() {
 
           <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 ${isVisible ? 'animate-reveal-up delay-200' : 'opacity-0'}`}>
             <a href="#reservar">
-              <Button variant="gold" size="xl" className="text-charcoal">
+              <Button size="xl" variant="gold" className="text-charcoal px-8 group">
                 <EditableText section="cta" field="btn_book" defaultText="Book Consultation" as="span" />
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Button>
             </a>
-            <a href="https://wa.me/17135242610" target="_blank" rel="noopener noreferrer">
-              <Button variant="heroOutline" size="xl">
-                <MessageCircle className="w-5 h-5" />
-                <EditableText section="cta" field="btn_whatsapp" defaultText="WhatsApp" as="span" />
+            
+            <a href="sms:17135242610">
+              <Button variant="heroOutline" size="xl" className="gap-2 border-white/20">
+                <MessageSquare className="w-5 h-5 text-accent" />
+                <EditableText section="cta" field="btn_sms" defaultText="SMS Text" as="span" />
+              </Button>
+            </a>
+
+            <a href="tel:17135242610">
+              <Button variant="gold" size="xl" className="gap-2 px-8 shadow-xl shadow-accent/20">
+                <PhoneCall className="w-5 h-5" />
+                <EditableText section="cta" field="btn_call" defaultText="Call Consultant" as="span" />
               </Button>
             </a>
           </div>

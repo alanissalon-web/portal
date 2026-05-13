@@ -1,6 +1,5 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { ContactSection } from '@/components/ContactSection';
 import { BookingWizard } from '@/components/BookingWizard';
 import salonLounge from '@/assets/salon-lounge-real.jpg';
@@ -26,7 +25,6 @@ const ContactPage = () => {
       <ContactSection />
       <BookingWizard />
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

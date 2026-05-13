@@ -1,6 +1,5 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { AcademySection } from '@/components/AcademySection';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { GraduationCap, Play, Award, Users, ArrowRight } from 'lucide-react';
@@ -86,7 +85,6 @@ const AcademyPage = () => {
       </section>
 
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

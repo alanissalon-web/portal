@@ -6,7 +6,6 @@ import { ServicesSection } from '@/components/ServicesSection';
 import { TransformationsSection } from '@/components/TransformationsSection';
 import { ExperienceSection } from '@/components/ExperienceSection';
 import { FinalCTA } from '@/components/FinalCTA';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { SalonFooter } from '@/components/SalonFooter';
 
 import { useCMS } from '@/contexts/CMSContext';
@@ -54,7 +53,6 @@ const Index = () => {
         return Component ? <Component key={section.id || index} /> : null;
       })}
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

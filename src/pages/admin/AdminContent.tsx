@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Save, Layout, Globe, ArrowRight, Eye, RefreshCw, Palette, Settings } from 'lucide-react';
+import { Save, Layout, Globe, ArrowRight, Eye, RefreshCw, Palette, Settings, ArrowUp, ArrowDown, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
 import { Link } from 'react-router-dom';
@@ -27,6 +27,24 @@ const AdminContent = () => {
     setSections(layout || defaultLayout);
     setLoading(false);
   }, []);
+
+  const moveSection = (index: number, direction: 'up' | 'down') => {
+    const newSections = [...sections];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newSections.length) return;
+    
+    [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
+    setSections(newSections);
+    LocalDB.saveContent('page_layout', { sections: newSections });
+    toast({ title: 'Orden actualizado' });
+  };
+
+  const toggleSection = (id: string) => {
+    const newSections = sections.map(s => s.id === id ? { ...s, hidden: !s.hidden } : s);
+    setSections(newSections);
+    LocalDB.saveContent('page_layout', { sections: newSections });
+    toast({ title: 'Visibilidad actualizada' });
+  };
 
   const resetToDefault = () => {
     if (confirm('¿Estás seguro de restablecer el diseño por defecto? Se perderá el orden personalizado.')) {
@@ -77,10 +95,15 @@ const AdminContent = () => {
 
           {/* Current Layout Summary */}
           <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-            <h3 className="font-display text-xl font-medium mb-6">Estructura Actual</h3>
+            <h3 className="font-display text-xl font-medium mb-6">Estructura de la Página</h3>
             <div className="space-y-3">
               {sections.map((s, i) => (
-                <div key={s.id} className="flex items-center gap-4 p-4 bg-[#FAFAFA] rounded-2xl border border-black/5">
+                <div 
+                  key={s.id} 
+                  className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${
+                    s.hidden ? 'bg-muted/30 opacity-60 grayscale' : 'bg-[#FAFAFA] border-black/5'
+                  }`}
+                >
                   <div className="w-8 h-8 bg-white border border-black/5 rounded-lg flex items-center justify-center font-display text-xs font-bold text-accent">
                     {i + 1}
                   </div>
@@ -88,8 +111,29 @@ const AdminContent = () => {
                     <p className="font-body text-sm font-medium">{s.name}</p>
                     <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{s.id.split('-')[0]}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-bold">Activo</span>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" size="icon" className="w-8 h-8 rounded-lg"
+                      disabled={i === 0}
+                      onClick={() => moveSection(i, 'up')}
+                    >
+                      <ArrowUp className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button 
+                      variant="ghost" size="icon" className="w-8 h-8 rounded-lg"
+                      disabled={i === sections.length - 1}
+                      onClick={() => moveSection(i, 'down')}
+                    >
+                      <ArrowDown className="w-3.5 h-3.5" />
+                    </Button>
+                    <div className="w-px h-4 bg-border mx-1" />
+                    <Button 
+                      variant="ghost" size="icon" 
+                      className={`w-8 h-8 rounded-lg ${s.hidden ? 'text-muted-foreground' : 'text-accent'}`}
+                      onClick={() => toggleSection(s.id)}
+                    >
+                      {s.hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" /> }
+                    </Button>
                   </div>
                 </div>
               ))}

@@ -1,6 +1,5 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { HairLossSection } from '@/components/HairLossSection';
 import { BookingWizard } from '@/components/BookingWizard';
 import { FinalCTA } from '@/components/FinalCTA';
@@ -29,7 +28,6 @@ const HairLossPage = () => {
       <BookingWizard />
       <FinalCTA />
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

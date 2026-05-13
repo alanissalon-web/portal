@@ -48,12 +48,16 @@ const generateId = () => {
 
 export const LocalDB = {
   // --- Content Management ---
-  getContent: () => {
+  getContent: (key?: string) => {
     const data = localStorage.getItem(STORAGE_KEYS.CONTENT);
-    return data ? JSON.parse(data) : INITIAL_CONTENT;
+    const content = data ? JSON.parse(data) : INITIAL_CONTENT;
+    if (key) {
+      return content.find((i: any) => i.section_key === key)?.content;
+    }
+    return content;
   },
   saveContent: (sectionKey: string, content: any) => {
-    const current = LocalDB.getContent();
+    const current = LocalDB.getContent() as any[];
     const index = current.findIndex((i: any) => i.section_key === sectionKey);
     if (index > -1) {
       current[index].content = content;
@@ -61,6 +65,11 @@ export const LocalDB = {
       current.push({ section_key: sectionKey, content });
     }
     localStorage.setItem(STORAGE_KEYS.CONTENT, JSON.stringify(current));
+  },
+
+  getCourseById: (id: string) => {
+    const courses = LocalDB.getCourses();
+    return courses.find((c: any) => c.id === id);
   },
 
   // --- Products Management ---

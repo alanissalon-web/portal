@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Phone, ShoppingBag } from 'lucide-react';
+import { Menu, X, Phone, ShoppingBag, PhoneCall } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo-alanis.png';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -40,11 +40,10 @@ export function SalonNavbar() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.6 }}
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${
-          scrolled || !isHome
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out ${scrolled || !isHome
             ? 'bg-white/80 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,0,0,0.03)] border-b border-black/5 py-3'
             : 'bg-transparent py-6'
-        }`}
+          }`}
       >
         <div className="container mx-auto flex items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2 group">
@@ -68,7 +67,7 @@ export function SalonNavbar() {
                 >
                   {link.label}
                   {isActive && (
-                    <motion.div 
+                    <motion.div
                       layoutId="navUnderline"
                       className="absolute -bottom-1 left-0 right-0 h-px bg-accent"
                     />
@@ -76,13 +75,13 @@ export function SalonNavbar() {
                 </Link>
               );
             })}
-            
+
             <div className="flex items-center gap-4 ml-4">
               {isAdmin && (
                 <Link to="/">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     className="rounded-full gap-2 border-accent text-accent hover:bg-accent hover:text-white"
                     onClick={() => setIsEditing(true)}
                   >
@@ -95,8 +94,8 @@ export function SalonNavbar() {
                 <ShoppingBag className="w-5 h-5" />
               </Link>
               <a href="tel:7135242610">
-                <Button 
-                  variant={scrolled || !isHome ? 'default' : 'hero'} 
+                <Button
+                  variant={scrolled || !isHome ? 'default' : 'hero'}
                   size="sm"
                   className="rounded-full px-6"
                 >
@@ -136,7 +135,7 @@ export function SalonNavbar() {
                 <X className="w-6 h-6" />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto py-10 px-8 flex flex-col gap-8">
               {navLinks.map((link, i) => (
                 <motion.div
@@ -157,7 +156,12 @@ export function SalonNavbar() {
             </div>
 
             <div className="p-8 border-t border-black/5 space-y-4">
-              <a href="tel:7135242610" className="block">
+              <a href="tel:17135242610" className="block">
+                <Button variant="gold" className="w-full gap-2 h-14 text-base font-bold shadow-lg shadow-accent/20">
+                  <PhoneCall className="w-5 h-5" /> Llamar Ahora (Free Call)
+                </Button>
+              </a>
+              <a href="tel:17135242610">
                 <Button variant="default" size="xl" className="w-full text-lg">
                   <Phone className="w-5 h-5 mr-3" />
                   Call Us Now

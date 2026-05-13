@@ -1,6 +1,5 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
-import { WhatsAppFloat } from '@/components/WhatsAppFloat';
 import { ServicesSection } from '@/components/ServicesSection';
 import { PricingSection } from '@/components/PricingSection';
 import { ExperienceSection } from '@/components/ExperienceSection';
@@ -50,7 +49,6 @@ const ServicesPage = () => {
       <BookingWizard />
       <FinalCTA />
       <SalonFooter />
-      <WhatsAppFloat />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Check, Sparkles, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Sparkles, MessageCircle, MessageSquare, PhoneCall } from 'lucide-react';
 
 type StepConfig = {
   title: string;
@@ -234,15 +234,18 @@ export function BookingWizard() {
                 <p className="font-body text-sm text-muted-foreground leading-relaxed mb-8 text-pretty">
                   {recommendation.description}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <a
-                    href={`https://wa.me/17135242610?text=${whatsappMessage}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="whatsapp" size="lg">
-                      <MessageCircle className="w-5 h-5" />
-                      Confirm via WhatsApp
+                <div className="flex flex-col gap-3 max-w-sm mx-auto">
+                  <a href={`sms:17135242610?body=${whatsappMessage}`}>
+                    <Button variant="gold" size="xl" className="w-full gap-3 shadow-lg shadow-accent/20">
+                      <MessageSquare className="w-5 h-5" />
+                      Confirmar vía SMS
+                    </Button>
+                  </a>
+                  
+                  <a href="tel:17135242610">
+                    <Button variant="outline" size="xl" className="w-full gap-3 border-accent/20 text-accent hover:bg-accent/5">
+                      <PhoneCall className="w-5 h-5" />
+                      Llamar al Salón
                     </Button>
                   </a>
                 </div>

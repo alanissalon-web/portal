@@ -59,7 +59,7 @@ export function ExperienceSection() {
                   alt={step.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 rounded-full ring-2 ring-inset ring-accent/20" />
+                <div className="absolute inset-0 rounded-full ring-2 ring-inset ring-accent/20 pointer-events-none" />
               </div>
               <span className="font-display text-3xl text-accent/50 font-light">{step.number}</span>
               <h3 className="font-display text-2xl font-medium text-foreground mt-2 mb-3">
