@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Save, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Save, X, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type Product = {
@@ -129,9 +129,49 @@ const AdminProducts = () => {
                 className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
             </div>
             <div>
-              <label className="font-body text-xs text-muted-foreground block mb-1">Image URL</label>
-              <input value={form.image_url} onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
-                className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
+              <label className="font-body text-xs text-muted-foreground block mb-1">Image (Upload)</label>
+              <div className="flex gap-2">
+                <input 
+                  type="file" 
+                  id="product-image" 
+                  className="hidden" 
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        const base64 = reader.result as string;
+                        setForm(p => ({ ...p, image_url: base64 }));
+                        // Register in Media Library too
+                        LocalDB.saveMedia({
+                          id: `prod-${Date.now()}`,
+                          url: base64,
+                          name: file.name,
+                          type: 'image',
+                          size: `${(file.size / 1024).toFixed(1)} KB`,
+                          date: new Date().toISOString()
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  className="w-full justify-start gap-2 h-10 border-dashed"
+                  onClick={() => document.getElementById('product-image')?.click()}
+                >
+                  <Upload className="w-4 h-4" />
+                  <span className="truncate">{form.image_url ? 'Imagen Seleccionada' : 'Subir Imagen'}</span>
+                </Button>
+                {form.image_url && (
+                  <div className="w-10 h-10 rounded-lg overflow-hidden border border-border flex-shrink-0">
+                    <img src={form.image_url} className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div>

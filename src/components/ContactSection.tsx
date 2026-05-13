@@ -11,10 +11,24 @@ export function ContactSection() {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const { LocalDB } = await import('@/services/LocalDatabase');
+    
+    // Save to LocalDB
+    LocalDB.saveMessage({
+      id: `msg-${Date.now()}`,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      subject: `Interest in ${formData.service || 'Salon Services'}`,
+      message: formData.message,
+      date: new Date().toISOString(),
+      status: 'unread'
+    });
+
     setFormSubmitted(true);
-    toast({ title: 'Message sent!', description: "We'll get back to you within 24 hours." });
+    toast({ title: '¡Mensaje enviado!', description: "Te contactaremos en menos de 24 horas." });
   };
 
   return (

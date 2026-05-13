@@ -33,7 +33,7 @@ const courses: CourseDisplay[] = [
     badge: 'Best Seller',
   },
   {
-    id: 'color-science-balayage',
+    id: 'color-balayage',
     title: 'Color Science & Balayage',
     type: 'On-Demand',
     duration: '4 hours',
@@ -45,7 +45,7 @@ const courses: CourseDisplay[] = [
     badge: 'New',
   },
   {
-    id: 'hair-loss-solutions',
+    id: 'hair-loss',
     title: 'Hair Loss Solutions',
     type: 'On-Demand',
     duration: '3 hours',

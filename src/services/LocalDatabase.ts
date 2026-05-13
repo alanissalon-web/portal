@@ -93,9 +93,63 @@ export const LocalDB = {
   getCourses: () => {
     const data = localStorage.getItem(STORAGE_KEYS.COURSES);
     return data ? JSON.parse(data) : [
-      { id: 'extensions-masterclass', title: 'Master en Extensiones de Queratina', type: 'on-demand', duration: '8 horas', level: 'Intermedio', image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', description: 'Aprende la técnica de fusión en frío y caliente de Great Lengths.', topics: ['Fusión de Queratina', 'Corte de Mezcla', 'Color Matching'], price: 499, badge: 'Certificado', status: 'published' },
-      { id: 'color-balayage', title: 'Ciencia del Color y Balayage 2024', type: 'on-demand', duration: '5 horas', level: 'Avanzado', image_url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', description: 'Técnicas de difuminado y formulación avanzada para rubios perfectos.', topics: ['Formulación', 'Seccionamiento', 'Tonalización'], price: 299, badge: 'Top Ventas', status: 'published' },
-      { id: 'hair-loss', title: 'Soluciones para la Pérdida de Cabello', type: 'on-demand', duration: '4 horas', level: 'Todos los niveles', image_url: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=600&q=80', description: 'Implementa prótesis capilares y soluciones no quirúrgicas.', topics: ['Análisis de Cuero Cabelludo', 'Micro Point', 'Prótesis'], price: 199, status: 'published' },
+      { 
+        id: 'extensions-masterclass', 
+        title: 'Master en Extensiones de Queratina', 
+        type: 'on-demand', 
+        duration: '8 horas', 
+        level: 'Intermedio', 
+        image_url: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80', 
+        description: 'Aprende la técnica de fusión en frío y caliente de Great Lengths.', 
+        topics: ['Fusión de Queratina', 'Corte de Mezcla', 'Color Matching'], 
+        curriculum: [
+          { module: 'Módulo 1', title: 'Introducción a la Queratina', lessons: 3, duration: '1h' },
+          { module: 'Módulo 2', title: 'Técnica de Aplicación Paso a Paso', lessons: 5, duration: '3h' },
+          { module: 'Módulo 3', title: 'Mantenimiento y Retiro Seguro', lessons: 4, duration: '2h' },
+          { module: 'Módulo 4', title: 'Consultoría y Precios', lessons: 2, duration: '1h' }
+        ],
+        price: 499, 
+        badge: 'Certificado', 
+        status: 'published',
+        access_code: 'ALANIS2024'
+      },
+      { 
+        id: 'color-balayage', 
+        title: 'Ciencia del Color y Balayage 2024', 
+        type: 'on-demand', 
+        duration: '5 horas', 
+        level: 'Avanzado', 
+        image_url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=600&q=80', 
+        description: 'Técnicas de difuminado y formulación avanzada para rubios perfectos.', 
+        topics: ['Formulación', 'Seccionamiento', 'Tonalización'], 
+        curriculum: [
+          { module: 'Módulo 1', title: 'Teoría del Color Avanzada', lessons: 4, duration: '1.5h' },
+          { module: 'Módulo 2', title: 'Técnicas de Seccionamiento Moderno', lessons: 3, duration: '1h' },
+          { module: 'Módulo 3', title: 'Balayage a Mano Alzada', lessons: 6, duration: '2.5h' }
+        ],
+        price: 299, 
+        badge: 'Top Ventas', 
+        status: 'published',
+        access_code: 'BALAYAGE24'
+      },
+      { 
+        id: 'hair-loss', 
+        title: 'Soluciones para la Pérdida de Cabello', 
+        type: 'on-demand', 
+        duration: '4 horas', 
+        level: 'Todos los niveles', 
+        image_url: 'https://images.unsplash.com/photo-1516733725897-1aa73b87c8e8?w=600&q=80', 
+        description: 'Implementa prótesis capilares y soluciones no quirúrgicas.', 
+        topics: ['Análisis de Cuero Cabelludo', 'Micro Point', 'Prótesis'], 
+        curriculum: [
+          { module: 'Módulo 1', title: 'Análisis Capilar Profesional', lessons: 5, duration: '1h' },
+          { module: 'Módulo 2', title: 'Sistemas Volumizadores', lessons: 4, duration: '2h' },
+          { module: 'Módulo 3', title: 'Psicología del Cliente y Sensibilidad', lessons: 2, duration: '1h' }
+        ],
+        price: 199, 
+        status: 'published',
+        access_code: 'HAIRLOSS'
+      },
     ];
   },
   saveCourse: (course: any) => {

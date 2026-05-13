@@ -102,9 +102,21 @@ export function BookingWizard() {
     return true;
   };
 
-  const next = () => {
+  const next = async () => {
+    if (isContactStep) {
+      const { LocalDB } = await import('@/services/LocalDatabase');
+      LocalDB.saveBooking({
+        id: `book-${Date.now()}`,
+        name: contactInfo.name,
+        whatsapp: contactInfo.whatsapp,
+        email: contactInfo.email,
+        service: recommendation.title,
+        date: new Date().toISOString(),
+        status: 'pending'
+      });
+      setSubmitted(true);
+    }
     if (currentStep < totalSteps - 1) setCurrentStep(currentStep + 1);
-    if (isContactStep) setSubmitted(true);
   };
 
   const prev = () => {

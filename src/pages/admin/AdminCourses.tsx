@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Video, ExternalLink, Save, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Video, ExternalLink, Save, X, Upload, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type Course = {
@@ -17,11 +17,13 @@ type Course = {
   meet_link: string | null;
   status: string;
   badge: string | null;
+  access_code: string | null;
 };
 
 const empty: Omit<Course, 'id'> = {
   title: '', description: '', price: 0, image_url: '', type: 'on-demand',
   duration: '', level: 'All Levels', topics: [], meet_link: '', status: 'draft', badge: '',
+  access_code: '',
 };
 
 import { LocalDB } from '@/services/LocalDatabase';
@@ -143,6 +145,26 @@ const AdminCourses = () => {
                 placeholder="e.g. Best Seller, New"
                 className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
             </div>
+            <div>
+              <label className="font-body text-xs text-muted-foreground block mb-1 font-bold text-accent">Código de Acceso (Zelle/Pago)</label>
+              <div className="flex gap-2">
+                <input value={form.access_code ?? ''} onChange={e => setForm(p => ({ ...p, access_code: e.target.value.toUpperCase() }))}
+                  placeholder="Ej: ALANIS-2024"
+                  className="flex-1 bg-background border border-accent/20 rounded-xl px-4 py-2.5 font-body text-sm font-bold uppercase" />
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="icon" 
+                  className="rounded-xl border-accent/20 text-accent"
+                  onClick={() => {
+                    const code = 'ALANIS-' + Math.random().toString(36).substring(2, 8).toUpperCase();
+                    setForm(p => ({ ...p, access_code: code }));
+                  }}
+                >
+                  <RefreshCw className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </div>
           <div>
             <label className="font-body text-xs text-muted-foreground block mb-1">Description</label>
@@ -150,9 +172,49 @@ const AdminCourses = () => {
               rows={3} className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm resize-none" />
           </div>
           <div>
-            <label className="font-body text-xs text-muted-foreground block mb-1">Image URL</label>
-            <input value={form.image_url ?? ''} onChange={e => setForm(p => ({ ...p, image_url: e.target.value }))}
-              className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
+            <label className="font-body text-xs text-muted-foreground block mb-1">Image (Upload)</label>
+            <div className="flex gap-2">
+              <input 
+                type="file" 
+                id="course-image" 
+                className="hidden" 
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      const base64 = reader.result as string;
+                      setForm(p => ({ ...p, image_url: base64 }));
+                      // Register in Media Library
+                      LocalDB.saveMedia({
+                        id: `course-${Date.now()}`,
+                        url: base64,
+                        name: file.name,
+                        type: 'image',
+                        size: `${(file.size / 1024).toFixed(1)} KB`,
+                        date: new Date().toISOString()
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+              />
+              <Button 
+                type="button"
+                variant="outline" 
+                className="w-full justify-start gap-2 h-10 border-dashed"
+                onClick={() => document.getElementById('course-image')?.click()}
+              >
+                <Upload className="w-4 h-4" />
+                <span className="truncate">{form.image_url ? 'Imagen Seleccionada' : 'Subir Imagen'}</span>
+              </Button>
+              {form.image_url && (
+                <div className="w-10 h-10 rounded-lg overflow-hidden border border-border flex-shrink-0">
+                  <img src={form.image_url} className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
           </div>
           <div>
             <label className="font-body text-xs text-muted-foreground block mb-1">Topics (comma separated)</label>

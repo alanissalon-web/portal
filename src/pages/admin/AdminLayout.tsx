@@ -1,4 +1,4 @@
-import { Link, useLocation, Outlet } from 'react-router-dom';
+import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { 
   LayoutDashboard, 
@@ -12,10 +12,13 @@ import {
   MessageSquare,
   BarChart3,
   Globe,
-  Calendar
+  Calendar,
+  Edit3,
+  Save
 } from 'lucide-react';
 import logo from '@/assets/logo-alanis.png';
 import { Button } from '@/components/ui/button';
+import { useCMS } from '@/contexts/CMSContext';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -32,7 +35,14 @@ const navItems = [
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { signOut, user } = useAdminAuth();
+  const { isEditing, setIsEditing, saveChanges } = useCMS();
+
+  const handleStartEditing = () => {
+    setIsEditing(true);
+    navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-[#FDFCFB] flex">
@@ -70,6 +80,30 @@ const AdminLayout = () => {
             );
           })}
         </nav>
+
+        {/* CMS Visual Control Section */}
+        <div className="mx-6 mb-6 p-4 bg-accent/5 rounded-2xl border border-accent/10">
+          <p className="font-body text-[10px] uppercase tracking-widest text-accent font-bold mb-3">Editor Visual</p>
+          <div className="space-y-2">
+            {!isEditing ? (
+              <Button 
+                onClick={handleStartEditing}
+                className="w-full justify-start gap-2 bg-white border border-accent/20 text-accent hover:bg-accent hover:text-white transition-all rounded-xl h-10 shadow-sm"
+              >
+                <Edit3 className="w-4 h-4" />
+                <span className="text-xs font-bold">Editar Sitio Web</span>
+              </Button>
+            ) : (
+              <Button 
+                onClick={() => saveChanges()}
+                className="w-full justify-start gap-2 bg-accent text-white hover:bg-accent/90 transition-all rounded-xl h-10 shadow-lg shadow-accent/20"
+              >
+                <Save className="w-4 h-4" />
+                <span className="text-xs font-bold">Guardar Cambios</span>
+              </Button>
+            )}
+          </div>
+        </div>
 
         <div className="p-6 border-t border-black/5 bg-[#FAFAFA] space-y-4">
           <div className="flex items-center gap-3 px-4 py-2">

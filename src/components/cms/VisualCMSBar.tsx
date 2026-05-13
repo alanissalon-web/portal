@@ -16,6 +16,7 @@ export const VisualCMSBar: React.FC = () => {
   const navigate = useNavigate();
 
   if (!isAdmin) return null;
+  if (location.pathname.startsWith('/admin')) return null;
 
   const handleStartEditing = () => {
     setIsEditing(true);
@@ -29,11 +30,11 @@ export const VisualCMSBar: React.FC = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] pointer-events-none flex justify-center pt-4">
+    <div className="fixed bottom-10 left-0 right-0 z-[100] pointer-events-none flex justify-center">
       <motion.div 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        className="bg-background/80 backdrop-blur-xl border border-border shadow-2xl rounded-full px-4 py-2 flex items-center gap-2 pointer-events-auto"
+        initial={{ y: 100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="bg-background/90 backdrop-blur-2xl border border-border/50 shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-full px-5 py-2.5 flex items-center gap-2 pointer-events-auto"
       >
         <div className="flex items-center gap-2 pr-4 border-r border-border mr-2">
           <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
