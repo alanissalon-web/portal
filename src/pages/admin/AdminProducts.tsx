@@ -23,6 +23,8 @@ const empty = {
   description: '', rating: 5, badge: '', stock: 0, status: 'active',
 };
 
+import { LocalDB } from '@/services/LocalDatabase';
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditing] = useState<Product | null>(null);
@@ -30,9 +32,9 @@ const AdminProducts = () => {
   const [form, setForm] = useState(empty);
   const { toast } = useToast();
 
-  const fetchProducts = async () => {
-    const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false });
-    if (data) setProducts(data);
+  const fetchProducts = () => {
+    const data = LocalDB.getProducts();
+    setProducts(data);
   };
 
   useEffect(() => { fetchProducts(); }, []);
@@ -48,27 +50,20 @@ const AdminProducts = () => {
 
   const save = async () => {
     const payload = { ...form, badge: form.badge || null, brand: form.brand || null };
-    if (editing) {
-      const { error } = await supabase.from('products').update(payload).eq('id', editing.id);
-      if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-      toast({ title: 'Product updated' });
-    } else {
-      const { error } = await supabase.from('products').insert(payload);
-      if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-      toast({ title: 'Product created' });
-    }
+    LocalDB.saveProduct(editing ? { ...payload, id: editing.id } : payload);
+    toast({ title: editing ? 'Product updated' : 'Product created' });
     cancel(); fetchProducts();
   };
 
   const remove = async (id: string) => {
     if (!confirm('Delete this product?')) return;
-    await supabase.from('products').delete().eq('id', id);
+    LocalDB.deleteProduct(id);
     toast({ title: 'Product deleted' }); fetchProducts();
   };
 
   const toggleStatus = async (p: Product) => {
     const newStatus = p.status === 'active' ? 'inactive' : 'active';
-    await supabase.from('products').update({ status: newStatus }).eq('id', p.id);
+    LocalDB.saveProduct({ ...p, status: newStatus });
     fetchProducts();
   };
 

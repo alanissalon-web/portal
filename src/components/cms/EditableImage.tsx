@@ -25,7 +25,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
   const [tempUrl, setTempUrl] = useState(imageUrl);
 
   const handleSave = () => {
-    updateContent(section, { ...content[section], [field]: tempUrl });
+    updateContent(section, field, tempUrl);
   };
 
   if (!isEditing) {
