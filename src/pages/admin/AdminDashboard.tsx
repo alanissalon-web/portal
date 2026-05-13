@@ -134,7 +134,7 @@ const AdminDashboard = () => {
               {[
                 { label: 'Nuevo Curso', icon: GraduationCap, path: '/admin/courses' },
                 { label: 'Añadir Stock', icon: ShoppingBag, path: '/admin/products' },
-                { label: 'Editar Site', icon: Globe, path: '/admin/content' },
+                { label: 'Editar Visual', icon: Globe, path: '/' },
                 { label: 'Ajustes', icon: Settings, path: '/admin/settings' },
               ].map(item => (
                 <Link 

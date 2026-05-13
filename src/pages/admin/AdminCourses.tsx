@@ -24,6 +24,8 @@ const empty: Omit<Course, 'id'> = {
   duration: '', level: 'All Levels', topics: [], meet_link: '', status: 'draft', badge: '',
 };
 
+import { LocalDB } from '@/services/LocalDatabase';
+
 const AdminCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
   const [editing, setEditing] = useState<Course | null>(null);
@@ -32,9 +34,9 @@ const AdminCourses = () => {
   const [topicInput, setTopicInput] = useState('');
   const { toast } = useToast();
 
-  const fetchCourses = async () => {
-    const { data } = await supabase.from('courses').select('*').order('created_at', { ascending: false });
-    if (data) setCourses(data);
+  const fetchCourses = () => {
+    const data = LocalDB.getCourses();
+    setCourses(data);
   };
 
   useEffect(() => { fetchCourses(); }, []);
@@ -59,29 +61,23 @@ const AdminCourses = () => {
     const topics = topicInput.split(',').map(t => t.trim()).filter(Boolean);
     const payload = { ...form, topics, badge: form.badge || null };
 
-    if (editing) {
-      const { error } = await supabase.from('courses').update(payload).eq('id', editing.id);
-      if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-      toast({ title: 'Course updated' });
-    } else {
-      const { error } = await supabase.from('courses').insert(payload);
-      if (error) { toast({ title: 'Error', description: error.message, variant: 'destructive' }); return; }
-      toast({ title: 'Course created' });
-    }
+    LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
+    toast({ title: editing ? 'Course updated' : 'Course created' });
+    
     cancel();
     fetchCourses();
   };
 
   const remove = async (id: string) => {
     if (!confirm('Delete this course?')) return;
-    await supabase.from('courses').delete().eq('id', id);
+    LocalDB.deleteCourse(id);
     toast({ title: 'Course deleted' });
     fetchCourses();
   };
 
   const toggleStatus = async (c: Course) => {
     const newStatus = c.status === 'published' ? 'draft' : 'published';
-    await supabase.from('courses').update({ status: newStatus }).eq('id', c.id);
+    LocalDB.saveCourse({ ...c, status: newStatus });
     fetchCourses();
   };
 

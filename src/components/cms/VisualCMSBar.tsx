@@ -6,27 +6,26 @@ import { Edit3, Save, X, Eye, Layout, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 
+import { useLocation, useNavigate } from 'react-router-dom';
+
 export const VisualCMSBar: React.FC = () => {
-  const { isEditing, setIsEditing, saveContent, content } = useCMS();
+  const { isEditing, setIsEditing, saveChanges } = useCMS();
   const { isAdmin } = useAdminAuth();
   const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   if (!isAdmin) return null;
 
-  const handleSave = async () => {
-    try {
-      // Save all modified sections
-      const savePromises = Object.keys(content).map(key => saveContent(key));
-      await Promise.all(savePromises);
-      toast({ title: "Cambios guardados con éxito" });
-      setIsEditing(false);
-    } catch (error) {
-      toast({ 
-        title: "Error al guardar", 
-        description: "Hubo un problema al guardar los cambios.",
-        variant: "destructive" 
-      });
+  const handleStartEditing = () => {
+    setIsEditing(true);
+    if (location.pathname !== '/') {
+      navigate('/');
     }
+  };
+
+  const handleSave = async () => {
+    await saveChanges();
   };
 
   return (
@@ -49,7 +48,7 @@ export const VisualCMSBar: React.FC = () => {
               variant="ghost" 
               size="sm" 
               className="rounded-full gap-2"
-              onClick={() => setIsEditing(true)}
+              onClick={handleStartEditing}
             >
               <Edit3 className="w-4 h-4" />
               Editar Sitio
