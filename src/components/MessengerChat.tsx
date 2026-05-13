@@ -21,6 +21,9 @@ export function MessengerChat() {
   
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   if (location.pathname.startsWith('/admin')) return null;
 
@@ -127,6 +130,32 @@ export function MessengerChat() {
     toast({ title: 'Llamando...', description: 'Conectando con el salón...' });
   };
 
+  const handleAudioPlayback = (id: string, audioUrl: string) => {
+    if (playingId === id) {
+      audioRef.current?.pause();
+      setPlayingId(null);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
+      setPlayingId(id);
+      
+      audio.ontimeupdate = () => {
+        const progress = (audio.currentTime / audio.duration) * 100;
+        setAudioProgress(progress);
+      };
+      
+      audio.onended = () => {
+        setPlayingId(null);
+        setAudioProgress(0);
+      };
+      
+      audio.play().catch(() => toast({ title: 'Error', description: 'No se pudo reproducir.' }));
+    }
+  };
+
   return (
     <>
       <motion.button onClick={() => setIsOpen(true)} className="fixed bottom-6 right-6 w-16 h-16 bg-accent rounded-full shadow-lg flex items-center justify-center z-50">
@@ -170,32 +199,45 @@ export function MessengerChat() {
                         {msg.image ? (
                           <img src={msg.image} className="max-w-full rounded-lg" />
                         ) : msg.voice ? (
-                          <div className="flex items-center gap-3 py-1 min-w-[180px]">
-                            <button 
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
-                                  toast({ title: 'Audio antiguo', description: 'Este mensaje no tiene sonido real. Graba uno nuevo para probar.' });
-                                  return;
-                                }
-                                const audio = new Audio(msg.voice);
-                                audio.play().catch(() => toast({ title: 'Error', description: 'Error al reproducir.' }));
-                              }} 
-                              className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                                msg.sender === 'me' ? 'bg-white/20 hover:bg-white/30' : 'bg-accent/10 hover:bg-accent/20 text-accent'
-                              }`}
-                            >
-                              <div className={`w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-b-[5px] border-b-transparent ml-1 ${
-                                msg.sender === 'me' ? 'border-l-white' : 'border-l-accent'
-                              }`} />
-                            </button>
-                            <div className="flex-1">
-                              <div className="flex gap-0.5 items-center mb-1">
-                                {[...Array(12)].map((_, i) => (
-                                  <div key={i} className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white/40' : 'bg-accent/20'}`} />
-                                ))}
+                          <div className="flex flex-col gap-2 min-w-[200px]">
+                            <div className="flex items-center gap-3">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
+                                    toast({ title: 'Audio antiguo', description: 'Sin sonido real. Graba uno nuevo.' });
+                                    return;
+                                  }
+                                  handleAudioPlayback(msg.id, msg.voice);
+                                }} 
+                                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                                  msg.sender === 'me' ? 'bg-white/20' : 'bg-accent/10 text-accent'
+                                }`}
+                              >
+                                {playingId === msg.id ? (
+                                  <div className="flex gap-1">
+                                    <div className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`} />
+                                    <div className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`} />
+                                  </div>
+                                ) : (
+                                  <div className={`w-0 h-0 border-t-[5px] border-t-transparent border-l-[9px] border-b-[5px] border-b-transparent ml-1 ${
+                                    msg.sender === 'me' ? 'border-l-white' : 'border-l-accent'
+                                  }`} />
+                                )}
+                              </button>
+                              <div className="flex-1 space-y-1">
+                                <div className="h-1 w-full bg-black/10 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    className={`h-full ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`}
+                                    animate={{ width: playingId === msg.id ? `${audioProgress}%` : '0%' }}
+                                    transition={{ duration: 0.1 }}
+                                  />
+                                </div>
+                                <div className="flex justify-between text-[10px] opacity-70">
+                                  <span>{playingId === msg.id ? 'Reproduciendo...' : 'Nota de voz'}</span>
+                                  <span>0:15</span>
+                                </div>
                               </div>
-                              <span className={`text-[10px] font-medium ${msg.sender === 'me' ? 'text-white/70' : 'text-accent'}`}>Nota de voz</span>
                             </div>
                           </div>
                         ) : (
