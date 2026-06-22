@@ -58,28 +58,36 @@ const AdminLogin = () => {
 
     try {
       if (clientMode === 'register') {
-        const result = await LocalDB.signUp(clientEmail, clientPassword);
-        if (result.error) {
-          setClientError(typeof result.error === 'string' ? result.error : 'Error al registrarse');
+        const { supabase: sb } = await import('@/lib/supabase');
+        const { error } = await sb.auth.signUp({
+          email: clientEmail,
+          password: clientPassword,
+          options: {
+            emailRedirectTo: `${window.location.origin}/portal`,
+          },
+        });
+        if (error) {
+          setClientError(error.message === 'User already registered'
+            ? 'Este email ya tiene cuenta. Inicia sesión.'
+            : error.message);
           setClientLoading(false);
           return;
         }
-        // After signup, log them in
-        const loginResult = await LocalDB.login(clientEmail, clientPassword);
-        if (loginResult.error) {
-          setClientError('Cuenta creada. Revisa tu email para confirmar y luego inicia sesión.');
-          setClientLoading(false);
-          return;
-        }
+        // Show confirmation screen
+        setClientMode('confirm');
+        setClientLoading(false);
+        return;
       } else {
-        const { supabase } = await import('@/lib/supabase');
-        const { error } = await supabase.auth.signInWithPassword({
+        const { supabase: sb } = await import('@/lib/supabase');
+        const { error } = await sb.auth.signInWithPassword({
           email: clientEmail,
           password: clientPassword,
         });
         if (error) {
           setClientError(error.message === 'Invalid login credentials'
             ? 'Email o contraseña incorrectos'
+            : error.message === 'Email not confirmed'
+            ? 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.'
             : error.message);
           setClientLoading(false);
           return;
