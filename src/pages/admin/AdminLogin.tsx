@@ -10,8 +10,7 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
-  const { signIn, signUp } = useAdminAuth();
+  const { signIn } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,12 +18,7 @@ const AdminLogin = () => {
     setError('');
     setLoading(true);
     
-    let result;
-    if (isSignUp) {
-      result = await signUp(email, password);
-    } else {
-      result = await signIn(email, password);
-    }
+    const result = await signIn(email, password);
 
     if (result.error) {
       setError(result.error);
@@ -47,7 +41,7 @@ const AdminLogin = () => {
             <span className="font-body text-xs font-medium">Admin Panel</span>
           </div>
           <h1 className="font-display text-3xl font-light text-primary-foreground">
-            {isSignUp ? 'Create Admin User' : 'Welcome back'}
+            Welcome back
           </h1>
         </div>
 
@@ -81,19 +75,9 @@ const AdminLogin = () => {
             />
           </div>
           <Button type="submit" variant="default" size="lg" className="w-full" disabled={loading}>
-            {loading ? 'Procesando...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+            {loading ? 'Procesando...' : 'Sign In'}
             <ArrowRight className="w-4 h-4" />
           </Button>
-
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              onClick={() => setIsSignUp(!isSignUp)}
-              className="text-accent text-sm font-body hover:underline"
-            >
-              {isSignUp ? 'Already have an account? Sign In' : 'Create new admin user'}
-            </button>
-          </div>
         </form>
 
         <p className="text-center mt-6 font-body text-xs text-primary-foreground/40">
