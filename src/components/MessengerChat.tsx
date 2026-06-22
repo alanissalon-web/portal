@@ -42,9 +42,9 @@ export function MessengerChat() {
   }, [isRecording]);
 
   useEffect(() => {
-    const fetchChat = () => {
-      const msgs = LocalDB.getMessages();
-      const filtered = msgs.filter((m: any) => 
+    const fetchChat = async () => {
+      const { data: msgs } = await LocalDB.getMessages();
+      const filtered = (msgs || []).filter((m: any) => 
         m.type === 'chat' && (m.email === clientPhone || m.toEmail === clientPhone)
       );
       
@@ -71,11 +71,11 @@ export function MessengerChat() {
     }
   }, [chatHistory]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!message.trim()) return;
     const newMsg = { id: Date.now().toString(), text: message, sender: 'me', timestamp: 'Now' };
     setChatHistory([...chatHistory, newMsg]);
-    LocalDB.saveMessage({ name: clientName, email: clientPhone, message: message, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
+    await LocalDB.saveMessage({ name: clientName, email: clientPhone, message: message, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
     setMessage('');
   };
 
@@ -83,10 +83,10 @@ export function MessengerChat() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64 = reader.result as string;
       setChatHistory([...chatHistory, { id: Date.now().toString(), image: base64, sender: 'me', timestamp: 'Ahora' }]);
-      LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[Imagen]', image: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
+      await LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[Imagen]', image: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
     };
     reader.readAsDataURL(file);
   };
@@ -102,9 +102,9 @@ export function MessengerChat() {
       recorder.onstop = () => {
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         const reader = new FileReader();
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
           const base64 = reader.result as string;
-          LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[Nota de voz]', voice: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
+          await LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[Nota de voz]', voice: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
         };
         reader.readAsDataURL(audioBlob);
       };
@@ -123,8 +123,8 @@ export function MessengerChat() {
     }
   };
 
-  const startCall = () => {
-    LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '☎️ Llamada entrante...', type: 'call', status: 'new', date: new Date().toLocaleTimeString() });
+  const startCall = async () => {
+    await LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '☎️ Llamada entrante...', type: 'call', status: 'new', date: new Date().toLocaleTimeString() });
     toast({ title: 'Llamando...', description: 'Conectando con el salón...' });
   };
 
@@ -255,7 +255,7 @@ export function MessengerChat() {
                     <Gift className="w-5 h-5 cursor-pointer" onClick={() => setShowGifPicker(!showGifPicker)} />
                   </div>
                   {isRecording && <div className="bg-red-50 p-3 rounded-xl flex justify-between items-center"><span className="text-xs text-red-600 font-medium">Grabando {recordingTime}s...</span><Button size="sm" variant="ghost" className="text-red-600" onClick={stopRecording}>Enviar</Button></div>}
-                  {showGifPicker && <div className="grid grid-cols-3 gap-2 h-32 overflow-y-auto bg-gray-50 p-2 rounded-xl">{['https://media.giphy.com/media/l0HlIDZ4k6vG4C98c/giphy.gif','https://media.giphy.com/media/3o7TKVUn7iM8FMEU24/giphy.gif'].map((url, i) => <img key={i} src={url} className="h-20 w-full object-cover rounded-lg cursor-pointer" onClick={() => { LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[GIF]', image: url, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' }); setShowGifPicker(false); }} />)}</div>}
+                  {showGifPicker && <div className="grid grid-cols-3 gap-2 h-32 overflow-y-auto bg-gray-50 p-2 rounded-xl">{['https://media.giphy.com/media/l0HlIDZ4k6vG4C98c/giphy.gif','https://media.giphy.com/media/3o7TKVUn7iM8FMEU24/giphy.gif'].map((url, i) => <img key={i} src={url} className="h-20 w-full object-cover rounded-lg cursor-pointer" onClick={async () => { await LocalDB.saveMessage({ name: clientName, email: clientPhone, message: '[GIF]', image: url, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' }); setShowGifPicker(false); }} />)}</div>}
                   <div className="flex items-center gap-2">
                     <input type="text" value={message} onChange={(e) => setMessage(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleSend()} placeholder="Aa" className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none" />
                     {message.trim() ? <Send onClick={handleSend} className="w-6 h-6 text-accent cursor-pointer" /> : <ThumbsUp onClick={() => { setMessage('👍'); setTimeout(handleSend, 50); }} className="w-6 h-6 text-accent cursor-pointer" />}

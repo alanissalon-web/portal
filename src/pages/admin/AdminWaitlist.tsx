@@ -14,9 +14,9 @@ const AdminWaitlist = () => {
   const [entries, setEntries] = useState<WaitlistEntry[]>([]);
 
   useEffect(() => {
-    const fetch = () => {
-      const data = LocalDB.getWaitlist();
-      setEntries(data);
+    const fetch = async () => {
+      const { data } = await LocalDB.getWaitlist();
+      setEntries(data || []);
     };
     fetch();
   }, []);

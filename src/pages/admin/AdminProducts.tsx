@@ -28,14 +28,17 @@ import { LocalDB } from '@/services/LocalDatabase';
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Product | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState(empty);
   const { toast } = useToast();
 
-  const fetchProducts = () => {
-    const data = LocalDB.getProducts();
-    setProducts(data);
+  const fetchProducts = async () => {
+    setLoading(true);
+    const { data } = await LocalDB.getProducts();
+    setProducts(data || []);
+    setLoading(false);
   };
 
   useEffect(() => { fetchProducts(); }, []);
@@ -64,14 +67,14 @@ const AdminProducts = () => {
 
   const remove = async (id: string) => {
     if (!confirm('Delete this product?')) return;
-    LocalDB.deleteProduct(id);
-    toast({ title: 'Product deleted' }); fetchProducts();
+    await LocalDB.deleteProduct(id);
+    toast({ title: 'Product deleted' }); await fetchProducts();
   };
 
   const toggleStatus = async (p: Product) => {
     const newStatus = p.status === 'active' ? 'inactive' : 'active';
-    LocalDB.saveProduct({ ...p, status: newStatus });
-    fetchProducts();
+    await LocalDB.saveProduct({ ...p, status: newStatus });
+    await fetchProducts();
   };
 
   const showForm = creating || editing;
@@ -247,12 +250,18 @@ const AdminProducts = () => {
       )}
 
       <div className="space-y-4">
-        {products.length === 0 && !showForm && (
+        {loading && !showForm && (
+          <div className="text-center py-16 text-muted-foreground">
+            <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="font-body text-sm">Cargando productos...</p>
+          </div>
+        )}
+        {!loading && products.length === 0 && !showForm && (
           <div className="text-center py-16 text-muted-foreground">
             <p className="font-body text-sm">No products yet. Add your first product.</p>
           </div>
         )}
-        {products.map(p => (
+        {!loading && products.map(p => (
           <div key={p.id} className="bg-card rounded-2xl p-5 border border-border flex items-center gap-4">
             {p.image_url && <img src={p.image_url} alt={p.name} className="w-16 h-16 object-cover rounded-xl flex-shrink-0" />}
             <div className="flex-1 min-w-0">

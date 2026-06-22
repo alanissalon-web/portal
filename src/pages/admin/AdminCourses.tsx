@@ -41,6 +41,7 @@ import { LocalDB } from '@/services/LocalDatabase';
 
 const AdminCourses = () => {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<Course | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState(empty);
@@ -57,9 +58,11 @@ const AdminCourses = () => {
   });
   const { toast } = useToast();
 
-  const fetchCourses = () => {
-    const data = LocalDB.getCourses();
-    setCourses(data);
+  const fetchCourses = async () => {
+    setLoading(true);
+    const { data } = await LocalDB.getCourses();
+    setCourses(data || []);
+    setLoading(false);
   };
 
   useEffect(() => { fetchCourses(); }, []);
@@ -99,15 +102,15 @@ const AdminCourses = () => {
 
   const remove = async (id: string) => {
     if (!confirm('Delete this course?')) return;
-    LocalDB.deleteCourse(id);
+    await LocalDB.deleteCourse(id);
     toast({ title: 'Course deleted' });
-    fetchCourses();
+    await fetchCourses();
   };
 
   const toggleStatus = async (c: Course) => {
     const newStatus = c.status === 'published' ? 'draft' : 'published';
-    LocalDB.saveCourse({ ...c, status: newStatus });
-    fetchCourses();
+    await LocalDB.saveCourse({ ...c, status: newStatus });
+    await fetchCourses();
   };
 
   const showForm = creating || editing;
@@ -358,12 +361,18 @@ const AdminCourses = () => {
 
       {/* Course List */}
       <div className="space-y-4">
-        {courses.length === 0 && !showForm && (
+        {loading && !showForm && (
+          <div className="text-center py-16 text-muted-foreground">
+            <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="font-body text-sm">Cargando cursos...</p>
+          </div>
+        )}
+        {!loading && courses.length === 0 && !showForm && (
           <div className="text-center py-16 text-muted-foreground">
             <p className="font-body text-sm">No courses yet. Create your first course to get started.</p>
           </div>
         )}
-        {courses.map(c => (
+        {!loading && courses.map(c => (
           <div key={c.id} className="bg-card rounded-2xl p-5 border border-border flex items-center gap-4">
             {c.image_url && (
               <img src={c.image_url} alt={c.title} className="w-20 h-14 object-cover rounded-xl flex-shrink-0" />

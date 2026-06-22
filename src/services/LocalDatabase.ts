@@ -1,159 +1,41 @@
 import { supabase } from '@/lib/supabase';
 
-// Database Service - Synced with Supabase
+// Database Service - Synced with Supabase (No local cache)
+
 const STORAGE_KEYS = {
-  CONTENT: 'alanis_site_content',
-  COURSES: 'alanis_courses',
-  PRODUCTS: 'alanis_products',
-  WAITLIST: 'alanis_waitlist',
-  MEDIA: 'alanis_media',
-  MESSAGES: 'alanis_messages',
-  BOOKINGS: 'alanis_bookings',
-  SETTINGS: 'alanis_settings',
   AUTH: 'alanis_admin_session'
 };
 
-// Pre-load Cache synchronously from localStorage for instant rendering
-const getCache = (key: string, defaultValue: any) => {
-  const cached = localStorage.getItem(key);
-  if (cached) {
-    try {
-      return JSON.parse(cached);
-    } catch (e) {
-      // ignore
-    }
-  }
-  return defaultValue;
-};
-
-const saveCache = (key: string, data: any) => {
-  localStorage.setItem(key, JSON.stringify(data));
-};
-
-// Initialize memory state from cache
-let contentCache = getCache(STORAGE_KEYS.CONTENT, []);
-let productsCache = getCache(STORAGE_KEYS.PRODUCTS, []);
-let coursesCache = getCache(STORAGE_KEYS.COURSES, []);
-let bookingsCache = getCache(STORAGE_KEYS.BOOKINGS, []);
-let messagesCache = getCache(STORAGE_KEYS.MESSAGES, []);
-let waitlistCache = getCache(STORAGE_KEYS.WAITLIST, []);
-let mediaCache = getCache(STORAGE_KEYS.MEDIA, []);
-let settingsCache = getCache(STORAGE_KEYS.SETTINGS, {
-  siteName: 'Alanís Salon & Spa',
-  contactEmail: 'info@alanissalon.com',
-  phone: '713-524-2610',
-  address: 'Houston, TX'
-});
-
-// Asynchronously sync public data in the background
-const syncPublicData = async () => {
-  try {
-    const { data: contentData } = await supabase.from('site_content').select('*');
-    if (contentData) {
-      contentCache = contentData;
-      saveCache(STORAGE_KEYS.CONTENT, contentCache);
-    }
-
-    const { data: productsData } = await supabase.from('products').select('*');
-    if (productsData) {
-      productsCache = productsData;
-      saveCache(STORAGE_KEYS.PRODUCTS, productsCache);
-    }
-
-    const { data: coursesData } = await supabase.from('courses').select('*');
-    if (coursesData) {
-      coursesCache = coursesData;
-      saveCache(STORAGE_KEYS.COURSES, coursesCache);
-    }
-
-    const { data: settingsData } = await supabase.from('settings').select('*').limit(1).single();
-    if (settingsData) {
-      settingsCache = settingsData;
-      saveCache(STORAGE_KEYS.SETTINGS, settingsCache);
-    }
-  } catch (err) {
-    console.warn('API sync failed, using local cache:', err);
-  }
-};
-
-// Sync admin/private data if authenticated
-const syncAdminData = async () => {
-  const session = localStorage.getItem(STORAGE_KEYS.AUTH);
-  if (!session) return;
-  try {
-    const { data: waitlistData } = await supabase.from('waitlist').select('*');
-    if (waitlistData) {
-      waitlistCache = waitlistData;
-      saveCache(STORAGE_KEYS.WAITLIST, waitlistCache);
-    }
-
-    const { data: mediaData } = await supabase.from('media').select('*');
-    if (mediaData) {
-      mediaCache = mediaData;
-      saveCache(STORAGE_KEYS.MEDIA, mediaCache);
-    }
-
-    const { data: messagesData } = await supabase.from('messages').select('*');
-    if (messagesData) {
-      messagesCache = messagesData;
-      saveCache(STORAGE_KEYS.MESSAGES, messagesCache);
-    }
-
-    const { data: bookingsData } = await supabase.from('bookings').select('*');
-    if (bookingsData) {
-      bookingsCache = bookingsData;
-      saveCache(STORAGE_KEYS.BOOKINGS, bookingsCache);
-    }
-  } catch (err) {
-    console.warn('Admin API sync failed:', err);
-  }
-};
-
-// Start background syncing immediately
-syncPublicData();
-syncAdminData();
-
 export const LocalDB = {
-  // Trigger general reload
+  // Trigger general reload (deprecated, kept for compatibility if needed elsewhere, but no-op)
   sync: async () => {
-    await syncPublicData();
-    await syncAdminData();
+    return Promise.resolve();
   },
 
   // --- Content ---
-  getContent: (key?: string) => {
+  getContent: async (key?: string) => {
     if (key) {
-      return contentCache.find((i: any) => i.section_key === key)?.content;
+      const { data } = await supabase.from('site_content').select('*').eq('section_key', key).single();
+      return data?.content;
     }
-    return contentCache;
+    const { data } = await supabase.from('site_content').select('*');
+    return data || [];
   },
   saveContent: async (sectionKey: string, content: any) => {
-    const index = contentCache.findIndex((i: any) => i.section_key === sectionKey);
-    if (index > -1) {
-      contentCache[index].content = content;
-    } else {
-      contentCache.push({ section_key: sectionKey, content });
-    }
-    saveCache(STORAGE_KEYS.CONTENT, contentCache);
-    
-    await supabase.from('site_content').upsert({ section_key: sectionKey, content });
+    const { error } = await supabase.from('site_content').upsert({ section_key: sectionKey, content });
+    return { error };
   },
 
   // --- Products ---
-  getProducts: () => {
-    return productsCache;
+  getProducts: async () => {
+    const { data } = await supabase.from('products').select('*');
+    return { data: data || [], error: null };
   },
   saveProduct: async (product: any) => {
-    const index = productsCache.findIndex((p: any) => p.id === product.id);
     const updated = { ...product };
-    if (index > -1) {
-      productsCache[index] = updated;
-    } else {
+    if (!updated.id) {
       updated.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      productsCache.push(updated);
     }
-    saveCache(STORAGE_KEYS.PRODUCTS, productsCache);
-
     const { error } = await supabase.from('products').upsert(updated);
     if (error) {
       console.error('Supabase error saving product:', error);
@@ -162,30 +44,24 @@ export const LocalDB = {
     return { error: null };
   },
   deleteProduct: async (id: string) => {
-    productsCache = productsCache.filter((p: any) => p.id !== id);
-    saveCache(STORAGE_KEYS.PRODUCTS, productsCache);
-
-    await supabase.from('products').delete().eq('id', id);
+    const { error } = await supabase.from('products').delete().eq('id', id);
+    return { error };
   },
 
   // --- Courses ---
-  getCourses: () => {
-    return coursesCache;
+  getCourses: async () => {
+    const { data } = await supabase.from('courses').select('*');
+    return { data: data || [], error: null };
   },
-  getCourseById: (id: string) => {
-    return coursesCache.find((c: any) => c.id === id);
+  getCourseById: async (id: string) => {
+    const { data } = await supabase.from('courses').select('*').eq('id', id).single();
+    return { data, error: null };
   },
   saveCourse: async (course: any) => {
-    const index = coursesCache.findIndex((c: any) => c.id === course.id);
     const updated = { ...course };
-    if (index > -1) {
-      coursesCache[index] = updated;
-    } else {
-      updated.id = course.id || (Math.random().toString(36).substring(2) + Date.now().toString(36));
-      coursesCache.push(updated);
+    if (!updated.id) {
+      updated.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
-    saveCache(STORAGE_KEYS.COURSES, coursesCache);
-
     const { error } = await supabase.from('courses').upsert(updated);
     if (error) {
       console.error('Supabase error saving course:', error);
@@ -194,111 +70,89 @@ export const LocalDB = {
     return { error: null };
   },
   deleteCourse: async (id: string) => {
-    coursesCache = coursesCache.filter((c: any) => c.id !== id);
-    saveCache(STORAGE_KEYS.COURSES, coursesCache);
-
-    await supabase.from('courses').delete().eq('id', id);
+    const { error } = await supabase.from('courses').delete().eq('id', id);
+    return { error };
   },
 
   // --- Waitlist ---
-  getWaitlist: () => {
-    return waitlistCache;
+  getWaitlist: async () => {
+    const { data } = await supabase.from('waitlist').select('*');
+    return { data: data || [], error: null };
   },
   addToWaitlist: async (email: string, source: string) => {
     const newItem = { email, source };
-    
-    // Optimistic UI update
-    const cacheItem = { id: Math.random().toString(), email, source, created_at: new Date().toISOString() };
-    waitlistCache.push(cacheItem);
-    saveCache(STORAGE_KEYS.WAITLIST, waitlistCache);
-
-    await supabase.from('waitlist').insert(newItem);
+    const { error } = await supabase.from('waitlist').insert(newItem);
+    return { error };
   },
 
   // --- Media ---
-  getMedia: () => {
-    return mediaCache;
+  getMedia: async () => {
+    const { data } = await supabase.from('media').select('*');
+    return { data: data || [], error: null };
   },
   saveMedia: async (file: any) => {
     const newItem = { ...file, id: file.id || (Math.random().toString(36).substring(2) + Date.now().toString(36)) };
-    
-    mediaCache.push(newItem);
-    saveCache(STORAGE_KEYS.MEDIA, mediaCache);
-
-    await supabase.from('media').upsert(newItem);
+    const { error } = await supabase.from('media').upsert(newItem);
+    return { error };
   },
   deleteMedia: async (id: string) => {
-    mediaCache = mediaCache.filter((m: any) => m.id !== id);
-    saveCache(STORAGE_KEYS.MEDIA, mediaCache);
-
-    await supabase.from('media').delete().eq('id', id);
+    const { error } = await supabase.from('media').delete().eq('id', id);
+    return { error };
   },
 
   // --- Messages ---
   syncMessages: async () => {
-    await syncAdminData();
+    // No-op
   },
-  getMessages: () => {
-    return messagesCache;
+  getMessages: async () => {
+    const { data } = await supabase.from('messages').select('*');
+    return { data: data || [], error: null };
   },
   saveMessage: async (msg: any) => {
     const newItem = { ...msg, status: 'new' };
-    
-    const cacheItem = { ...newItem, id: Math.random().toString(), created_at: new Date().toISOString() };
-    messagesCache.push(cacheItem);
-    saveCache(STORAGE_KEYS.MESSAGES, messagesCache);
-
-    await supabase.from('messages').insert(newItem);
+    const { error } = await supabase.from('messages').insert(newItem);
+    return { error };
   },
   updateMessageStatus: async (id: string, status: string) => {
-    const index = messagesCache.findIndex((m: any) => m.id === id);
-    if (index > -1) {
-      messagesCache[index].status = status;
-      saveCache(STORAGE_KEYS.MESSAGES, messagesCache);
-    }
-
-    await supabase.from('messages').update({ status }).eq('id', id);
+    const { error } = await supabase.from('messages').update({ status }).eq('id', id);
+    return { error };
   },
   deleteMessage: async (id: string) => {
-    messagesCache = messagesCache.filter((m: any) => m.id !== id);
-    saveCache(STORAGE_KEYS.MESSAGES, messagesCache);
-
-    await supabase.from('messages').delete().eq('id', id);
+    const { error } = await supabase.from('messages').delete().eq('id', id);
+    return { error };
   },
 
   // --- Bookings ---
-  getBookings: () => {
-    return bookingsCache;
+  getBookings: async () => {
+    const { data } = await supabase.from('bookings').select('*');
+    return { data: data || [], error: null };
   },
   saveBooking: async (booking: any) => {
-    const index = bookingsCache.findIndex((b: any) => b.id === booking.id);
     const updated = { ...booking };
-    if (index > -1) {
-      bookingsCache[index] = updated;
-    } else {
-      updated.id = booking.id || (Math.random().toString(36).substring(2) + Date.now().toString(36));
-      bookingsCache.push(updated);
+    if (!updated.id) {
+      updated.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
-    saveCache(STORAGE_KEYS.BOOKINGS, bookingsCache);
-
-    await supabase.from('bookings').upsert(updated);
+    const { error } = await supabase.from('bookings').upsert(updated);
+    return { error };
   },
   deleteBooking: async (id: string) => {
-    bookingsCache = bookingsCache.filter((b: any) => b.id !== id);
-    saveCache(STORAGE_KEYS.BOOKINGS, bookingsCache);
-
-    await supabase.from('bookings').delete().eq('id', id);
+    const { error } = await supabase.from('bookings').delete().eq('id', id);
+    return { error };
   },
 
   // --- Settings ---
-  getSettings: () => {
-    return settingsCache;
+  getSettings: async () => {
+    const { data } = await supabase.from('settings').select('*').limit(1).single();
+    return { data: data || {
+      siteName: 'Alanís Salon & Spa',
+      contactEmail: 'info@alanissalon.com',
+      phone: '713-524-2610',
+      address: 'Houston, TX'
+    }, error: null };
   },
   saveSettings: async (settings: any) => {
-    settingsCache = settings;
-    saveCache(STORAGE_KEYS.SETTINGS, settingsCache);
-
-    await supabase.from('settings').update(settings).eq('id', 1);
+    const { error } = await supabase.from('settings').update(settings).eq('id', 1);
+    return { error };
   },
 
   // --- Auth ---
@@ -328,7 +182,6 @@ export const LocalDB = {
       const session = { user: data.user, isAdmin: true, token: data.session.access_token };
       localStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(session));
       
-      await syncAdminData();
       return { data: session, error: null };
     } catch (err: any) {
       return { data: null, error: err.message || 'Error al conectar' };
@@ -341,13 +194,5 @@ export const LocalDB = {
   logout: async () => {
     await supabase.auth.signOut();
     localStorage.removeItem(STORAGE_KEYS.AUTH);
-    localStorage.removeItem(STORAGE_KEYS.WAITLIST);
-    localStorage.removeItem(STORAGE_KEYS.MEDIA);
-    localStorage.removeItem(STORAGE_KEYS.BOOKINGS);
-    localStorage.removeItem(STORAGE_KEYS.MESSAGES);
-    waitlistCache = [];
-    mediaCache = [];
-    bookingsCache = [];
-    messagesCache = [];
   }
 };

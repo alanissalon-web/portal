@@ -10,9 +10,10 @@ const AdminMedia = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  const fetchFiles = () => {
-    const data = LocalDB.getMedia();
-    setFiles(data);
+  const fetchFiles = async () => {
+    setLoading(true);
+    const { data } = await LocalDB.getMedia();
+    setFiles(data || []);
     setLoading(false);
   };
 
@@ -24,26 +25,26 @@ const AdminMedia = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const newMedia = {
           name: file.name,
           size: `${(file.size / 1024).toFixed(1)}KB`,
           type: file.type,
           url: reader.result as string
         };
-        LocalDB.saveMedia(newMedia);
+        await LocalDB.saveMedia(newMedia);
         toast({ title: 'Archivo subido', description: `${file.name} se ha guardado en la biblioteca.` });
-        fetchFiles();
+        await fetchFiles();
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Estás seguro de eliminar este archivo?')) {
-      LocalDB.deleteMedia(id);
+      await LocalDB.deleteMedia(id);
       toast({ title: 'Archivo eliminado' });
-      fetchFiles();
+      await fetchFiles();
     }
   };
 

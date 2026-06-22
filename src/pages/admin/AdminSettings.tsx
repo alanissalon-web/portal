@@ -16,18 +16,23 @@ const AdminSettings = () => {
   });
 
   useEffect(() => {
-    const data = LocalDB.getSettings();
-    setSettings(data);
-    setFetching(false);
+    const fetchSettings = async () => {
+      const { data } = await LocalDB.getSettings();
+      setSettings(data);
+      setFetching(false);
+    };
+    fetchSettings();
   }, []);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setLoading(true);
-    LocalDB.saveSettings(settings);
-    setTimeout(() => {
+    const { error } = await LocalDB.saveSettings(settings);
+    if (error) {
+      toast({ title: 'Error guardando ajustes', description: error.message, variant: 'destructive' });
+    } else {
       toast({ title: 'Ajustes guardados', description: 'La configuración de la plataforma ha sido actualizada.' });
-      setLoading(false);
-    }, 500);
+    }
+    setLoading(false);
   };
 
   if (fetching) {

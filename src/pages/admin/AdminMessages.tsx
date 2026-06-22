@@ -27,8 +27,8 @@ const AdminMessages = () => {
     await LocalDB.syncMessages?.();
     
     // 2. Load into view
-    const data = LocalDB.getMessages();
-    setMessages(data);
+    const { data } = await LocalDB.getMessages();
+    setMessages(data || []);
     
     // Detect incoming call
     const call = data.find((m: any) => m.type === 'call' && m.status === 'new');
@@ -56,9 +56,9 @@ const AdminMessages = () => {
     }
   }, [selectedUser, messages]);
 
-  const handleReply = () => {
+  const handleReply = async () => {
     if (!replyText.trim() || !selectedUser) return;
-    LocalDB.saveMessage({
+    await LocalDB.saveMessage({
       name: 'Alanís Salon',
       email: 'admin@alanissalon.com',
       message: replyText,
@@ -68,16 +68,16 @@ const AdminMessages = () => {
       toEmail: selectedUser // Use phone as unique ID
     });
     setReplyText('');
-    fetchMessages();
+    await fetchMessages();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onloadend = () => {
+    reader.onloadend = async () => {
       const base64 = reader.result as string;
-      LocalDB.saveMessage({
+      await LocalDB.saveMessage({
         name: 'Alanís Salon',
         email: 'admin@alanissalon.com',
         message: '[Imagen]',
@@ -87,7 +87,7 @@ const AdminMessages = () => {
         type: 'chat',
         to: selectedUser || ''
       });
-      fetchMessages();
+      await fetchMessages();
     };
     reader.readAsDataURL(file);
   };
@@ -101,10 +101,10 @@ const AdminMessages = () => {
       recorder.onstop = () => {
         const audioBlob = new Blob(chunks, { type: 'audio/webm' });
         const reader = new FileReader();
-        reader.onloadend = () => {
+        reader.onloadend = async () => {
           const base64 = reader.result as string;
-          LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Nota de voz]', voice: base64, to: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
-          fetchMessages();
+          await LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Nota de voz]', voice: base64, to: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
+          await fetchMessages();
         };
         reader.readAsDataURL(audioBlob);
         stream.getTracks().forEach(t => t.stop());
@@ -222,14 +222,14 @@ const AdminMessages = () => {
                     variant="ghost" 
                     size="icon" 
                     className="text-muted-foreground hover:text-red-500 transition-colors" 
-                    onClick={() => { 
+                    onClick={async () => { 
                       if(confirm('¿Estás seguro de que deseas eliminar este chat completo? Esta acción no se puede deshacer.')) { 
-                        const allMessages = LocalDB.getMessages();
-                        const toDelete = allMessages.filter(m => m.email === selectedUser || m.toEmail === selectedUser);
-                        toDelete.forEach(m => LocalDB.deleteMessage(m.id)); 
+                        const { data: allMessages } = await LocalDB.getMessages();
+                        const toDelete = (allMessages || []).filter((m: any) => m.email === selectedUser || m.toEmail === selectedUser);
+                        await Promise.all(toDelete.map((m: any) => LocalDB.deleteMessage(m.id))); 
                         
                         toast({ title: 'Chat eliminado', description: 'La conversación se ha borrado correctamente.' });
-                        fetchMessages(); 
+                        await fetchMessages(); 
                         setSelectedUser(null); 
                       } 
                     }}
@@ -349,8 +349,8 @@ const AdminMessages = () => {
             
             <div className="flex gap-8">
               <button 
-                onClick={() => {
-                  LocalDB.updateMessageStatus(incomingCall.id, 'read');
+                onClick={async () => {
+                  await LocalDB.updateMessageStatus(incomingCall.id, 'read');
                   setIncomingCall(null);
                   setSelectedUser(incomingCall.email);
                   toast({ title: 'Llamada conectada', description: 'Ahora estás en línea con el cliente.' });
@@ -360,8 +360,8 @@ const AdminMessages = () => {
                 <Check className="w-10 h-10" />
               </button>
               <button 
-                onClick={() => {
-                  LocalDB.deleteMessage(incomingCall.id);
+                onClick={async () => {
+                  await LocalDB.deleteMessage(incomingCall.id);
                   setIncomingCall(null);
                 }}
                 className="w-20 h-20 bg-red-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-red-500/30"

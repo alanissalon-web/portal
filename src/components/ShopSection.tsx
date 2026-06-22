@@ -152,7 +152,7 @@ export function ShopSection() {
     };
 
     const fetchProducts = async () => {
-      const localData = LocalDB.getProducts();
+      const { data: localData } = await LocalDB.getProducts();
       if (localData && localData.length > 0) {
         processProducts(localData);
       }

@@ -21,15 +21,15 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = () => {
-      const courses = LocalDB.getCourses();
-      const products = LocalDB.getProducts();
-      const waitlist = LocalDB.getWaitlist();
+    const fetchStats = async () => {
+      const { data: courses } = await LocalDB.getCourses();
+      const { data: products } = await LocalDB.getProducts();
+      const { data: waitlist } = await LocalDB.getWaitlist();
       
       setStats({
-        courses: courses.length,
-        products: products.length,
-        waitlist: waitlist.length,
+        courses: courses?.length || 0,
+        products: products?.length || 0,
+        waitlist: waitlist?.length || 0,
       });
       setLoading(false);
     };

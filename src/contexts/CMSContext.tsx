@@ -16,6 +16,7 @@ interface CMSContextType {
   removeSection: (index: number) => void;
   reorderSections: (from: number, to: number) => void;
   layout: string[];
+  loading: boolean;
 }
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
@@ -24,22 +25,28 @@ export function CMSProvider({ children }: { children: ReactNode }) {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState<Record<string, SectionContent>>({});
   const [layout, setLayout] = useState<string[]>(['hero', 'booking', 'about', 'services', 'transformations', 'experience', 'cta']);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const data = LocalDB.getContent();
-    const map: Record<string, SectionContent> = {};
-    const layoutOrder: string[] = [];
-    
-    data.forEach((row: any) => {
-      map[row.section_key] = row.content;
-      layoutOrder.push(row.section_key);
-    });
+    const fetchContent = async () => {
+      setLoading(true);
+      const data = await LocalDB.getContent();
+      const map: Record<string, SectionContent> = {};
+      const layoutOrder: string[] = [];
+      
+      data.forEach((row: any) => {
+        map[row.section_key] = row.content;
+        layoutOrder.push(row.section_key);
+      });
 
-    if (Object.keys(map).length > 0) {
-      setContent(map);
-      setLayout(layoutOrder);
-    }
+      if (Object.keys(map).length > 0) {
+        setContent(map);
+        setLayout(layoutOrder);
+      }
+      setLoading(false);
+    };
+    fetchContent();
   }, []);
 
   const updateContent = (sectionKey: string, field: string, value: any) => {
@@ -87,7 +94,7 @@ export function CMSProvider({ children }: { children: ReactNode }) {
   return (
     <CMSContext.Provider value={{ 
       isEditing, setIsEditing, content, updateContent, saveChanges, 
-      addSection, removeSection, reorderSections, layout 
+      addSection, removeSection, reorderSections, layout, loading 
     }}>
       {children}
     </CMSContext.Provider>

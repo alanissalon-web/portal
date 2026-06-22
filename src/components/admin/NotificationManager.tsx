@@ -10,14 +10,17 @@ export const NotificationManager = () => {
   const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    // Initial load: mark all existing 'new' messages as notified so we don't spam on refresh
-    const initialMessages = LocalDB.getMessages();
-    const initialIds = new Set<string>(initialMessages.filter((m: any) => m.status === 'new').map((m: any) => m.id as string));
-    setNotifiedIds(initialIds);
+    const initialize = async () => {
+      // Initial load: mark all existing 'new' messages as notified so we don't spam on refresh
+      const { data: initialMessages } = await LocalDB.getMessages();
+      const initialIds = new Set<string>((initialMessages || []).filter((m: any) => m.status === 'new').map((m: any) => m.id as string));
+      setNotifiedIds(initialIds);
+    };
+    initialize();
 
-    const checkNewMessages = () => {
-      const messages = LocalDB.getMessages();
-      const newMessages = messages.filter((m: any) => m.status === 'new' && !notifiedIds.has(m.id));
+    const checkNewMessages = async () => {
+      const { data: messages } = await LocalDB.getMessages();
+      const newMessages = (messages || []).filter((m: any) => m.status === 'new' && !notifiedIds.has(m.id));
 
       if (newMessages.length > 0) {
         newMessages.forEach((msg: any) => {
@@ -41,8 +44,8 @@ export const NotificationManager = () => {
                     </button>
                     <button 
                       className="bg-white/10 text-white px-3 py-1 rounded-lg text-xs font-medium"
-                      onClick={() => {
-                        LocalDB.deleteMessage(msg.id);
+                      onClick={async () => {
+                        await LocalDB.deleteMessage(msg.id);
                         setNotifiedIds(prev => new Set(prev).add(msg.id));
                       }}
                     >

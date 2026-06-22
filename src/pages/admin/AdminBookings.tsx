@@ -10,9 +10,10 @@ const AdminBookings = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { toast } = useToast();
 
-  const fetchBookings = () => {
-    const data = LocalDB.getBookings();
-    setBookings(data);
+  const fetchBookings = async () => {
+    setLoading(true);
+    const { data } = await LocalDB.getBookings();
+    setBookings(data || []);
     setLoading(false);
   };
 
@@ -20,20 +21,20 @@ const AdminBookings = () => {
     fetchBookings();
   }, []);
 
-  const handleStatusChange = (id: string, status: string) => {
+  const handleStatusChange = async (id: string, status: string) => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
-      LocalDB.saveBooking({ ...booking, status });
+      await LocalDB.saveBooking({ ...booking, status });
       toast({ title: 'Estado actualizado', description: `La reserva ahora está ${status}.` });
-      fetchBookings();
+      await fetchBookings();
     }
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('¿Eliminar esta reserva definitivamente?')) {
-      LocalDB.deleteBooking(id);
+      await LocalDB.deleteBooking(id);
       toast({ title: 'Reserva eliminada' });
-      fetchBookings();
+      await fetchBookings();
     }
   };
 

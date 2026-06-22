@@ -16,7 +16,7 @@ export function ContactSection() {
     const { LocalDB } = await import('@/services/LocalDatabase');
     
     // Save to LocalDB
-    LocalDB.saveMessage({
+    await LocalDB.saveMessage({
       id: `msg-${Date.now()}`,
       name: formData.name,
       email: formData.email,

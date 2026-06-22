@@ -105,7 +105,7 @@ export function BookingWizard() {
   const next = async () => {
     if (isContactStep) {
       const { LocalDB } = await import('@/services/LocalDatabase');
-      LocalDB.saveBooking({
+      await LocalDB.saveBooking({
         id: `book-${Date.now()}`,
         name: contactInfo.name,
         whatsapp: contactInfo.whatsapp,

@@ -48,7 +48,7 @@ const CourseDetailPage = () => {
   useEffect(() => {
     const fetchCourse = async () => {
       const { LocalDB } = await import('@/services/LocalDatabase');
-      const data = LocalDB.getCourseById(courseId || '');
+      const { data } = await LocalDB.getCourseById(courseId || '');
       
       if (data) {
         setCourse({

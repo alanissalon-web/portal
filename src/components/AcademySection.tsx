@@ -122,7 +122,7 @@ export function AcademySection() {
     };
 
     const fetchCourses = async () => {
-      const localData = LocalDB.getCourses();
+      const { data: localData } = await LocalDB.getCourses();
       if (localData && localData.length > 0) {
         processCourses(localData);
       }
@@ -140,7 +140,7 @@ export function AcademySection() {
   const handleWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    LocalDB.addToWaitlist(email, 'academy');
+    await LocalDB.addToWaitlist(email, 'academy');
     setSubmitted(true);
     toast({ title: "You're on the list!", description: "We'll notify you when courses launch." });
     setEmail('');

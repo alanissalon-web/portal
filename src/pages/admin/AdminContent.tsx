@@ -11,21 +11,24 @@ const AdminContent = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    const data = LocalDB.getContent();
-    const layout = data.find((row: any) => row.section_key === 'page_layout')?.content?.sections;
-    
-    const defaultLayout = [
-      { id: 'hero', name: 'Hero Section' },
-      { id: 'booking', name: 'Booking Wizard' },
-      { id: 'about', name: 'About Section' },
-      { id: 'services', name: 'Services Section' },
-      { id: 'transformations', name: 'Transformations' },
-      { id: 'experience', name: 'Experience' },
-      { id: 'cta', name: 'Final CTA' },
-    ];
+    const fetchContent = async () => {
+      const { data } = await LocalDB.getContent();
+      const layout = (data || []).find((row: any) => row.section_key === 'page_layout')?.content?.sections;
+      
+      const defaultLayout = [
+        { id: 'hero', name: 'Hero Section' },
+        { id: 'booking', name: 'Booking Wizard' },
+        { id: 'about', name: 'About Section' },
+        { id: 'services', name: 'Services Section' },
+        { id: 'transformations', name: 'Transformations' },
+        { id: 'experience', name: 'Experience' },
+        { id: 'cta', name: 'Final CTA' },
+      ];
 
-    setSections(layout || defaultLayout);
-    setLoading(false);
+      setSections(layout || defaultLayout);
+      setLoading(false);
+    };
+    fetchContent();
   }, []);
 
   const moveSection = (index: number, direction: 'up' | 'down') => {
@@ -39,16 +42,16 @@ const AdminContent = () => {
     toast({ title: 'Orden actualizado' });
   };
 
-  const toggleSection = (id: string) => {
+  const toggleSection = async (id: string) => {
     const newSections = sections.map(s => s.id === id ? { ...s, hidden: !s.hidden } : s);
     setSections(newSections);
-    LocalDB.saveContent('page_layout', { sections: newSections });
+    await LocalDB.saveContent('page_layout', { sections: newSections });
     toast({ title: 'Visibilidad actualizada' });
   };
 
-  const resetToDefault = () => {
+  const resetToDefault = async () => {
     if (confirm('¿Estás seguro de restablecer el diseño por defecto? Se perderá el orden personalizado.')) {
-      LocalDB.saveContent('page_layout', { sections: null });
+      await LocalDB.saveContent('page_layout', { sections: null });
       window.location.reload();
     }
   };
