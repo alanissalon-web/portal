@@ -51,6 +51,7 @@ export default function ClientPortalPage() {
 
   useEffect(() => {
     if (!student) return;
+
     const fetchPortalData = async () => {
       setDataLoading(true);
       try {
@@ -77,7 +78,33 @@ export default function ClientPortalPage() {
         setDataLoading(false);
       }
     };
+
     fetchPortalData();
+
+    // 🔴 Realtime: listen for new enrollments so My Courses updates instantly
+    const channel = supabase
+      .channel(`enrollments:${student.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'enrollments',
+          filter: `user_id=eq.${student.id}`,
+        },
+        async () => {
+          // Re-fetch courses when a new enrollment is added
+          const { data: enrollIds } = await LocalDB.getStudentEnrollments(student.id);
+          const { data: allCourses } = await LocalDB.getCourses();
+          const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
+          setCourses(enrolled);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [student]);
 
   const handleSignOut = async () => {
