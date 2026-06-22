@@ -57,11 +57,25 @@ export const LocalDB = {
     const { data } = await supabase.from('courses').select('*').eq('id', id).single();
     return { data, error: null };
   },
+  // Save a course, ensuring complex fields are correctly formatted for Supabase
   saveCourse: async (course: any) => {
-    const updated = { ...course };
+    // Clone and ensure an ID exists
+    const updated: any = { ...course };
     if (!updated.id) {
       updated.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
     }
+    // Supabase expects JSON columns to receive plain objects, but if the column is TEXT we stringify
+    // Convert curriculum (array of objects) and topics (array of strings) to JSON strings if needed
+    if (Array.isArray(updated.curriculum)) {
+      // If the column type is JSONB, this is fine; if it's TEXT, stringify
+      updated.curriculum = JSON.stringify(updated.curriculum);
+    }
+    if (Array.isArray(updated.topics)) {
+      updated.topics = JSON.stringify(updated.topics);
+    }
+    // Ensure badge is null when empty
+    if (updated.badge === '') updated.badge = null;
+    // Upsert the record
     const { error } = await supabase.from('courses').upsert(updated);
     if (error) {
       console.error('Supabase error saving course:', error);
