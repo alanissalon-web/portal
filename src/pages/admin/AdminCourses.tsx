@@ -392,6 +392,20 @@ const AdminCourses = () => {
                 <h3 className="font-display text-base font-medium text-foreground truncate">{c.title}</h3>
                 {c.badge && <span className="text-xs bg-accent/10 text-accent px-2 py-0.5 rounded-full">{c.badge}</span>}
               </div>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {(() => {
+                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+                  return topicsArray.slice(0, 3).map((t: string) => (
+                    <span key={t} className="bg-black/5 px-2 py-1 rounded text-[10px] font-medium text-muted-foreground">{t.trim()}</span>
+                  ));
+                })()}
+                {(() => {
+                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+                  return topicsArray.length > 3 ? (
+                    <span className="text-[10px] text-muted-foreground font-medium">+{topicsArray.length - 3}</span>
+                  ) : null;
+                })()}
+              </div>
               <div className="flex items-center gap-3 text-xs text-muted-foreground">
                 <span>{c.type}</span>
                 <span>${c.price}</span>
