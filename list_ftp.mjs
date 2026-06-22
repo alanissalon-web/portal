@@ -12,8 +12,8 @@ async function list() {
             secure: false
         });
         
-        console.log("Listing public_html/admin...");
-        const list = await client.list("public_html/admin");
+        console.log("Listing public_html/assets...");
+        const list = await client.list("public_html/assets");
         for (const item of list) {
             console.log(`${item.type === 2 ? 'DIR' : 'FILE'}: ${item.name} (${item.size} bytes)`);
         }
