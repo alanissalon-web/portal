@@ -14,12 +14,14 @@ async function deploy() {
             secure: false
         });
         
-        console.log("Connected! Uploading dist directory...");
+        console.log("Connected! Uploading root files...");
         const localDir = path.resolve('./dist');
+        await client.cd('public_html');
         
-        await client.ensureDir('public_html');
-        await client.uploadFromDir(localDir);
+        try { await client.remove('index.html'); } catch(e) {}
+        try { await client.remove('.in.index.html.'); } catch(e) {}
         
+        await client.uploadFrom(path.join(localDir, 'index.html'), 'index.html');
         console.log("Upload complete!");
     }
     catch(err) {
