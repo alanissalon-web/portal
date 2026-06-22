@@ -80,7 +80,21 @@ async function deploy() {
                         await client.remove(`.in.${item}.`);
                     } catch(e) {}
 
-                    await client.uploadFrom(fullLocalPath, item);
+                    if (item === 'index.html') {
+                        console.log("Applying cache-busting parameters to index.html asset paths...");
+                        let html = fs.readFileSync(fullLocalPath, 'utf8');
+                        const cacheBuster = Date.now();
+                        html = html.replace(/src="(\/assets\/[a-zA-Z0-9_-]+\.js)"/g, `src="$1?v=${cacheBuster}"`);
+                        html = html.replace(/href="(\/assets\/[a-zA-Z0-9_-]+\.(js|css))"/g, `href="$1?v=${cacheBuster}"`);
+                        
+                        const tempHtmlPath = path.join(localDistDir, 'index_deploy.html');
+                        fs.writeFileSync(tempHtmlPath, html, 'utf8');
+                        
+                        await client.uploadFrom(tempHtmlPath, item);
+                        fs.unlinkSync(tempHtmlPath);
+                    } else {
+                        await client.uploadFrom(fullLocalPath, item);
+                    }
                 }
             }
         }
