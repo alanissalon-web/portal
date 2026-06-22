@@ -1,6 +1,7 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
 import { AcademySection } from '@/components/AcademySection';
+import { ClientRegisterCTA } from '@/components/ClientRegisterCTA';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { GraduationCap, Play, Award, Users, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,6 +66,9 @@ const AcademyPage = () => {
       </div>
 
       <AcademySection />
+
+      {/* Client Register CTA */}
+      <ClientRegisterCTA variant="academy" />
 
       {/* CTA Section */}
       <section className="py-16 bg-charcoal">

@@ -1,6 +1,7 @@
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
 import { ShopSection } from '@/components/ShopSection';
+import { ClientRegisterCTA } from '@/components/ClientRegisterCTA';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Sparkles, Truck, ShieldCheck, Award, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -55,6 +56,9 @@ const ShopPage = () => {
       </div>
 
       <ShopSection />
+
+      {/* Client Register CTA */}
+      <ClientRegisterCTA variant="shop" />
 
       {/* Why Shop With Us */}
       <section className="py-20 bg-cream" ref={ref}>
