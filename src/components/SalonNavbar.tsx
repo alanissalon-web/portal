@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo-alanis.png';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { useCMS } from '@/contexts/CMSContext';
-import { Layout } from 'lucide-react';
+import { Layout, User } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 const navLinks = [
   { label: 'About', href: '/about' },
@@ -25,6 +26,17 @@ export function SalonNavbar() {
   const isHome = location.pathname === '/';
   const { isAdmin } = useAdminAuth();
   const { setIsEditing } = useCMS();
+  const [hasSession, setHasSession] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setHasSession(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setHasSession(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -104,9 +116,15 @@ export function SalonNavbar() {
                   713-524-2610
                 </Button>
               </a>
-              <Link to="/admin/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Admin Portal">
-                <Fingerprint className="w-5 h-5 text-white" />
-              </Link>
+              {hasSession ? (
+                <Link to="/portal" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Client Portal">
+                  <User className="w-5 h-5 text-white" />
+                </Link>
+              ) : (
+                <Link to="/admin/login#client" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Login">
+                  <Fingerprint className="w-5 h-5 text-white" />
+                </Link>
+              )}
             </div>
           </div>
 
