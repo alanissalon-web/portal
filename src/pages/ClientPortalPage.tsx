@@ -167,7 +167,7 @@ export default function ClientPortalPage() {
       <SalonNavbar />
 
       {/* Hero Banner */}
-      <div className="bg-charcoal pt-32 pb-16 relative overflow-hidden">
+      <div className="bg-charcoal pt-48 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal via-charcoal to-accent/20 pointer-events-none" />
         <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full -mr-48 -mt-48 blur-3xl pointer-events-none" />
         <div className="container mx-auto px-6 relative z-10">

@@ -1,6 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, Clock, Star, Users, BookOpen, Video, ArrowRight, CheckCircle, Award, GraduationCap } from 'lucide-react';
+import { PlayCircle, Clock, Star, Users, BookOpen, Video, ArrowRight, CheckCircle, Award, GraduationCap, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
@@ -107,16 +107,15 @@ export function AcademySection() {
   // Student auth states
   const [student, setStudent] = useState<any>(null);
   const [enrollments, setEnrollments] = useState<string[]>([]);
+  const [courseFavorites, setCourseFavorites] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'enrolled'>('all');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    // 1. Get current session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setStudent(session?.user ?? null);
     });
 
-    // 2. Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setStudent(session?.user ?? null);
     });
@@ -125,15 +124,19 @@ export function AcademySection() {
   }, []);
 
   useEffect(() => {
-    const fetchEnrollments = async () => {
-      if (student) {
-        const { data } = await LocalDB.getStudentEnrollments(student.id);
-        setEnrollments(data || []);
-      } else {
-        setEnrollments([]);
-      }
+    if (!student) {
+      setEnrollments([]);
+      setCourseFavorites([]);
+      return;
+    }
+    const loadStudentData = async () => {
+      const { data: enrollIds } = await LocalDB.getStudentEnrollments(student.id);
+      setEnrollments(enrollIds || []);
+      
+      const { data: favIds } = await LocalDB.getCourseFavorites(student.id);
+      setCourseFavorites(favIds || []);
     };
-    fetchEnrollments();
+    loadStudentData();
   }, [student]);
 
   useEffect(() => {
@@ -181,6 +184,31 @@ export function AcademySection() {
     setSubmitted(true);
     toast({ title: "You're on the list!", description: "We'll notify you when courses launch." });
     setEmail('');
+  };
+
+  const handleToggleFavorite = async (e: React.MouseEvent, courseId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!student) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    
+    // Optimistic update
+    const isFav = courseFavorites.includes(courseId);
+    if (isFav) {
+      setCourseFavorites(prev => prev.filter(id => id !== courseId));
+    } else {
+      setCourseFavorites(prev => [...prev, courseId]);
+    }
+
+    const { error } = await LocalDB.toggleCourseFavorite(student.id, courseId);
+    if (error) {
+      // Revert if error
+      if (isFav) setCourseFavorites(prev => [...prev, courseId]);
+      else setCourseFavorites(prev => prev.filter(id => id !== courseId));
+      toast({ title: "Error", description: "No se pudo guardar en favoritos", variant: "destructive" });
+    }
   };
 
   return (
@@ -260,15 +288,8 @@ export function AcademySection() {
           </div>
         )}
 
-        {/* Coming Soon Banner */}
+        {/* Section Header */}
         <div className={`text-center max-w-3xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
-          <div className="inline-flex items-center gap-2 bg-accent/10 text-accent rounded-full px-5 py-2 mb-8">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent" />
-            </span>
-            <span className="font-body text-sm font-medium">Launching Soon</span>
-          </div>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground text-balance" style={{ lineHeight: '1.15' }}>
             Elevate your craft with expert-led education
           </h2>
@@ -297,9 +318,29 @@ export function AcademySection() {
                 {course.badge && (
                   <span className="absolute top-4 left-4 bg-accent text-accent-foreground text-xs font-medium px-3 py-1 rounded-full">{course.badge}</span>
                 )}
-                <span className="absolute top-4 right-4 bg-card/90 text-foreground text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1">
-                  <Video className="w-3 h-3" />{course.type}
-                </span>
+                <div className="absolute top-4 right-4 flex gap-2 items-center">
+                  <span className="bg-card/90 text-foreground text-xs font-medium px-3 py-1 rounded-full flex items-center gap-1.5">
+                    {course.type.toLowerCase() === 'live' && (
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                      </span>
+                    )}
+                    <Video className="w-3 h-3" />{course.type}
+                  </span>
+                  
+                  {/* Favorite Button */}
+                  {student && (
+                    <button
+                      onClick={(e) => handleToggleFavorite(e, course.id)}
+                      className="bg-card/90 p-1.5 rounded-full hover:bg-card transition-colors z-10 shadow-sm"
+                    >
+                      <Heart 
+                        className={`w-4 h-4 ${courseFavorites.includes(course.id) ? 'fill-accent text-accent' : 'text-foreground/60'}`} 
+                      />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="p-6">
                 <h3 className="font-display text-xl font-medium text-foreground mb-2">{course.title}</h3>
@@ -353,25 +394,7 @@ export function AcademySection() {
           </div>
         </div>
 
-        {/* Live Classes */}
-        <div className={`max-w-3xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up delay-300' : 'opacity-0'}`}>
-          <div className="text-center mb-10">
-            <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">Interactive</span>
-            <h3 className="font-display text-3xl font-light text-foreground mt-2">Live Classes & Workshops</h3>
-          </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {liveClasses.map(lc => (
-              <div key={lc.title} className="bg-cream rounded-2xl p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1">
-                <div className="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center mb-3">
-                  <Video className="w-5 h-5 text-accent" />
-                </div>
-                <h4 className="font-display text-base font-medium text-foreground mb-1">{lc.title}</h4>
-                <p className="font-body text-xs text-muted-foreground mb-3">{lc.date} · {lc.time}</p>
-                <span className="font-body text-sm font-medium text-accent">{lc.price}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Live Classes Removed */}
 
         {/* Testimonials */}
         <div className={`max-w-4xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up delay-300' : 'opacity-0'}`}>
@@ -408,36 +431,7 @@ export function AcademySection() {
           </div>
         </div>
 
-        {/* Waitlist CTA */}
-        <div id="waitlist" className={`max-w-xl mx-auto text-center ${isVisible ? 'animate-reveal-up delay-500' : 'opacity-0'}`}>
-          <div className="bg-cream rounded-2xl p-8 md:p-10">
-            <Users className="w-10 h-10 text-accent mx-auto mb-4" />
-            <h3 className="font-display text-2xl font-light text-foreground mb-2">Be the First to Know</h3>
-            <p className="font-body text-sm text-muted-foreground mb-6">
-              Join the waitlist and get early access pricing when we launch.
-            </p>
-            {submitted ? (
-              <div className="flex items-center justify-center gap-2 text-primary">
-                <CheckCircle className="w-5 h-5" />
-                <span className="font-body text-sm font-medium">You're on the list!</span>
-              </div>
-            ) : (
-              <form onSubmit={handleWaitlist} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  placeholder="your@email.com"
-                  required
-                  className="flex-1 bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                />
-                <Button type="submit" variant="default">
-                  Join Waitlist <ArrowRight className="w-4 h-4" />
-                </Button>
-              </form>
-            )}
-          </div>
-        </div>
+        {/* Waitlist removed */}
       </div>
 
       <StudentAuthModal
