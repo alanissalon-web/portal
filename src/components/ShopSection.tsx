@@ -1,10 +1,11 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldCheck, ExternalLink } from 'lucide-react';
+import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldCheck, ExternalLink, Heart, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
 import { supabase } from '@/lib/supabase';
+import { StudentAuthModal } from '@/components/StudentAuthModal';
 
 interface Product {
   id: string;
@@ -132,6 +133,38 @@ export function ShopSection() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
+  // Student/Client Auth and Favorites
+  const [student, setStudent] = useState<any>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [reserving, setReserving] = useState(false);
+
+  useEffect(() => {
+    // 1. Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setStudent(session?.user ?? null);
+    });
+
+    // 2. Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setStudent(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      if (student) {
+        const { data } = await LocalDB.getProductFavorites(student.id);
+        setFavorites(data || []);
+      } else {
+        setFavorites([]);
+      }
+    };
+    fetchFavorites();
+  }, [student]);
+
   useEffect(() => {
     const processProducts = (data: any[]) => {
       const active = data.filter((p: any) => p.status === 'active');
@@ -166,6 +199,54 @@ export function ShopSection() {
     };
     fetchProducts();
   }, []);
+
+  const handleToggleFavorite = async (productId: string) => {
+    if (!student) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    const { favorited, error } = await LocalDB.toggleFavorite(student.id, productId);
+    if (!error) {
+      setFavorites(prev => 
+        favorited ? [...prev, productId] : prev.filter(id => id !== productId)
+      );
+      toast({
+        title: favorited ? 'Added to favorites' : 'Removed from favorites',
+        description: favorited ? 'Product saved to your favorites.' : 'Product removed from favorites.',
+      });
+    }
+  };
+
+  const handleReserve = async () => {
+    if (!student) {
+      setCartOpen(false);
+      setIsAuthModalOpen(true);
+      toast({
+        title: 'Sign In Required',
+        description: 'Please sign in or register to reserve products.',
+      });
+      return;
+    }
+
+    setReserving(true);
+    const { error } = await LocalDB.reserveProducts(student.id, cart);
+    setReserving(false);
+
+    if (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Reservation Error',
+        description: error.message || 'Could not complete reservation.',
+      });
+    } else {
+      toast({
+        title: 'Products Reserved!',
+        description: 'Your reservation was submitted. A salon representative will contact you.',
+      });
+      setCart([]);
+      setCartOpen(false);
+    }
+  };
 
   const allProducts = dbProducts.length > 0 ? dbProducts : products;
   const allCategories = ['All', ...Array.from(new Set(allProducts.map(p => p.category)))];
@@ -291,14 +372,18 @@ export function ShopSection() {
                       <Truck className="w-3 h-3" /> You qualify for free shipping!
                     </p>
                   )}
-                  <Button variant="default" size="lg" className="w-full" onClick={() => {
-                    toast({ title: 'Checkout coming soon!', description: 'Stripe payments will be available shortly.' });
-                  }}>
-                    Proceed to Checkout
+                  <Button 
+                    variant="default" 
+                    size="lg" 
+                    className="w-full gap-2" 
+                    onClick={handleReserve}
+                    disabled={reserving}
+                  >
+                    {reserving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Reserve Products'}
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                   <p className="font-body text-xs text-muted-foreground text-center mt-3">
-                    Secure checkout powered by Stripe
+                    Reserve items for in-salon pick up and payment
                   </p>
                 </div>
               </>
@@ -328,6 +413,18 @@ export function ShopSection() {
                     {product.badge}
                   </span>
                 )}
+                {/* Favorite Heart Toggle */}
+                <button
+                  type="button"
+                  onClick={() => handleToggleFavorite(product.id)}
+                  className="absolute top-4 right-4 z-10 w-9 h-9 bg-white/80 hover:bg-white backdrop-blur-sm rounded-full flex items-center justify-center shadow-md text-foreground transition-all active:scale-95"
+                >
+                  <Heart 
+                    className={`w-4 h-4 transition-colors ${
+                      favorites.includes(product.id) ? 'fill-destructive text-destructive' : 'text-muted-foreground'
+                    }`} 
+                  />
+                </button>
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
               <div className="p-6">
@@ -373,6 +470,15 @@ export function ShopSection() {
           </a>
         </div>
       </div>
+
+      <StudentAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          setStudent(user);
+          setIsAuthModalOpen(false);
+        }}
+      />
     </section>
   );
 }

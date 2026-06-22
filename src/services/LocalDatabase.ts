@@ -243,6 +243,66 @@ export const LocalDB = {
     return !!data;
   },
 
+  // --- Shop Reserves & Favorites ---
+  reserveProducts: async (userId: string, items: { product: any; quantity: number }[]) => {
+    const promises = items.map(item => {
+      return supabase.from('product_reservations').insert({
+        user_id: userId,
+        product_id: item.product.id,
+        status: 'pending'
+      });
+    });
+    const results = await Promise.all(promises);
+    const failed = results.find(r => r.error);
+    if (failed) {
+      console.error('Error creating product reservation:', failed.error);
+      return { error: failed.error };
+    }
+    return { error: null };
+  },
+
+  getProductReservations: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('product_reservations')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    return { data: data || [], error };
+  },
+
+  toggleFavorite: async (userId: string, productId: string) => {
+    const { data } = await supabase
+      .from('product_favorites')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+      .maybeSingle();
+
+    if (data) {
+      const { error } = await supabase
+        .from('product_favorites')
+        .delete()
+        .eq('id', data.id);
+      return { favorited: false, error };
+    } else {
+      const { error } = await supabase
+        .from('product_favorites')
+        .insert({ user_id: userId, product_id: productId });
+      return { favorited: true, error };
+    }
+  },
+
+  getProductFavorites: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('product_favorites')
+      .select('product_id')
+      .eq('user_id', userId);
+    if (error) {
+      return { data: [], error };
+    }
+    return { data: data.map(e => e.product_id), error: null };
+  },
+
   // --- Auth ---
   signUp: async (email: string, pass: string) => {
     try {

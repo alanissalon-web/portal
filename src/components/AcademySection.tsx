@@ -201,19 +201,30 @@ export function AcademySection() {
           </div>
           <div className="flex items-center gap-3">
             {student ? (
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl border-accent/20 text-accent hover:bg-accent/5"
-                onClick={async () => {
-                  await supabase.auth.signOut();
-                  setStudent(null);
-                  setEnrollments([]);
-                  setActiveTab('all');
-                }}
-              >
-                Sign Out
-              </Button>
+              <div className="flex gap-2">
+                <Link to="/portal">
+                  <Button
+                    variant="gold"
+                    size="sm"
+                    className="rounded-xl h-10 px-5 font-bold shadow-md shadow-accent/10"
+                  >
+                    Go to Portal
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl border-accent/20 text-accent hover:bg-accent/5 h-10 px-4"
+                  onClick={async () => {
+                    await supabase.auth.signOut();
+                    setStudent(null);
+                    setEnrollments([]);
+                    setActiveTab('all');
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </div>
             ) : (
               <Button
                 variant="gold"

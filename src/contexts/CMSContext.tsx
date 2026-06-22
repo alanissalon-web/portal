@@ -2,6 +2,21 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { LocalDB } from '@/services/LocalDatabase';
 import { useToast } from '@/hooks/use-toast';
 
+const CMS_CACHE_KEY = 'alanis_cms_content_v2';
+
+function readCache(): Record<string, any> | null {
+  try {
+    const raw = localStorage.getItem(CMS_CACHE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function writeCache(data: Record<string, any>) {
+  try {
+    localStorage.setItem(CMS_CACHE_KEY, JSON.stringify(data));
+  } catch { /* storage full – skip */ }
+}
+
 interface SectionContent {
   [key: string]: any;
 }
@@ -23,18 +38,26 @@ const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
 export function CMSProvider({ children }: { children: ReactNode }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [content, setContent] = useState<Record<string, SectionContent>>({});
-  const [layout, setLayout] = useState<string[]>(['hero', 'booking', 'about', 'services', 'transformations', 'experience', 'cta']);
-  const [loading, setLoading] = useState(true);
+
+  // ── Seed state immediately from localStorage cache (zero-delay on refresh) ──
+  const cached = readCache();
+  const [content, setContent] = useState<Record<string, SectionContent>>(cached?.content ?? {});
+  const [layout, setLayout] = useState<string[]>(
+    cached?.layout ?? ['hero', 'booking', 'about', 'services', 'transformations', 'experience', 'cta']
+  );
+  // If we have cache data we can skip showing a full spinner
+  const [loading, setLoading] = useState(!cached);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchContent = async () => {
-      setLoading(true);
+      // Only show loading spinner when there is no cached data
+      if (!cached) setLoading(true);
+
       const data = await LocalDB.getContent();
       const map: Record<string, SectionContent> = {};
       const layoutOrder: string[] = [];
-      
+
       data.forEach((row: any) => {
         map[row.section_key] = row.content;
         layoutOrder.push(row.section_key);
@@ -43,30 +66,56 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       if (Object.keys(map).length > 0) {
         setContent(map);
         setLayout(layoutOrder);
+        // Persist fresh data to cache for next page load
+        writeCache({ content: map, layout: layoutOrder });
       }
       setLoading(false);
     };
     fetchContent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const updateContent = (sectionKey: string, field: string, value: any) => {
-    setContent(prev => ({
-      ...prev,
-      [sectionKey]: { ...(prev[sectionKey] || {}), [field]: value }
-    }));
+    setContent(prev => {
+      const updated = {
+        ...prev,
+        [sectionKey]: { ...(prev[sectionKey] || {}), [field]: value }
+      };
+      // Keep cache in sync on every field change
+      writeCache({ content: updated, layout });
+      return updated;
+    });
   };
 
   const saveChanges = async () => {
     try {
-      // Save each section to local DB
-      Object.entries(content).forEach(([key, val]) => {
-        LocalDB.saveContent(key, val);
-      });
-      
-      toast({ title: '¡Cambios Guardados!', description: 'El contenido se ha actualizado localmente.' });
+      // Await ALL section saves in parallel
+      const results = await Promise.all(
+        Object.entries(content).map(([key, val]) =>
+          LocalDB.saveContent(key, val)
+        )
+      );
+
+      // Check if any section failed
+      const failed = results.filter((r: any) => r?.error);
+      if (failed.length > 0) {
+        console.error('CMS save errors:', failed.map((r: any) => r.error));
+        toast({
+          title: 'Error al guardar',
+          description: `${failed.length} sección(es) no se pudieron guardar en Supabase. Revisa la consola.`,
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      // Update localStorage cache immediately so next refresh is instant
+      writeCache({ content, layout });
+
+      toast({ title: '✅ ¡Cambios Guardados!', description: 'El contenido se actualizó correctamente.' });
       setIsEditing(false);
-    } catch (err) {
-      toast({ title: 'Error', description: 'No se pudo guardar los cambios.', variant: 'destructive' });
+    } catch (err: any) {
+      console.error('saveChanges error:', err);
+      toast({ title: 'Error', description: err?.message || 'No se pudo guardar los cambios.', variant: 'destructive' });
     }
   };
 

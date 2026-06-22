@@ -18,6 +18,7 @@ import AcademyPage from "./pages/AcademyPage.tsx";
 import CourseDetailPage from "./pages/CourseDetailPage.tsx";
 import ShopPage from "./pages/ShopPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ClientPortalPage from "./pages/ClientPortalPage.tsx";
 import AdminLogin from "./pages/admin/AdminLogin.tsx";
 import AdminLayout from "./pages/admin/AdminLayout.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
@@ -75,6 +76,7 @@ const App = () => (
             <Route path="/academy" element={<AcademyPage />} />
             <Route path="/academy/:courseId" element={<CourseDetailPage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/portal" element={<ClientPortalPage />} />
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
