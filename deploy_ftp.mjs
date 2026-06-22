@@ -14,14 +14,24 @@ async function deploy() {
             secure: false
         });
         
-        console.log("Connected! Uploading root files...");
+        console.log("Connected! Uploading updated files...");
         const localDir = path.resolve('./dist');
         await client.cd('public_html');
         
         try { await client.remove('index.html'); } catch(e) {}
         try { await client.remove('.in.index.html.'); } catch(e) {}
-        
         await client.uploadFrom(path.join(localDir, 'index.html'), 'index.html');
+        
+        await client.cd('assets');
+        const assets = fs.readdirSync(path.join(localDir, 'assets'));
+        for (const file of assets) {
+            if (file.endsWith('.js') || file.endsWith('.css')) {
+                try { await client.remove(file); } catch(e) {}
+                try { await client.remove('.in.' + file + '.'); } catch(e) {}
+                await client.uploadFrom(path.join(localDir, 'assets', file), file);
+            }
+        }
+        
         console.log("Upload complete!");
     }
     catch(err) {
