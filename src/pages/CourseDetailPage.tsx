@@ -34,6 +34,10 @@ interface CourseData {
   accessCode?: string | null;
 }
 
+import { StudentAuthModal } from '@/components/StudentAuthModal';
+import { supabase } from '@/lib/supabase';
+import { LocalDB } from '@/services/LocalDatabase';
+
 const CourseDetailPage = () => {
   const { courseId } = useParams();
   const { ref: revealRef, isVisible } = useScrollReveal();
@@ -45,9 +49,27 @@ const CourseDetailPage = () => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [activeLesson, setActiveLesson] = useState<number | null>(null);
 
+  // Student auth states
+  const [student, setStudent] = useState<any>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   useEffect(() => {
-    const fetchCourse = async () => {
-      const { LocalDB } = await import('@/services/LocalDatabase');
+    // 1. Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setStudent(session?.user ?? null);
+    });
+
+    // 2. Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setStudent(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchCourseAndCheckAccess = async () => {
+      setLoading(true);
       const { data } = await LocalDB.getCourseById(courseId || '');
       
       if (data) {
@@ -67,26 +89,55 @@ const CourseDetailPage = () => {
           accessCode: data.access_code
         });
 
-        // Check if already unlocked
-        const savedUnlock = sessionStorage.getItem(`unlocked_${courseId}`);
-        if (savedUnlock === 'true' || !data.access_code) {
+        // Check if unlocked: either public (no code), guest storage, or database enrollment
+        if (!data.access_code) {
           setIsUnlocked(true);
+        } else {
+          // Check session storage first
+          const savedUnlock = sessionStorage.getItem(`unlocked_${courseId}`);
+          if (savedUnlock === 'true') {
+            setIsUnlocked(true);
+            
+            // If logged in, automatically sync the guest access to the database
+            if (student) {
+              await LocalDB.enrollStudentInCourse(student.id, data.id);
+            }
+          } else if (student) {
+            // Check database enrollment
+            const hasAccess = await LocalDB.checkEnrollment(student.id, data.id);
+            if (hasAccess) {
+              setIsUnlocked(true);
+            }
+          }
         }
       }
       setLoading(false);
     };
 
-    fetchCourse();
-  }, [courseId]);
+    fetchCourseAndCheckAccess();
+  }, [courseId, student]);
 
-  const handleUnlock = (e: React.FormEvent) => {
+  const handleUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (course?.accessCode && inputCode.toUpperCase() === course.accessCode.toUpperCase()) {
+    if (!course) return;
+
+    if (course.accessCode && inputCode.toUpperCase() === course.accessCode.toUpperCase()) {
       setIsUnlocked(true);
       sessionStorage.setItem(`unlocked_${courseId}`, 'true');
-      toast({ title: "¡Curso desbloqueado!", description: "Bienvenido al contenido exclusivo." });
+
+      if (student) {
+        // Logged-in user: save enrollment to DB
+        await LocalDB.enrollStudentInCourse(student.id, course.id);
+        toast({ title: "Course unlocked!", description: "Saved persistently to your account." });
+      } else {
+        // Guest user: unlock in session storage
+        toast({ 
+          title: "Course unlocked as guest!", 
+          description: "Sign in or register to save this course permanently." 
+        });
+      }
     } else {
-      toast({ variant: "destructive", title: "Código incorrecto", description: "Por favor verifica el código enviado por Alanís Salon." });
+      toast({ variant: "destructive", title: "Incorrect code", description: "Please verify the code sent to you." });
     }
   };
 
@@ -267,30 +318,60 @@ const CourseDetailPage = () => {
               {/* Right Side: Form */}
               <div className="p-10 md:p-14 bg-accent/5 flex flex-col justify-center border-l border-border/50">
                 <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl border border-accent/10">
-                  <h4 className="font-display text-xl font-medium mb-6 text-center italic">Desbloquear Masterclass</h4>
+                  <h4 className="font-display text-xl font-medium mb-6 text-center italic">Unlock Masterclass</h4>
+                  
+                  {!student ? (
+                    <div className="mb-6 text-center">
+                      <p className="text-xs text-muted-foreground mb-3">Already have an account? Sign in to restore access.</p>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="w-full h-11 rounded-xl text-xs gap-2 border-accent/20 text-accent hover:bg-accent/5"
+                        onClick={() => setIsAuthModalOpen(true)}
+                      >
+                        Sign In to Your Account
+                      </Button>
+                      <div className="relative my-4">
+                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                        <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-white px-2 text-muted-foreground">Or Unlock with Code</span></div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mb-6 p-4 bg-accent/5 rounded-xl border border-accent/10 flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground truncate">Signed in as <strong>{student.email}</strong></span>
+                      <button 
+                        type="button"
+                        onClick={() => supabase.auth.signOut()} 
+                        className="text-destructive hover:underline font-semibold ml-2 flex-shrink-0"
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+
                   <form onSubmit={handleUnlock} className="space-y-4">
                     <input 
                       type="text" 
                       value={inputCode}
                       onChange={(e) => setInputCode(e.target.value)}
-                      placeholder="INGRESA TU CÓDIGO AQUÍ"
+                      placeholder="ENTER ACCESS CODE HERE"
                       className="w-full bg-[#F8F8F8] border border-border rounded-2xl px-6 py-5 font-body text-sm text-center tracking-[0.3em] outline-none focus:ring-2 focus:ring-accent/40 uppercase font-black"
                     />
                     <Button type="submit" variant="gold" className="w-full h-14 rounded-2xl text-sm font-bold shadow-xl shadow-accent/20">
-                      Entrar al Curso
+                      Access Course
                     </Button>
                   </form>
                   <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
-                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">¿Necesitas ayuda o quieres comprarlo?</p>
+                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">Need help or want to purchase?</p>
                     <div className="grid grid-cols-2 gap-3">
-                      <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20acceso%20para:%20${encodeURIComponent(course.title)}`}>
+                      <a href={`sms:17135242610?body=Hello%20Alanis!%20I%2520want%2520access%2520to:%20${encodeURIComponent(course.title)}`}>
                         <Button variant="gold" size="lg" className="rounded-xl gap-2 shadow-lg shadow-accent/20">
                           <MessageSquare className="w-4 h-4" /> SMS
                         </Button>
                       </a>
                       <a href="tel:17135242610">
                         <Button variant="outline" size="lg" className="rounded-xl gap-2 border-accent/20 text-accent hover:bg-accent/5">
-                          <PhoneCall className="w-4 h-4" /> Llamar
+                          <PhoneCall className="w-4 h-4" /> Call
                         </Button>
                       </a>
                     </div>
@@ -300,15 +381,59 @@ const CourseDetailPage = () => {
             </div>
           ) : (
             <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-12">
+              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h2 className="font-display text-3xl font-medium">Contenido de la Masterclass</h2>
-                  <p className="font-body text-sm text-muted-foreground mt-1 tracking-wide uppercase">¡Bienvenido(a)! Selecciona una lección para comenzar.</p>
+                  <h2 className="font-display text-3xl font-medium">Masterclass Lessons</h2>
+                  <p className="font-body text-sm text-muted-foreground mt-1 tracking-wide uppercase">Select a lesson below to start learning.</p>
                 </div>
                 <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold border border-emerald-100">
-                  <CheckCircle className="w-4 h-4" /> Acceso Concedido
+                  <CheckCircle className="w-4 h-4" /> Access Granted
                 </div>
               </div>
+
+              {!student && (
+                <div className="bg-amber-50/60 border border-amber-200 rounded-3xl p-6 mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0">
+                      <LockIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-amber-800">Viewing as Guest</p>
+                      <p className="text-xs text-amber-700 mt-0.5">Your access will reset if you close the window. Sign in or register to save this course permanently to your account.</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-amber-300 text-amber-800 hover:bg-amber-100 h-10 px-5 rounded-xl text-xs font-bold w-full sm:w-auto"
+                    onClick={() => setIsAuthModalOpen(true)}
+                  >
+                    Save Course to Account
+                  </Button>
+                </div>
+              )}
+
+              {student && (
+                <div className="bg-emerald-50/40 border border-emerald-200 rounded-3xl p-6 mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 flex-shrink-0">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-800">Linked to Account</p>
+                      <p className="text-xs text-emerald-700 mt-0.5">This course is permanently saved to <strong>{student.email}</strong>.</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="border-emerald-300 text-emerald-800 hover:bg-emerald-100 h-10 px-5 rounded-xl text-xs font-bold w-full sm:w-auto"
+                    onClick={() => supabase.auth.signOut()}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              )}
 
               {/* Live Session if available */}
               {course.meetLink && (
@@ -406,6 +531,15 @@ const CourseDetailPage = () => {
           )}
         </div>
       </section>
+
+      <StudentAuthModal 
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          setStudent(user);
+          setIsAuthModalOpen(false);
+        }}
+      />
 
       <SalonFooter />
     </div>

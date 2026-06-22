@@ -95,12 +95,46 @@ const testimonials = [
   { text: "The on-demand format is perfect. I can rewatch techniques before applying them on clients.", name: 'Maria G.', role: 'Independent Stylist, Houston' },
 ];
 
+import { StudentAuthModal } from '@/components/StudentAuthModal';
+
 export function AcademySection() {
   const { ref, isVisible } = useScrollReveal();
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [dbCourses, setDbCourses] = useState<CourseDisplay[]>([]);
   const { toast } = useToast();
+
+  // Student auth states
+  const [student, setStudent] = useState<any>(null);
+  const [enrollments, setEnrollments] = useState<string[]>([]);
+  const [activeTab, setActiveTab] = useState<'all' | 'enrolled'>('all');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    // 1. Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setStudent(session?.user ?? null);
+    });
+
+    // 2. Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setStudent(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      if (student) {
+        const { data } = await LocalDB.getStudentEnrollments(student.id);
+        setEnrollments(data || []);
+      } else {
+        setEnrollments([]);
+      }
+    };
+    fetchEnrollments();
+  }, [student]);
 
   useEffect(() => {
     const processCourses = (data: any[]) => {
@@ -135,7 +169,10 @@ export function AcademySection() {
     fetchCourses();
   }, []);
 
-  const displayCourses = dbCourses.length > 0 ? dbCourses : courses;
+  const baseCourses = dbCourses.length > 0 ? dbCourses : courses;
+  const displayCourses = activeTab === 'enrolled'
+    ? baseCourses.filter(c => enrollments.includes(c.id))
+    : baseCourses;
 
   const handleWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -149,6 +186,69 @@ export function AcademySection() {
   return (
     <section className="py-24 md:py-32 bg-background" ref={ref}>
       <div className="container mx-auto px-6">
+        {/* Student Session Bar */}
+        <div className="max-w-6xl mx-auto mb-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-card border border-border rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="font-display text-base font-medium text-foreground">Academy Portal</p>
+              <p className="font-body text-xs text-muted-foreground">
+                {student ? `Welcome back, ${student.email}` : 'Sign in to access your course panel and progress.'}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {student ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl border-accent/20 text-accent hover:bg-accent/5"
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  setStudent(null);
+                  setEnrollments([]);
+                  setActiveTab('all');
+                }}
+              >
+                Sign Out
+              </Button>
+            ) : (
+              <Button
+                variant="gold"
+                size="sm"
+                className="rounded-xl h-10 px-5 font-bold shadow-md shadow-accent/10"
+                onClick={() => setIsAuthModalOpen(true)}
+              >
+                Sign In / Register
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Tab Controls (Only shown if student is logged in) */}
+        {student && (
+          <div className="max-w-6xl mx-auto mb-8 flex justify-center sm:justify-start gap-4 border-b border-border pb-4">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`font-display text-sm pb-2 border-b-2 transition-all ${
+                activeTab === 'all' ? 'border-accent text-accent font-semibold' : 'border-transparent text-muted-foreground'
+              }`}
+            >
+              All Courses
+            </button>
+            <button
+              onClick={() => setActiveTab('enrolled')}
+              className={`font-display text-sm pb-2 border-b-2 transition-all ${
+                activeTab === 'enrolled' ? 'border-accent text-accent font-semibold' : 'border-transparent text-muted-foreground'
+              }`}
+            >
+              My Enrolled Courses ({enrollments.length})
+            </button>
+          </div>
+        )}
+
         {/* Coming Soon Banner */}
         <div className={`text-center max-w-3xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <div className="inline-flex items-center gap-2 bg-accent/10 text-accent rounded-full px-5 py-2 mb-8">
@@ -328,6 +428,15 @@ export function AcademySection() {
           </div>
         </div>
       </div>
+
+      <StudentAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onSuccess={(user) => {
+          setStudent(user);
+          setIsAuthModalOpen(false);
+        }}
+      />
     </section>
   );
 }

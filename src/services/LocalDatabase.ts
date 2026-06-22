@@ -205,6 +205,44 @@ export const LocalDB = {
     return { error };
   },
 
+  // --- Enrollments (Student Portal) ---
+  getStudentEnrollments: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('enrollments')
+      .select('course_id')
+      .eq('user_id', userId);
+    if (error) {
+      console.error('Error fetching enrollments:', error);
+      return { data: [], error };
+    }
+    return { data: data.map(e => e.course_id), error: null };
+  },
+
+  enrollStudentInCourse: async (userId: string, courseId: string) => {
+    const { error } = await supabase
+      .from('enrollments')
+      .upsert({ user_id: userId, course_id: courseId });
+    if (error) {
+      console.error('Error enrolling student:', error);
+      return { error };
+    }
+    return { error: null };
+  },
+
+  checkEnrollment: async (userId: string, courseId: string) => {
+    const { data, error } = await supabase
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .maybeSingle();
+    if (error) {
+      console.error('Error checking enrollment:', error);
+      return false;
+    }
+    return !!data;
+  },
+
   // --- Auth ---
   signUp: async (email: string, pass: string) => {
     try {
