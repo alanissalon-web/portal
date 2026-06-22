@@ -261,6 +261,29 @@ export const LocalDB = {
     return { error: null };
   },
 
+  savePurchaseIntent: async (userId: string, productId: string) => {
+    // Check if an intent already exists for this product and user
+    const { data: existing } = await supabase
+      .from('product_reservations')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('product_id', productId)
+      .eq('status', 'intent')
+      .maybeSingle();
+
+    if (existing) {
+      return { error: null }; // Already recorded
+    }
+
+    const { error } = await supabase.from('product_reservations').insert({
+      user_id: userId,
+      product_id: productId,
+      status: 'intent'
+    });
+    
+    return { error };
+  },
+
   getProductReservations: async (userId: string) => {
     const { data, error } = await supabase
       .from('product_reservations')

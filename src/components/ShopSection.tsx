@@ -255,13 +255,25 @@ export function ShopSection() {
 
   const addToCart = (product: Product) => {
     setCart(prev => {
-      const existing = prev.find(c => c.product.id === product.id);
-      if (existing) {
-        return prev.map(c => c.product.id === product.id ? { ...c, quantity: c.quantity + 1 } : c);
+      const exists = prev.find(item => item.product.id === product.id);
+      if (exists) {
+        return prev.map(item =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
       }
       return [...prev, { product, quantity: 1 }];
     });
-    toast({ title: 'Added to cart', description: `${product.name} added.` });
+    setCartOpen(true);
+    toast({ title: 'Añadido al carrito' });
+  };
+
+  const handleAmazonClick = async (productId: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user?.id) {
+      await LocalDB.savePurchaseIntent(session.user.id, productId);
+    }
   };
 
   const updateQty = (id: string, delta: number) => {
@@ -490,7 +502,7 @@ export function ShopSection() {
                 <div className="flex items-center justify-between pt-4 border-t border-border">
                   <span className="font-display text-2xl font-medium text-foreground">${product.price}</span>
                   {product.amazon_url ? (
-                    <a href={product.amazon_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <a href={product.amazon_url} target="_blank" rel="noopener noreferrer" onClick={() => handleAmazonClick(product.id)} className="block">
                       <Button variant="gold" size="sm" className="gap-2 bg-[#FF9900] hover:bg-[#FF9900]/90 text-white border-none shadow-md">
                         <ExternalLink className="w-4 h-4" />
                         Buy on Amazon
