@@ -63,8 +63,9 @@ const App = () => (
             <VisualSidebar />
             <MessengerChat />
             <NotificationManager />
-            <Routes>
-            {/* Public routes */}
+            <ErrorBoundary>
+              <Routes>
+              {/* Public routes */}
             <Route path="/" element={<Index />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/services" element={<ServicesPage />} />
@@ -77,7 +78,7 @@ const App = () => (
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<ErrorBoundary><AdminRoute><AdminLayout /></AdminRoute></ErrorBoundary>}>
+            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="courses" element={<AdminCourses />} />
               <Route path="products" element={<AdminProducts />} />
@@ -89,9 +90,9 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="bookings" element={<AdminBookings />} />
             </Route>
-
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </ErrorBoundary>
           </CMSProvider>
         </AdminAuthProvider>
       </BrowserRouter>

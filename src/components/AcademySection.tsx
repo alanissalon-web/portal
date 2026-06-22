@@ -114,7 +114,7 @@ export function AcademySection() {
           level: c.level || 'All Levels',
           image: c.image_url || 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=80',
           description: c.description || '',
-          topics: c.topics || [],
+          topics: Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? c.topics.split(',') : []),
           price: `$${c.price}`,
           badge: c.badge,
         })));

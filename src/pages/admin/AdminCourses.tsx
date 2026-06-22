@@ -77,8 +77,18 @@ const AdminCourses = () => {
   const startEdit = (c: Course) => {
     setCreating(false);
     setEditing(c);
-    setForm({ ...c });
-    setTopicInput((c.topics ?? []).join(', '));
+    
+    const parsedCurriculum = Array.isArray(c.curriculum) 
+      ? c.curriculum 
+      : (typeof c.curriculum === 'string' ? JSON.parse(c.curriculum || '[]') : []);
+
+    setForm({ ...c, curriculum: parsedCurriculum });
+    
+    const topicsArray = Array.isArray(c.topics) 
+      ? c.topics 
+      : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+    
+    setTopicInput(topicsArray.join(', '));
   };
 
   const cancel = () => { setCreating(false); setEditing(null); };
