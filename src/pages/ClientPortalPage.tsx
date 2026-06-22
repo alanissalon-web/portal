@@ -15,13 +15,15 @@ import { useToast } from '@/hooks/use-toast';
 export default function ClientPortalPage() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'courses' | 'favorites' | 'reservations' | 'messages'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'favorites' | 'reservations' | 'purchases' | 'messages'>('courses');
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const [courses, setCourses] = useState<any[]>([]);
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const [courseFavorites, setCourseFavorites] = useState<any[]>([]);
+  const [productFavorites, setProductFavorites] = useState<any[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
+  const [purchases, setPurchases] = useState<any[]>([]);
   const [messages, setMessages] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(false);
 
@@ -60,9 +62,12 @@ export default function ClientPortalPage() {
         const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
         setCourses(enrolled);
 
-        const { data: favIds } = await LocalDB.getProductFavorites(student.id);
+        const { data: cFavIds } = await LocalDB.getCourseFavorites(student.id);
+        setCourseFavorites((allCourses || []).filter((c: any) => (cFavIds || []).includes(c.id)));
+
+        const { data: pFavIds } = await LocalDB.getProductFavorites(student.id);
         const { data: allProducts } = await LocalDB.getProducts();
-        setFavorites((allProducts || []).filter((p: any) => (favIds || []).includes(p.id)));
+        setProductFavorites((allProducts || []).filter((p: any) => (pFavIds || []).includes(p.id)));
 
         const { data: resData } = await LocalDB.getProductReservations(student.id);
         setReservations((resData || []).map((res: any) => {
@@ -138,7 +143,7 @@ export default function ClientPortalPage() {
 
   const handleRemoveFavorite = async (productId: string) => {
     await LocalDB.toggleFavorite(student.id, productId);
-    setFavorites(prev => prev.filter(p => p.id !== productId));
+    setProductFavorites(prev => prev.filter(p => p.id !== productId));
     toast({ title: 'Eliminado de favoritos' });
   };
 
@@ -157,8 +162,9 @@ export default function ClientPortalPage() {
 
   const tabs = [
     { id: 'courses',      icon: GraduationCap, label: 'Mis Cursos',      count: courses.length },
-    { id: 'favorites',    icon: Heart,          label: 'Favoritos',       count: favorites.length },
+    { id: 'favorites',    icon: Heart,          label: 'Favoritos',       count: courseFavorites.length + productFavorites.length },
     { id: 'reservations', icon: Calendar,       label: 'Reservaciones',   count: reservations.length },
+    { id: 'purchases',    icon: ShoppingBag,    label: 'Mis Compras',     count: purchases.length },
     { id: 'messages',     icon: MessageSquare,  label: 'Mensajes',        count: messages.length },
   ] as const;
 
@@ -177,7 +183,7 @@ export default function ClientPortalPage() {
                 <User className="w-8 h-8 text-accent" />
               </div>
               <div>
-                <p className="font-body text-xs text-accent/80 uppercase tracking-widest mb-1">Portal de Estudiantes</p>
+                <p className="font-body text-xs text-accent/80 uppercase tracking-widest mb-1">Portal para Clientes</p>
                 <h1 className="font-display text-2xl md:text-3xl font-light text-white">
                   Bienvenida{student?.email ? `, ${student.email.split('@')[0]}` : ''}
                 </h1>
@@ -198,8 +204,9 @@ export default function ClientPortalPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
             {[
               { label: 'Cursos', value: courses.length, icon: GraduationCap },
-              { label: 'Favoritos', value: favorites.length, icon: Heart },
-              { label: 'Reservaciones', value: reservations.length, icon: ShoppingBag },
+              { label: 'Favoritos', value: courseFavorites.length + productFavorites.length, icon: Heart },
+              { label: 'Reservaciones', value: reservations.length, icon: Calendar },
+              { label: 'Compras', value: purchases.length, icon: ShoppingBag },
               { label: 'Mensajes', value: messages.length, icon: Mail },
             ].map(s => (
               <div key={s.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
@@ -216,38 +223,39 @@ export default function ClientPortalPage() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="bg-white border-b border-border sticky top-[72px] z-40 shadow-sm">
-        <div className="container mx-auto px-6">
-          <div className="flex gap-0 overflow-x-auto">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-5 py-4 font-body text-sm font-medium border-b-2 transition-all whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? 'border-accent text-accent'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-                {tab.count > 0 && (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                    activeTab === tab.id ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
       <div className="container mx-auto px-6 py-12">
-        <div className="max-w-5xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+          {/* Sidebar Navigation */}
+          <div className="w-full md:w-64 flex-shrink-0">
+            <div className="bg-white rounded-2xl border border-border overflow-hidden sticky top-32 shadow-sm">
+              <div className="flex flex-col">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`flex items-center gap-3 px-5 py-4 font-body text-sm font-medium border-l-2 transition-all text-left ${
+                      activeTab === tab.id
+                        ? 'border-accent bg-accent/5 text-accent'
+                        : 'border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground'
+                    }`}
+                  >
+                    <tab.icon className="w-4 h-4" />
+                    <span className="flex-1">{tab.label}</span>
+                    {tab.count > 0 && (
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                        activeTab === tab.id ? 'bg-accent text-white' : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Content Area */}
+          <div className="flex-1 min-w-0">
           {dataLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-10 h-10 animate-spin text-accent mb-4" />
@@ -322,7 +330,7 @@ export default function ClientPortalPage() {
                     <h2 className="font-display text-2xl font-light text-foreground">Productos Favoritos</h2>
                     <p className="font-body text-sm text-muted-foreground mt-1">Los productos que guardaste de nuestra tienda.</p>
                   </div>
-                  {favorites.length === 0 ? (
+                  {productFavorites.length === 0 ? (
                     <div className="bg-white rounded-3xl border border-border p-16 text-center shadow-sm">
                       <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
                         <Heart className="w-10 h-10 text-accent/30" />
@@ -337,7 +345,7 @@ export default function ClientPortalPage() {
                     </div>
                   ) : (
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {favorites.map(product => (
+                      {productFavorites.map(product => (
                         <div key={product.id} className="bg-white rounded-3xl border border-border overflow-hidden shadow-sm hover:shadow-lg transition-all group">
                           <div className="relative h-44 overflow-hidden bg-muted">
                             <img src={product.image || product.image_url} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -410,6 +418,37 @@ export default function ClientPortalPage() {
                           </div>
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── COMPRAS ── */}
+              {activeTab === 'purchases' && (
+                <div>
+                  <div className="mb-8">
+                    <h2 className="font-display text-2xl font-light text-foreground">Historial de Compras</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">
+                      Aquí verás tus compras (Nota: Las compras de productos en Amazon o enlaces externos se gestionan desde sus respectivas plataformas).
+                    </p>
+                  </div>
+
+                  {purchases.length === 0 ? (
+                    <div className="bg-white rounded-3xl border border-border p-16 text-center shadow-sm">
+                      <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
+                        <ShoppingBag className="w-10 h-10 text-accent/30" />
+                      </div>
+                      <h3 className="font-display text-xl text-foreground mb-2">Aún no tienes compras registradas</h3>
+                      <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
+                        Los productos afiliados que adquieres a través de nuestros enlaces de Amazon no aparecen en este historial local.
+                      </p>
+                      <Button variant="gold" className="rounded-xl gap-2" onClick={() => navigate('/shop')}>
+                        <ShoppingBag className="w-4 h-4" /> Ir a la Tienda
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {/* Aquí se mapearían las compras locales si existieran */}
                     </div>
                   )}
                 </div>
@@ -542,7 +581,7 @@ export default function ClientPortalPage() {
           )}
         </div>
       </div>
-
+    </div>
       <SalonFooter />
     </div>
   );

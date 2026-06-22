@@ -16,7 +16,7 @@ export const VisualCMSBar: React.FC = () => {
   const navigate = useNavigate();
 
   if (!isAdmin) return null;
-  if (location.pathname.startsWith('/admin')) return null;
+  if (location.pathname !== '/') return null;
 
   const handleStartEditing = () => {
     setIsEditing(true);

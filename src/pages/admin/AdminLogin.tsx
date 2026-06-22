@@ -22,7 +22,7 @@ const AdminLogin = () => {
   const [clientPassword, setClientPassword] = useState('');
   const [clientError, setClientError] = useState('');
   const [clientLoading, setClientLoading] = useState(false);
-  const [clientMode, setClientMode] = useState<'login' | 'register'>('login');
+  const [clientMode, setClientMode] = useState<'login' | 'register' | 'confirm'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
   const { signIn } = useAdminAuth();
@@ -274,7 +274,7 @@ const AdminLogin = () => {
         )}
 
         <p className="text-center mt-6 font-body text-xs text-primary-foreground/30">
-          Alanís Salon & Spa — {activeTab === 'admin' ? 'Admin Access Only' : 'Student Portal'}
+          Alanís Salon & Spa — {activeTab === 'admin' ? 'Admin Access Only' : 'Client Portal'}
         </p>
       </div>
     </div>
