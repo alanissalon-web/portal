@@ -6,6 +6,7 @@ import { ServicesSection } from '@/components/ServicesSection';
 import { TransformationsSection } from '@/components/TransformationsSection';
 import { ExperienceSection } from '@/components/ExperienceSection';
 import { FinalCTA } from '@/components/FinalCTA';
+import { InstagramWall } from '@/components/InstagramWall';
 import { SalonFooter } from '@/components/SalonFooter';
 
 import { useCMS } from '@/contexts/CMSContext';
@@ -22,6 +23,7 @@ const sectionComponents: Record<string, React.FC> = {
   transformations: TransformationsSection,
   experience: ExperienceSection,
   cta: FinalCTA,
+  instagram: InstagramWall,
   pricing: PricingSection,
   extensions: ExtensionsSection,
   hairloss: HairLossSection,
@@ -37,6 +39,7 @@ const Index = () => {
     { id: 'services' },
     { id: 'transformations' },
     { id: 'experience' },
+    { id: 'instagram' },
     { id: 'cta' },
   ];
 

@@ -84,8 +84,14 @@ const AdminCourses = () => {
     const topics = topicInput.split(',').map(t => t.trim()).filter(Boolean);
     const payload = { ...form, topics, badge: form.badge || null };
 
-    LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
-    toast({ title: editing ? 'Course updated' : 'Course created' });
+    const response = await LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
+    
+    if (response?.error) {
+      toast({ title: 'Error guardando en Supabase', description: response.error.message, variant: 'destructive' });
+      // Keep it in local DB for now, but let user know
+    } else {
+      toast({ title: editing ? 'Course updated' : 'Course created' });
+    }
     
     cancel();
     fetchCourses();

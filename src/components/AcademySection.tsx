@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Link } from 'react-router-dom';
 import { LocalDB } from '@/services/LocalDatabase';
+import { supabase } from '@/lib/supabase';
 
 interface CourseDisplay {
   id: string;
@@ -102,8 +103,7 @@ export function AcademySection() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchCourses = () => {
-      const data = LocalDB.getCourses();
+    const processCourses = (data: any[]) => {
       const published = data.filter((c: any) => c.status === 'published');
       if (published.length > 0) {
         setDbCourses(published.map((c: any) => ({
@@ -118,6 +118,18 @@ export function AcademySection() {
           price: `$${c.price}`,
           badge: c.badge,
         })));
+      }
+    };
+
+    const fetchCourses = async () => {
+      const localData = LocalDB.getCourses();
+      if (localData && localData.length > 0) {
+        processCourses(localData);
+      }
+      
+      const { data, error } = await supabase.from('courses').select('*');
+      if (data && !error) {
+        processCourses(data);
       }
     };
     fetchCourses();

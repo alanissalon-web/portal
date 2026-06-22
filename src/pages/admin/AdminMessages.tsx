@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { MessageSquare, Search, Trash2, Mail, Phone, Clock, Loader2, Check, Send, Reply, X as CloseIcon, Plus, Camera, Image as ImageIcon, Mic, Smile, ThumbsUp, User, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +22,11 @@ const AdminMessages = () => {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isRecording, setIsRecording] = useState(false);
 
-  const fetchMessages = () => {
+  const fetchMessages = useCallback(async () => {
+    // 1. Download new messages from server
+    await LocalDB.syncMessages?.();
+    
+    // 2. Load into view
     const data = LocalDB.getMessages();
     setMessages(data);
     
@@ -38,13 +42,13 @@ const AdminMessages = () => {
       if (firstChat) setSelectedUser(firstChat.name);
     }
     setLoading(false);
-  };
+  }, [selectedUser, incomingCall]);
 
   useEffect(() => {
     fetchMessages();
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
-  }, [selectedUser]); // Depend on selectedUser to keep logic fresh
+  }, [fetchMessages]);
 
   useEffect(() => {
     if (scrollRef.current) {

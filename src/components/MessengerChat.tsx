@@ -25,8 +25,6 @@ export function MessengerChat() {
   const [audioProgress, setAudioProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  if (location.pathname.startsWith('/admin')) return null;
-
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
   const [message, setMessage] = useState('');
@@ -155,6 +153,8 @@ export function MessengerChat() {
       audio.play().catch(() => toast({ title: 'Error', description: 'No se pudo reproducir.' }));
     }
   };
+
+  if (location.pathname.startsWith('/admin')) return null;
 
   return (
     <>

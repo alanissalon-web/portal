@@ -10,18 +10,29 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAdminAuth();
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { signIn, signUp } = useAdminAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    const { error: signInError } = await signIn(email, password);
-    if (signInError) {
-      setError(signInError);
+    
+    let result;
+    if (isSignUp) {
+      result = await signUp(email, password);
+    } else {
+      result = await signIn(email, password);
+    }
+
+    if (result.error) {
+      setError(result.error);
       setLoading(false);
     } else {
+      // If it's sign up, Supabase might require email verification depending on settings, 
+      // but usually it signs you in if email confirm is disabled. 
+      // If the login inside signUp succeeds, it will have isAdmin set (or not, but LocalDB assumes admin).
       navigate('/admin');
     }
   };
@@ -30,12 +41,14 @@ const AdminLogin = () => {
     <div className="min-h-screen bg-charcoal flex items-center justify-center px-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={logo} alt="Alanís Salon" className="h-16 mx-auto mb-6" />
+          <img src={logo} alt="Alanís Salon" className="h-24 md:h-32 mx-auto mb-6 object-contain" />
           <div className="inline-flex items-center gap-2 bg-accent/10 text-accent rounded-full px-4 py-1.5 mb-4">
             <Lock className="w-3.5 h-3.5" />
             <span className="font-body text-xs font-medium">Admin Panel</span>
           </div>
-          <h1 className="font-display text-3xl font-light text-primary-foreground">Welcome back</h1>
+          <h1 className="font-display text-3xl font-light text-primary-foreground">
+            {isSignUp ? 'Create Admin User' : 'Welcome back'}
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card rounded-2xl p-8 shadow-xl space-y-5">
@@ -68,9 +81,19 @@ const AdminLogin = () => {
             />
           </div>
           <Button type="submit" variant="default" size="lg" className="w-full" disabled={loading}>
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Procesando...' : (isSignUp ? 'Sign Up' : 'Sign In')}
             <ArrowRight className="w-4 h-4" />
           </Button>
+
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="text-accent text-sm font-body hover:underline"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : 'Create new admin user'}
+            </button>
+          </div>
         </form>
 
         <p className="text-center mt-6 font-body text-xs text-primary-foreground/40">

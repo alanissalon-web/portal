@@ -4,6 +4,7 @@ import { ShoppingBag, Star, Plus, Minus, X, ArrowRight, Sparkles, Truck, ShieldC
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
+import { supabase } from '@/lib/supabase';
 
 interface Product {
   id: string;
@@ -132,8 +133,7 @@ export function ShopSection() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const fetchProducts = () => {
-      const data = LocalDB.getProducts();
+    const processProducts = (data: any[]) => {
       const active = data.filter((p: any) => p.status === 'active');
       if (active.length > 0) {
         setDbProducts(active.map((p: any) => ({
@@ -149,6 +149,19 @@ export function ShopSection() {
           amazon_url: p.amazon_url || undefined,
         })));
       }
+    };
+
+    const fetchProducts = async () => {
+      const localData = LocalDB.getProducts();
+      if (localData && localData.length > 0) {
+        processProducts(localData);
+      }
+      
+      const { data, error } = await supabase.from('products').select('*');
+      if (data && !error) {
+        processProducts(data);
+      }
+      
       setLoading(false);
     };
     fetchProducts();

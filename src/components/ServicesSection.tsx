@@ -44,10 +44,10 @@ export function ServicesSection() {
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            <EditableText section="services" field="badge" defaultText="Our Services" as="span" />
+            <EditableText section="services" field="badge" defaultText="The Alanis Experience" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            <EditableText section="services" field="title" defaultText="Every service, a premium experience" as="span" />
+            <EditableText section="services" field="title" defaultText="Exclusive Services for Radiant Hair" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>

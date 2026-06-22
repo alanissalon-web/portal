@@ -85,7 +85,7 @@ export function TransformationsSection() {
                 </div>
                 <div className="flex gap-0.5">
                   {[...Array(t.rating)].map((_, j) => (
-                    <Star key={j} className="w-4 h-4 fill-accent text-accent" />
+                    <Star key={j} className="w-4 h-4 fill-accent text-accent" /> 
                   ))}
                 </div>
               </div>

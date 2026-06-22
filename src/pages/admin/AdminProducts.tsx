@@ -52,8 +52,13 @@ const AdminProducts = () => {
 
   const save = async () => {
     const payload = { ...form, badge: form.badge || null, brand: form.brand || null };
-    LocalDB.saveProduct(editing ? { ...payload, id: editing.id } : payload);
-    toast({ title: editing ? 'Product updated' : 'Product created' });
+    const response = await LocalDB.saveProduct(editing ? { ...payload, id: editing.id } : payload);
+    
+    if (response?.error) {
+      toast({ title: 'Error guardando en Supabase', description: response.error.message, variant: 'destructive' });
+    } else {
+      toast({ title: editing ? 'Product updated' : 'Product created' });
+    }
     cancel(); fetchProducts();
   };
 
@@ -137,7 +142,7 @@ const AdminProducts = () => {
                         
                         // Smart detection for Price & Description
                         let detectedPrice = 45;
-                        let detectedDesc = `Professional product: ${cleanName}. High quality and recommended by our stylists.`;
+                        const detectedDesc = `Professional product: ${cleanName}. High quality and recommended by our stylists.`;
                         
                         if (cleanName.toLowerCase().includes('plancha') || cleanName.toLowerCase().includes('iron')) {
                           detectedPrice = 149;

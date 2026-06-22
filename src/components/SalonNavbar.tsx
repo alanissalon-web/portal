@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Phone, ShoppingBag, PhoneCall } from 'lucide-react';
+import { Menu, X, Phone, ShoppingBag, PhoneCall, Fingerprint } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo-alanis.png';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -90,6 +90,7 @@ export function SalonNavbar() {
                   </Button>
                 </Link>
               )}
+
               <Link to="/shop" className={`${textColor} hover:text-accent transition-colors`}>
                 <ShoppingBag className="w-5 h-5" />
               </Link>
@@ -103,6 +104,9 @@ export function SalonNavbar() {
                   713-524-2610
                 </Button>
               </a>
+              <Link to="/admin/login" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Admin Portal">
+                <Fingerprint className="w-5 h-5 text-white" />
+              </Link>
             </div>
           </div>
 
@@ -153,6 +157,8 @@ export function SalonNavbar() {
                   </Link>
                 </motion.div>
               ))}
+              
+
             </div>
 
             <div className="p-8 border-t border-black/5 space-y-4">
@@ -170,6 +176,11 @@ export function SalonNavbar() {
               <p className="text-center font-body text-xs text-muted-foreground tracking-widest uppercase py-4">
                 Houston's Premiere Salon
               </p>
+              <div className="flex justify-center pt-2">
+                <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">
+                  <Fingerprint className="w-6 h-6 text-white" />
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}
