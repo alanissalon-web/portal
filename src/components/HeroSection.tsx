@@ -1,17 +1,49 @@
 import { Button } from '@/components/ui/button';
-import { MessageCircle, Star, Users, Award, ChevronDown } from 'lucide-react';
+import { MessageCircle, Star, Users, Award, ChevronDown, ImagePlus } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import heroImage from '@/assets/hero-salon-real.jpg';
 import { EditableText } from './cms/EditableText';
-
 import { EditableImage } from './cms/EditableImage';
+import { useCMS } from '@/contexts/CMSContext';
+import { supabase } from '@/lib/supabase';
+import { LocalDB } from '@/services/LocalDatabase';
+import { useToast } from '@/hooks/use-toast';
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  const { isEditing, content, updateContent } = useCMS();
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  const currentHeroImage = content['hero']?.['bg_image'] || heroImage;
+
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `cms/${Date.now()}-hero.${ext}`;
+      const { error } = await supabase.storage
+        .from('site-images')
+        .upload(fileName, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from('site-images').getPublicUrl(fileName);
+      const url = data.publicUrl;
+      updateContent('hero', 'bg_image', url);
+      const updated = { ...(content['hero'] || {}), bg_image: url };
+      await LocalDB.saveContent('hero', updated);
+      toast({ title: '✅ Foto del Hero actualizada', description: 'La imagen se guardó correctamente.' });
+    } catch (err: any) {
+      toast({ title: 'Error', description: err?.message || 'No se pudo subir la imagen.', variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
 
   return (
     <section ref={containerRef} className="relative min-h-screen flex items-center overflow-hidden bg-charcoal">
@@ -20,16 +52,35 @@ export function HeroSection() {
         style={{ y: y1 }}
         className="absolute inset-0 z-0"
       >
-        <EditableImage 
-          section="hero" 
-          field="bg_image" 
-          defaultImage={heroImage} 
-          className="w-full h-full object-cover scale-110" 
+        <img
+          src={currentHeroImage}
           alt="Alanís Salon & Spa luxury interior"
+          className="w-full h-full object-cover scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-charcoal/90 via-charcoal/60 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-transparent to-transparent opacity-60" />
       </motion.div>
+
+      {/* Hero image edit button — only visible in CMS editing mode */}
+      {isEditing && (
+        <div className="absolute top-28 right-6 z-30">
+          <label className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-xl transition-all ${
+            uploading
+              ? 'bg-white/40 text-white/60 cursor-not-allowed'
+              : 'bg-accent hover:bg-accent/90 text-white shadow-accent/30'
+          }`}>
+            <ImagePlus className="w-4 h-4" />
+            {uploading ? 'Subiendo...' : 'Cambiar foto del Hero'}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploading}
+              onChange={handleHeroImageUpload}
+            />
+          </label>
+        </div>
+      )}
 
       <div className="relative z-10 container mx-auto px-6 pt-40 pb-20 md:pt-56">
         <div className="max-w-3xl">
