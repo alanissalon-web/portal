@@ -195,9 +195,15 @@ export function SalonNavbar() {
                 Houston's Premiere Salon
               </p>
               <div className="flex justify-center pt-2">
-                <Link to="/admin/login" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">
-                  <Fingerprint className="w-6 h-6 text-white" />
-                </Link>
+                {hasSession ? (
+                  <Link to="/portal" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">
+                    <User className="w-6 h-6 text-white" />
+                  </Link>
+                ) : (
+                  <Link to="/admin/login#client" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">
+                    <Fingerprint className="w-6 h-6 text-white" />
+                  </Link>
+                )}
               </div>
             </div>
           </motion.div>
