@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { AdminAuthProvider } from "@/contexts/AdminAuthContext";
 import { AdminRoute } from "@/components/admin/AdminRoute";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import ServicesPage from "./pages/ServicesPage.tsx";
@@ -76,7 +77,7 @@ const App = () => (
 
             {/* Admin routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
-            <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route path="/admin" element={<ErrorBoundary><AdminRoute><AdminLayout /></AdminRoute></ErrorBoundary>}>
               <Route index element={<AdminDashboard />} />
               <Route path="courses" element={<AdminCourses />} />
               <Route path="products" element={<AdminProducts />} />
