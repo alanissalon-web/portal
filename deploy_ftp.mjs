@@ -14,22 +14,40 @@ async function deploy() {
             secure: false
         });
         
-        console.log("Connected! Uploading updated files...");
         const localDir = path.resolve('./dist');
-        await client.cd('public_html');
         
-        try { await client.remove('index.html'); } catch(e) {}
-        try { await client.remove('.in.index.html.'); } catch(e) {}
-        await client.uploadFrom(path.join(localDir, 'index.html'), 'index.html');
-        
-        await client.cd('assets');
+        // Find the current built JS and CSS files
         const assets = fs.readdirSync(path.join(localDir, 'assets'));
-        for (const file of assets) {
-            if (file.endsWith('.js') || file.endsWith('.css')) {
-                try { await client.remove(file); } catch(e) {}
-                try { await client.remove('.in.' + file + '.'); } catch(e) {}
-                await client.uploadFrom(path.join(localDir, 'assets', file), file);
+        const newJs = assets.find(f => f.startsWith('index-') && f.endsWith('.js'));
+        const newCss = assets.find(f => f.startsWith('index-') && f.endsWith('.css'));
+        const vendor = 'vendor-Bo6y-UI4.js';
+        const ui = 'ui-CNy-RC-j.js';
+        
+        const filesToUpload = [
+            { local: newJs, remote: 'index-xGyXcovk.js' },
+            { local: newCss, remote: 'index-DCC9MjC7.css' },
+            { local: vendor, remote: vendor },
+            { local: ui, remote: ui }
+        ];
+
+        const pathsToPopulate = [
+            'public_html/assets',
+            'public_html/admin/assets',
+            'public_html/admin/courses/assets',
+            'public_html/admin/products/assets'
+        ];
+
+        for (const remotePath of pathsToPopulate) {
+            console.log("Populating " + remotePath);
+            await client.ensureDir(remotePath);
+            for (const file of filesToUpload) {
+                if (!file.local) continue;
+                console.log(`Uploading ${file.local} as ${file.remote} to ${remotePath}`);
+                try { await client.remove(file.remote); } catch(e) {}
+                try { await client.remove('.in.' + file.remote + '.'); } catch(e) {}
+                await client.uploadFrom(path.join(localDir, 'assets', file.local), file.remote);
             }
+            await client.cd('/');
         }
         
         console.log("Upload complete!");

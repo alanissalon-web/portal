@@ -1,0 +1,1 @@
+<?php header("X-LiteSpeed-Purge: *"); echo "Cache purged!"; ?>
