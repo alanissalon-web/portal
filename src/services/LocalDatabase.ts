@@ -73,6 +73,9 @@ export const LocalDB = {
     if (Array.isArray(updated.topics)) {
       updated.topics = JSON.stringify(updated.topics);
     }
+    // Remove next_date because it does not exist as a column in the Supabase 'courses' table
+    delete updated.next_date;
+
     // Ensure badge is null when empty
     if (updated.badge === '') updated.badge = null;
     // Upsert the record
