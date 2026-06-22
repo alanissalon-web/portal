@@ -303,6 +303,33 @@ export const LocalDB = {
     return { data: data.map(e => e.product_id), error: null };
   },
 
+  // --- Course Favorites ---
+  toggleCourseFavorite: async (userId: string, courseId: string) => {
+    const { data } = await supabase
+      .from('course_favorites')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('course_id', courseId)
+      .maybeSingle();
+
+    if (data) {
+      const { error } = await supabase.from('course_favorites').delete().eq('id', data.id);
+      return { favorited: false, error };
+    } else {
+      const { error } = await supabase.from('course_favorites').insert({ user_id: userId, course_id: courseId });
+      return { favorited: true, error };
+    }
+  },
+
+  getCourseFavorites: async (userId: string) => {
+    const { data, error } = await supabase
+      .from('course_favorites')
+      .select('course_id')
+      .eq('user_id', userId);
+    if (error) return { data: [], error };
+    return { data: data.map(e => e.course_id), error: null };
+  },
+
   // --- Auth ---
   signUp: async (email: string, pass: string) => {
     try {
