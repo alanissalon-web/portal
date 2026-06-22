@@ -48,14 +48,47 @@ export const LocalDB = {
     return { error };
   },
 
+  // Helper to ensure curriculum and topics are parsed as arrays
+  parseCourseFields: (course: any) => {
+    if (!course) return course;
+    const parsed = { ...course };
+    if (typeof parsed.curriculum === 'string') {
+      try {
+        parsed.curriculum = JSON.parse(parsed.curriculum);
+      } catch (e) {
+        parsed.curriculum = [];
+      }
+    }
+    if (!Array.isArray(parsed.curriculum)) {
+      parsed.curriculum = [];
+    }
+
+    if (typeof parsed.topics === 'string') {
+      try {
+        // Try parsing as JSON array first
+        const parsedTopics = JSON.parse(parsed.topics);
+        parsed.topics = Array.isArray(parsedTopics) ? parsedTopics : [];
+      } catch (e) {
+        // Fallback to comma separated string
+        parsed.topics = parsed.topics.split(',').map((t: string) => t.trim()).filter(Boolean);
+      }
+    }
+    if (!Array.isArray(parsed.topics)) {
+      parsed.topics = [];
+    }
+    return parsed;
+  },
+
   // --- Courses ---
   getCourses: async () => {
     const { data } = await supabase.from('courses').select('*');
-    return { data: data || [], error: null };
+    const parsedData = (data || []).map(c => LocalDB.parseCourseFields(c));
+    return { data: parsedData, error: null };
   },
   getCourseById: async (id: string) => {
     const { data } = await supabase.from('courses').select('*').eq('id', id).single();
-    return { data, error: null };
+    const parsedData = data ? LocalDB.parseCourseFields(data) : null;
+    return { data: parsedData, error: null };
   },
   // Save a course, ensuring complex fields are correctly formatted for Supabase
   saveCourse: async (course: any) => {
