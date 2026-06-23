@@ -214,7 +214,7 @@ export default function ClientPortalPage() {
 
   const handleSignOut = async () => {
     await LocalDB.logout();
-    await supabase.auth.signOut();
+    // supabase.auth.signOut() already called inside LocalDB.logout()
     toast({ title: 'Sesión cerrada', description: 'Hasta pronto 👋' });
     navigate('/');
   };
@@ -372,7 +372,9 @@ export default function ClientPortalPage() {
                 )}
               </div>
               <div>
-                <p className="font-body text-xs text-accent/80 uppercase tracking-widest mb-1">Portal para Clientes</p>
+                <span className="font-body text-xs uppercase tracking-widest text-accent/80 mb-1 block">
+                  Portal para Clientes
+                </span>
                 <h1 className="font-display text-2xl md:text-3xl font-light text-white">
                   Bienvenido/a{student ? `, ${student.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Cliente'}` : ''}
                 </h1>
