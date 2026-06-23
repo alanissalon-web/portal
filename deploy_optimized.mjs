@@ -90,10 +90,32 @@ async function deploy() {
                         const tempHtmlPath = path.join(localDistDir, 'index_deploy.html');
                         fs.writeFileSync(tempHtmlPath, html, 'utf8');
                         
-                        await client.uploadFrom(tempHtmlPath, item);
+                        let retries = 3;
+                        while (retries > 0) {
+                            try {
+                                await client.uploadFrom(tempHtmlPath, item);
+                                break;
+                            } catch (err) {
+                                console.log(`Upload failed for ${item}, retrying... (${retries} left)`);
+                                retries--;
+                                if (retries === 0) throw err;
+                                await new Promise(r => setTimeout(r, 2000));
+                            }
+                        }
                         fs.unlinkSync(tempHtmlPath);
                     } else {
-                        await client.uploadFrom(fullLocalPath, item);
+                        let retries = 3;
+                        while (retries > 0) {
+                            try {
+                                await client.uploadFrom(fullLocalPath, item);
+                                break;
+                            } catch (err) {
+                                console.log(`Upload failed for ${item}, retrying... (${retries} left)`);
+                                retries--;
+                                if (retries === 0) throw err;
+                                await new Promise(r => setTimeout(r, 2000));
+                            }
+                        }
                     }
                 }
             }
