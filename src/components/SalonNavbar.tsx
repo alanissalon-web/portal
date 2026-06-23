@@ -130,7 +130,7 @@ export function SalonNavbar() {
                     )}
                   </div>
                   <span className="font-body text-xs font-bold text-white max-w-[100px] truncate">
-                    {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')[0] || 'Mi Cuenta'}
+                    {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')?.[0] || 'Mi Cuenta'}
                   </span>
                 </Link>
               ) : (
