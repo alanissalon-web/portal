@@ -2,12 +2,12 @@ import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { useParams, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, Clock, BookOpen, Video, Users, CheckCircle, Star, 
   PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
-  GraduationCap, MessageSquare, PhoneCall, Download, FileText
+  GraduationCap, MessageSquare, PhoneCall, Download, FileText, Maximize
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -143,40 +143,103 @@ const CourseDetailPage = () => {
     }
   };
 
-  const renderVideo = (url: string) => {
+  const ProtectedVideoPlayer = ({ url }: { url: string }) => {
+    const [isPlaying, setIsPlaying] = useState(false);
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
     if (!url) return null;
-    
+
     let embedUrl = "";
+    let isYoutube = false;
+    let isVimeo = false;
+
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
-      // Remove controls, branding, related videos, keyboard controls
-      embedUrl = `https://www.youtube.com/embed/${id}?controls=0&modestbranding=1&rel=0&disablekb=1&playsinline=1&fs=0`;
+      // enablejsapi=1 is required for postMessage controls
+      embedUrl = `https://www.youtube.com/embed/${id}?controls=0&modestbranding=1&rel=0&disablekb=1&playsinline=1&fs=0&enablejsapi=1&iv_load_policy=3`;
+      isYoutube = true;
     } else if (url.includes('loom.com')) {
       const id = url.split('/').pop();
       embedUrl = `https://www.loom.com/embed/${id}?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true`;
     } else if (url.includes('vimeo.com')) {
       const id = url.split('/').pop();
-      embedUrl = `https://player.vimeo.com/video/${id}?controls=0&title=0&byline=0&portrait=0&dnt=1`;
+      embedUrl = `https://player.vimeo.com/video/${id}?controls=0&title=0&byline=0&portrait=0&dnt=1&api=1`;
+      isVimeo = true;
+    } else {
+      return <video src={url} controls={false} className="w-full aspect-video rounded-3xl bg-black" onContextMenu={e => e.preventDefault()} onClick={(e) => { e.currentTarget.paused ? e.currentTarget.play() : e.currentTarget.pause() }} />;
     }
 
-    if (embedUrl) {
-      return (
-        <div className="relative w-full aspect-[9/16] md:aspect-video rounded-3xl overflow-hidden group">
-          <iframe 
-            className="w-full h-full absolute inset-0"
-            src={embedUrl} 
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen={false}
-            title="Lesson Video"
-          />
-          {/* Transparent overlays to block direct clicks on logo/title while allowing play/pause in center */}
-          <div className="absolute inset-x-0 top-0 h-16 bg-transparent z-10" />
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-transparent z-10" />
+    const togglePlay = () => {
+      if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+      
+      if (isYoutube) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({
+          event: 'command',
+          func: isPlaying ? 'pauseVideo' : 'playVideo',
+          args: []
+        }), '*');
+      } else if (isVimeo) {
+        iframeRef.current.contentWindow.postMessage(JSON.stringify({
+          method: isPlaying ? 'pause' : 'play'
+        }), '*');
+      }
+      setIsPlaying(!isPlaying);
+    };
+
+    const toggleFullscreen = (e: React.MouseEvent) => {
+      e.stopPropagation(); // Evitar que el clic pause/reproduzca el video
+      if (!document.fullscreenElement) {
+        containerRef.current?.requestFullscreen().catch(err => {
+          console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    };
+
+    return (
+      <div 
+        ref={containerRef}
+        className="relative w-full aspect-[9/16] md:aspect-video rounded-3xl overflow-hidden bg-black group"
+        onContextMenu={(e) => e.preventDefault()} // Bloquear click derecho
+      >
+        <iframe 
+          ref={iframeRef}
+          className="w-full h-full absolute inset-0 pointer-events-none" // Deshabilita clicks directos al iframe
+          src={embedUrl} 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen={false}
+          title="Lesson Video"
+        />
+        
+        {/* Capa invisible que cubre todo el video, intercepta clicks e impide el doble click o menu */}
+        <div 
+          className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer bg-transparent transition-colors"
+          onClick={togglePlay}
+          onDoubleClick={(e) => e.preventDefault()}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          {/* Botón de Play personalizado (solo se muestra cuando está pausado) */}
+          {!isPlaying && (
+            <div className="w-20 h-20 bg-accent/90 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+              <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+          )}
+          
+          {/* Controles de la barra inferior (siempre visibles o en hover) */}
+          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button 
+              onClick={toggleFullscreen}
+              className="bg-black/50 hover:bg-accent backdrop-blur-sm text-white p-2.5 rounded-full transition-colors"
+              title="Pantalla Completa"
+            >
+              <Maximize className="w-5 h-5" />
+            </button>
+          </div>
         </div>
-      );
-    }
-
-    return <video src={url} controls className="w-full aspect-video rounded-3xl bg-black" />;
+      </div>
+    );
   };
 
   if (loading) {
@@ -387,7 +450,7 @@ const CourseDetailPage = () => {
                                   <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 w-full md:w-1/2 lg:w-[350px] shrink-0" id={`player-${i}`}>
                                     {lesson.video_url ? (
                                       /* Render video only when open, fallback to fixed aspect ratio to prevent snap */
-                                      (isUnlocked && activeLesson === i) ? renderVideo(lesson.video_url) : <div className="aspect-[9/16] md:aspect-video bg-black"></div>
+                                      (isUnlocked && activeLesson === i) ? <ProtectedVideoPlayer url={lesson.video_url} /> : <div className="aspect-[9/16] md:aspect-video bg-black"></div>
                                     ) : (
                                       <div className="aspect-[9/16] md:aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
                                         <Video className="w-12 h-12 mb-2" />
