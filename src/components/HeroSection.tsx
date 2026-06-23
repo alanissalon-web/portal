@@ -63,23 +63,27 @@ export function HeroSection() {
 
       {/* Hero image edit button — only visible in CMS editing mode */}
       {isEditing && (
-        <div className="absolute top-28 right-6 z-30">
-          <label htmlFor="hero-image-upload" className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-xl transition-all ${
+        <div className="absolute top-28 right-6 z-50">
+          <button 
+            type="button"
+            onClick={() => document.getElementById('hero-image-upload')?.click()}
+            disabled={uploading}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold cursor-pointer shadow-xl transition-all ${
             uploading
               ? 'bg-white/40 text-white/60 cursor-not-allowed'
               : 'bg-accent hover:bg-accent/90 text-white shadow-accent/30'
           }`}>
             <ImagePlus className="w-4 h-4" />
             {uploading ? 'Subiendo...' : 'Cambiar foto del Hero'}
-            <input
-              id="hero-image-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              disabled={uploading}
-              onChange={handleHeroImageUpload}
-            />
-          </label>
+          </button>
+          <input
+            id="hero-image-upload"
+            type="file"
+            accept="image/*"
+            className="hidden"
+            disabled={uploading}
+            onChange={handleHeroImageUpload}
+          />
         </div>
       )}
 
