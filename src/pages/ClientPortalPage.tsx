@@ -338,19 +338,19 @@ export default function ClientPortalPage() {
           <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center animate-pulse">
             <User className="w-7 h-7 text-accent" />
           </div>
-          <p className="font-body text-sm text-muted-foreground uppercase tracking-widest">Cargando portal...</p>
+          <p className="font-body text-sm text-muted-foreground uppercase tracking-widest">Loading portal...</p>
         </div>
       </div>
     );
   }
 
   const tabs = [
-    { id: 'courses',      icon: GraduationCap, label: 'Mis Cursos',      count: courses.length },
-    { id: 'favorites',    icon: Heart,          label: 'Favoritos',       count: courseFavorites.length + productFavorites.length },
-    { id: 'reservations', icon: Calendar,       label: 'Reservaciones',   count: reservations.length },
-    { id: 'purchases',    icon: ShoppingBag,    label: 'Mis Compras',     count: purchases.length },
-    { id: 'messages',     icon: MessageSquare,  label: 'Mensajes',        count: messages.length },
-    { id: 'settings',     icon: Settings,       label: 'Configuración',   count: undefined },
+    { id: 'courses',      icon: GraduationCap, label: 'My Courses',      count: courses.length },
+    { id: 'favorites',    icon: Heart,          label: 'Favorites',       count: courseFavorites.length + productFavorites.length },
+    { id: 'reservations', icon: Calendar,       label: 'Reservations',   count: reservations.length },
+    { id: 'purchases',    icon: ShoppingBag,    label: 'My Purchases',     count: purchases.length },
+    { id: 'messages',     icon: MessageSquare,  label: 'Messages',        count: messages.length },
+    { id: 'settings',     icon: Settings,       label: 'Settings',   count: undefined },
   ] as const;
 
   return (
@@ -373,10 +373,10 @@ export default function ClientPortalPage() {
               </div>
               <div>
                 <span className="font-body text-xs uppercase tracking-widest text-accent/80 mb-1 block">
-                  Portal para Clientes
+                  Client Portal
                 </span>
                 <h1 className="font-display text-2xl md:text-3xl font-light text-white">
-                  Bienvenido/a{student ? `, ${student.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Cliente'}` : ''}
+                  Welcome{student ? `, ${student.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Client'}` : ''}
                 </h1>
                 <p className="font-body text-xs text-white/40 mt-1">{student?.email}</p>
               </div>
@@ -388,7 +388,7 @@ export default function ClientPortalPage() {
                 onClick={() => setActiveTab('settings')}
               >
                 <Settings className="w-4 h-4" />
-                Configurar Perfil
+                Configure Profile
               </Button>
               <Button
                 variant="outline"
@@ -396,7 +396,7 @@ export default function ClientPortalPage() {
                 onClick={handleSignOut}
               >
                 <LogOut className="w-4 h-4" />
-                Cerrar Sesión
+                Sign Out
               </Button>
             </div>
           </div>
@@ -404,11 +404,11 @@ export default function ClientPortalPage() {
           {/* Stats row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-10">
             {[
-              { label: 'Cursos', value: courses.length, icon: GraduationCap },
-              { label: 'Favoritos', value: courseFavorites.length + productFavorites.length, icon: Heart },
-              { label: 'Reservaciones', value: reservations.length, icon: Calendar },
-              { label: 'Compras', value: purchases.length, icon: ShoppingBag },
-              { label: 'Mensajes', value: messages.length, icon: Mail },
+              { label: 'Courses', value: courses.length, icon: GraduationCap },
+              { label: 'Favorites', value: courseFavorites.length + productFavorites.length, icon: Heart },
+              { label: 'Reservations', value: reservations.length, icon: Calendar },
+              { label: 'Purchases', value: purchases.length, icon: ShoppingBag },
+              { label: 'Messages', value: messages.length, icon: Mail },
             ].map(s => (
               <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
@@ -460,7 +460,7 @@ export default function ClientPortalPage() {
           {dataLoading ? (
             <div className="flex flex-col items-center justify-center py-32">
               <Loader2 className="w-10 h-10 animate-spin text-accent mb-4" />
-              <p className="font-body text-sm text-muted-foreground">Cargando información...</p>
+              <p className="font-body text-sm text-muted-foreground">Loading information...</p>
             </div>
           ) : (
             <>
@@ -468,8 +468,8 @@ export default function ClientPortalPage() {
               {activeTab === 'courses' && (
                 <div>
                   <div className="mb-8">
-                    <h2 className="font-display text-2xl font-light text-foreground">Mis Cursos Inscritos</h2>
-                    <p className="font-body text-sm text-muted-foreground mt-1">Accede a las lecciones de los cursos que desbloqueaste.</p>
+                    <h2 className="font-display text-2xl font-light text-foreground">My Enrolled Courses</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">Access the lessons of the courses you unlocked.</p>
                   </div>
 
                   {courses.length === 0 ? (
@@ -477,12 +477,12 @@ export default function ClientPortalPage() {
                       <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
                         <BookOpen className="w-10 h-10 text-accent/30" />
                       </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">Aún no tienes cursos</h3>
+                      <h3 className="font-display text-xl text-foreground mb-2">You don't have any courses yet</h3>
                       <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-                        Explora la academia y desbloquea tu primer masterclass con un código de acceso.
+                        Explore the academy and unlock your first masterclass with an access code.
                       </p>
                       <Button variant="gold" className="rounded-xl gap-2" onClick={() => navigate('/academy')}>
-                        <GraduationCap className="w-4 h-4" /> Explorar Academy
+                        <GraduationCap className="w-4 h-4" /> Explore Academy
                       </Button>
                     </div>
                   ) : (
@@ -514,7 +514,7 @@ export default function ClientPortalPage() {
                               className="w-full rounded-xl gap-2"
                               onClick={() => navigate(`/academy/${course.id}`)}
                             >
-                              Ver Lecciones <ExternalLink className="w-3.5 h-3.5" />
+                              View Lessons <ExternalLink className="w-3.5 h-3.5" />
                             </Button>
                           </div>
                         </div>
@@ -528,20 +528,20 @@ export default function ClientPortalPage() {
               {activeTab === 'favorites' && (
                 <div>
                   <div className="mb-8">
-                    <h2 className="font-display text-2xl font-light text-foreground">Productos Favoritos</h2>
-                    <p className="font-body text-sm text-muted-foreground mt-1">Los productos que guardaste de nuestra tienda.</p>
+                    <h2 className="font-display text-2xl font-light text-foreground">Favorite Products</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">Products you saved from our shop.</p>
                   </div>
                   {productFavorites.length === 0 ? (
                     <div className="bg-white rounded-3xl border border-border p-16 text-center shadow-sm">
                       <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
                         <Heart className="w-10 h-10 text-accent/30" />
                       </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">Sin favoritos aún</h3>
+                      <h3 className="font-display text-xl text-foreground mb-2">No favorites yet</h3>
                       <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-                        Explora la tienda y guarda los productos que te gusten.
+                        Explore the shop and save products you like.
                       </p>
                       <Button variant="gold" className="rounded-xl gap-2" onClick={() => navigate('/shop')}>
-                        <ShoppingBag className="w-4 h-4" /> Ir a la Tienda
+                        <ShoppingBag className="w-4 h-4" /> Go to Shop
                       </Button>
                     </div>
                   ) : (
@@ -557,7 +557,7 @@ export default function ClientPortalPage() {
                             <p className="font-display text-lg font-semibold text-foreground mb-4">${product.price}</p>
                             <div className="flex gap-2">
                               <Button variant="outline" size="sm" className="flex-1 rounded-xl text-xs" onClick={() => navigate('/shop')}>
-                                Ver en tienda
+                                View in Shop
                               </Button>
                               <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:bg-destructive/5 rounded-xl" onClick={() => handleRemoveFavorite(product.id)}>
                                 <Trash2 className="w-4 h-4" />
@@ -575,20 +575,20 @@ export default function ClientPortalPage() {
               {activeTab === 'reservations' && (
                 <div>
                   <div className="mb-8">
-                    <h2 className="font-display text-2xl font-light text-foreground">Mis Reservaciones</h2>
-                    <p className="font-body text-sm text-muted-foreground mt-1">Estado de los productos reservados para recoger en el salón.</p>
+                    <h2 className="font-display text-2xl font-light text-foreground">My Reservations</h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">Status of reserved products for pickup at the salon.</p>
                   </div>
                   {reservations.length === 0 ? (
                     <div className="bg-white rounded-3xl border border-border p-16 text-center shadow-sm">
                       <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
                         <ShoppingBag className="w-10 h-10 text-accent/30" />
                       </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">Sin reservaciones activas</h3>
+                      <h3 className="font-display text-xl text-foreground mb-2">No active reservations</h3>
                       <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-                        Reserva productos de la tienda para recogerlos en el salón.
+                        Reserve shop products to pick them up at the salon.
                       </p>
                       <Button variant="gold" className="rounded-xl gap-2" onClick={() => navigate('/shop')}>
-                        <ShoppingBag className="w-4 h-4" /> Reservar Productos
+                        <ShoppingBag className="w-4 h-4" /> Reserve Products
                       </Button>
                     </div>
                   ) : (
@@ -602,7 +602,7 @@ export default function ClientPortalPage() {
                             <div>
                               <h4 className="font-display text-base font-medium">{res.productName}</h4>
                               <p className="font-body text-xs text-muted-foreground mt-0.5">
-                                Reservado el {new Date(res.created_at).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                Reserved on {new Date(res.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                               </p>
                             </div>
                           </div>
@@ -613,7 +613,7 @@ export default function ClientPortalPage() {
                               res.status === 'completed' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' :
                               'bg-muted text-muted-foreground'
                             }`}>
-                              {res.status === 'pending' ? 'Pendiente' : res.status === 'confirmed' ? 'Confirmado' : res.status === 'completed' ? 'Completado' : res.status}
+                              {res.status === 'pending' ? 'Pending' : res.status === 'confirmed' ? 'Confirmed' : res.status === 'completed' ? 'Completed' : res.status}
                             </span>
                             <span className="font-display text-base font-semibold">${res.productPrice}</span>
                           </div>
@@ -628,9 +628,9 @@ export default function ClientPortalPage() {
               {activeTab === 'purchases' && (
                 <div>
                   <div className="mb-8">
-                    <h2 className="font-display text-2xl font-light text-foreground">Historial de Compras</h2>
+                    <h2 className="font-display text-2xl font-light text-foreground">Purchase History</h2>
                     <p className="font-body text-sm text-muted-foreground mt-1">
-                      Aquí verás tus compras (Nota: Las compras de productos en Amazon o enlaces externos se gestionan desde sus respectivas plataformas).
+                      Here you will see your purchases (Note: Purchases of products on Amazon or external links are managed from their respective platforms).
                     </p>
                   </div>
 
@@ -639,12 +639,12 @@ export default function ClientPortalPage() {
                       <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
                         <ShoppingBag className="w-10 h-10 text-accent/30" />
                       </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">Aún no tienes compras registradas</h3>
+                      <h3 className="font-display text-xl text-foreground mb-2">You have no recorded purchases yet</h3>
                       <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-                        Los productos afiliados que adquieres a través de nuestros enlaces de Amazon no aparecen en este historial local.
+                        Affiliate products you acquire via our Amazon links do not appear in this local history.
                       </p>
                       <Button variant="gold" className="rounded-xl gap-2" onClick={() => navigate('/shop')}>
-                        <ShoppingBag className="w-4 h-4" /> Ir a la Tienda
+                        <ShoppingBag className="w-4 h-4" /> Go to Shop
                       </Button>
                     </div>
                   ) : (
@@ -664,14 +664,14 @@ export default function ClientPortalPage() {
                     </div>
                     <div>
                       <h2 className="font-display text-xl font-medium text-foreground">Alanís Salon & Spa</h2>
-                      <p className="font-body text-xs text-muted-foreground">Normalmente respondemos en minutos</p>
+                      <p className="font-body text-xs text-muted-foreground">Normally we respond in minutes</p>
                     </div>
                   </div>
 
                   <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAFAF8]" ref={scrollRef}>
                     {messages.length === 0 ? (
                       <div className="text-center text-muted-foreground my-10 font-body text-sm">
-                        Envíanos un mensaje y te responderemos lo antes posible.
+                        Send us a message and we will reply as soon as possible.
                       </div>
                     ) : (
                       messages.map((msg: any) => (
@@ -708,7 +708,7 @@ export default function ClientPortalPage() {
                         type="text"
                         value={msgText}
                         onChange={e => setMsgText(e.target.value)}
-                        placeholder="Escribe tu mensaje..."
+                        placeholder="Type your message..."
                         className="w-full bg-muted/50 border border-border rounded-full pl-6 pr-14 py-4 font-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
                         disabled={msgSending}
                       />
@@ -730,9 +730,9 @@ export default function ClientPortalPage() {
                   <div className="mb-8 border-b border-border pb-6">
                     <h2 className="font-display text-2xl font-light text-foreground flex items-center gap-3">
                       <Settings className="w-6 h-6 text-accent" />
-                      Configuración de la Cuenta
+                      Account Settings
                     </h2>
-                    <p className="font-body text-sm text-muted-foreground mt-1">Actualiza tu información personal y opciones de seguridad.</p>
+                    <p className="font-body text-sm text-muted-foreground mt-1">Update your personal information and security options.</p>
                   </div>
 
                   <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-lg">
@@ -753,31 +753,31 @@ export default function ClientPortalPage() {
                         )}
                       </div>
                       <div>
-                        <p className="font-body text-sm font-medium text-foreground mb-2">Foto de Perfil</p>
+                        <p className="font-body text-sm font-medium text-foreground mb-2">Profile Photo</p>
                         <input type="file" id="avatar-upload" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
                         <label 
                           htmlFor="avatar-upload"
                           className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl border border-accent text-accent hover:bg-accent hover:text-white transition-all shadow-sm cursor-pointer ${uploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}
                         >
                           <Camera className="w-4 h-4" />
-                          Cambiar Foto
+                          Change Photo
                         </label>
                       </div>
                     </div>
 
                     <div>
-                      <label className="font-body text-xs font-medium text-foreground block mb-2">Nombre Completo</label>
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">Full Name</label>
                       <input
                         type="text"
                         value={settingsName}
                         onChange={e => setSettingsName(e.target.value)}
                         className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Tu nombre completo"
+                        placeholder="Your full name"
                       />
                     </div>
 
                     <div>
-                      <label className="font-body text-xs font-medium text-foreground block mb-2">Correo Electrónico</label>
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">Email Address</label>
                       <input
                         type="email"
                         value={settingsEmail}

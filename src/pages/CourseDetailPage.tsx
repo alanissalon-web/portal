@@ -177,7 +177,7 @@ const CourseDetailPage = () => {
         <div className="pt-40 flex items-center justify-center">
           <div className="animate-pulse flex flex-col items-center">
             <div className="w-12 h-12 bg-accent/20 rounded-full mb-4" />
-            <p className="font-body text-sm text-muted-foreground uppercase tracking-widest">Cargando Masterclass...</p>
+            <p className="font-body text-sm text-muted-foreground uppercase tracking-widest">Loading Masterclass...</p>
           </div>
         </div>
       </div>
@@ -296,16 +296,16 @@ const CourseDetailPage = () => {
                 <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
                   <LockIcon className="w-6 h-6 text-accent" />
                 </div>
-                <h3 className="font-display text-3xl font-medium mb-4">Área de Estudiantes</h3>
+                <h3 className="font-display text-3xl font-medium mb-4">Student Area</h3>
                 <p className="font-body text-sm text-muted-foreground mb-10 leading-relaxed">
-                  Accede a las técnicas avanzadas que transformarán tu carrera profesional. Sigue estos pasos para desbloquear el contenido:
+                  Access the advanced techniques that will transform your professional career. Follow these steps to unlock the content:
                 </p>
                 
                 <div className="space-y-6">
                   {[
-                    { step: '1', text: 'Realiza tu pago vía Zelle o CashApp.' },
-                    { step: '2', text: 'Envía tu comprobante por WhatsApp.' },
-                    { step: '3', text: 'Ingresa tu código de acceso personal.' },
+                    { step: '1', text: 'Make your payment via Zelle or CashApp.' },
+                    { step: '2', text: 'Send your receipt via WhatsApp.' },
+                    { step: '3', text: 'Enter your personal access code.' },
                   ].map(s => (
                     <div key={s.step} className="flex gap-5">
                       <div className="w-7 h-7 rounded-full bg-accent text-white font-display text-xs flex items-center justify-center flex-shrink-0">
@@ -364,17 +364,17 @@ const CourseDetailPage = () => {
                     </Button>
                   </form>
                   <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
-                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">¿Aún no tienes el código de acceso?</p>
-                    <p className="font-body text-sm text-muted-foreground mb-2">Pago vía Zelle: envía el comprobante a alanis@zelle.com y menciona el nombre del curso.</p>
+                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">Don't have the access code yet?</p>
+                    <p className="font-body text-sm text-muted-foreground mb-2">Pay via Zelle: send the receipt to alanis@zelle.com and mention the course name.</p>
                     <a href={`https://wa.me/17135242610?text=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} target="_blank" rel="noopener noreferrer">
                       <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-[#25D366] hover:bg-[#1ebd5c] text-white shadow-lg">
-                        <MessageCircle className="w-4 h-4" /> Comprar vía WhatsApp
+                        <MessageCircle className="w-4 h-4" /> Purchase via WhatsApp
                       </Button>
                     </a>
                     <div className="mt-4 flex flex-col gap-3">
                       <a href={`sms:17135242610?body=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} >
                         <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg">
-                          <MessageSquare className="w-4 h-4" /> Comprar vía SMS
+                          <MessageSquare className="w-4 h-4" /> Purchase via SMS
                         </Button>
                       </a>
                     </div>
@@ -446,12 +446,12 @@ const CourseDetailPage = () => {
                       <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                         <Video className="w-3.5 h-3.5" /> En Vivo
                       </div>
-                      <h3 className="font-display text-3xl font-medium">Únete a la Próxima Sesión</h3>
-                      <p className="font-body text-white/70 max-w-md">Interacción directa con Alanis para resolver dudas y perfeccionar tu técnica.</p>
+                      <h3 className="font-display text-3xl font-medium">Join the Next Session</h3>
+                      <p className="font-body text-white/70 max-w-md">Direct interaction with Alanis to answer questions and perfect your technique.</p>
                     </div>
                     <a href={course.meetLink} target="_blank" rel="noopener noreferrer">
                       <Button className="bg-white text-accent hover:bg-white/90 h-16 px-10 rounded-2xl font-bold shadow-xl">
-                        Entrar a la Clase <ExternalLink className="w-4 h-4 ml-2" />
+                        Enter the Class <ExternalLink className="w-4 h-4 ml-2" />
                       </Button>
                     </a>
                   </div>
@@ -526,7 +526,7 @@ const CourseDetailPage = () => {
                   <div className="text-center py-24 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
                     <BookOpen className="w-16 h-16 text-accent/20 mx-auto mb-6" />
                     <h3 className="font-display text-xl text-foreground mb-2">Contenido en Preparación</h3>
-                    <p className="font-body text-sm text-muted-foreground">Estamos cargando las lecciones. Vuelve pronto.</p>
+                    <p className="font-body text-sm text-muted-foreground">Loading lessons… Please check back later.</p>
                   </div>
                 )}
               </div>
