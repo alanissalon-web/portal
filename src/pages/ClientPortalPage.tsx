@@ -385,7 +385,7 @@ export default function ClientPortalPage() {
       </div>
 
       <div className="container mx-auto px-6 py-12">
-        <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8 max-w-7xl mx-auto">
           {/* Sidebar Navigation */}
           <div className="w-full md:w-64 flex-shrink-0">
             <div className="bg-white rounded-2xl border border-border overflow-hidden sticky top-32 shadow-sm">
