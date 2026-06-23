@@ -225,7 +225,7 @@ export default function ClientPortalPage() {
     setMsgSending(true);
     try {
       const { data, error } = await supabase.from('messages').insert({
-        name: student?.user_metadata?.full_name || student?.email?.split('@')[0] || 'Cliente',
+        name: student?.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Cliente',
         email: student?.email,
         message: msgText.trim(),
         type: 'chat',
@@ -374,7 +374,7 @@ export default function ClientPortalPage() {
               <div>
                 <p className="font-body text-xs text-accent/80 uppercase tracking-widest mb-1">Portal para Clientes</p>
                 <h1 className="font-display text-2xl md:text-3xl font-light text-white">
-                  Bienvenido/a{student ? `, ${student.user_metadata?.full_name || student.email.split('@')[0]}` : ''}
+                  Bienvenido/a{student ? `, ${student.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Cliente'}` : ''}
                 </h1>
                 <p className="font-body text-xs text-white/40 mt-1">{student?.email}</p>
               </div>
