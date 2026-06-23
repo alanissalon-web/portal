@@ -249,7 +249,7 @@ export function ShopSection() {
     }
   };
 
-  const allProducts = dbProducts.length > 0 ? dbProducts : products;
+  const allProducts = dbProducts;
   const allCategories = ['All', ...Array.from(new Set(allProducts.map(p => p.category)))];
   const filtered = activeCategory === 'All' ? allProducts : allProducts.filter(p => p.category === activeCategory);
 
@@ -455,6 +455,16 @@ export function ShopSection() {
         )}
 
         {/* Product Grid */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="text-center py-20 bg-card rounded-2xl">
+            <h3 className="font-display text-xl text-foreground mb-2">No products found</h3>
+            <p className="font-body text-muted-foreground">Please check back later or select another category.</p>
+          </div>
+        ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filtered.map((product, i) => (
             <div
@@ -519,6 +529,7 @@ export function ShopSection() {
             </div>
           ))}
         </div>
+        )}
 
         {/* CTA */}
         <div className={`text-center mt-16 ${isVisible ? 'animate-reveal-up delay-500' : 'opacity-0'}`}>

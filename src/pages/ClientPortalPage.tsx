@@ -193,6 +193,7 @@ export default function ClientPortalPage() {
   }, [student]);
 
   const handleSignOut = async () => {
+    await LocalDB.logout();
     await supabase.auth.signOut();
     toast({ title: 'Sesión cerrada', description: 'Hasta pronto 👋' });
     navigate('/');

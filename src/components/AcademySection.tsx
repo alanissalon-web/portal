@@ -102,6 +102,7 @@ export function AcademySection() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [dbCourses, setDbCourses] = useState<CourseDisplay[]>([]);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   // Student auth states
@@ -168,11 +169,12 @@ export function AcademySection() {
       if (data && !error) {
         processCourses(data);
       }
+      setLoading(false);
     };
     fetchCourses();
   }, []);
 
-  const baseCourses = dbCourses.length > 0 ? dbCourses : courses;
+  const baseCourses = dbCourses;
   const displayCourses = activeTab === 'enrolled'
     ? baseCourses.filter(c => enrollments.includes(c.id))
     : baseCourses;
@@ -304,6 +306,16 @@ export function AcademySection() {
         </div>
 
         {/* Course Cards */}
+        {loading ? (
+          <div className="flex justify-center items-center py-20 mb-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+          </div>
+        ) : displayCourses.length === 0 ? (
+          <div className="text-center py-20 bg-card rounded-2xl mb-20">
+            <h3 className="font-display text-xl text-foreground mb-2">No courses found</h3>
+            <p className="font-body text-muted-foreground">Please check back later.</p>
+          </div>
+        ) : (
         <div className="grid md:grid-cols-3 gap-8 mb-20">
           {displayCourses.map((course, i) => (
             <Link
@@ -371,6 +383,7 @@ export function AcademySection() {
             </Link>
           ))}
         </div>
+        )}
 
         {/* Instructors */}
         <div className={`max-w-3xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up delay-200' : 'opacity-0'}`}>
