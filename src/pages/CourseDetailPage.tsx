@@ -266,14 +266,9 @@ const CourseDetailPage = () => {
                   <p className="font-body text-xs uppercase tracking-widest opacity-70 mb-2">Inversión</p>
                   <p className="font-display text-5xl font-light">{course.price}</p>
                   <div className="mt-6 flex flex-col gap-3">
-                    <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20info%20del%20curso:%20${encodeURIComponent(course.title)}`}>
-                      <Button variant="gold" className="w-full h-14 rounded-xl gap-2 text-sm font-bold shadow-lg shadow-accent/20">
-                        <MessageSquare className="w-4 h-4" /> Reservar vía SMS
-                      </Button>
-                    </a>
-                    <a href="tel:17135242610">
-                      <Button variant="heroOutline" className="w-full h-14 rounded-xl gap-2 text-sm font-bold border-white/20">
-                        <PhoneCall className="w-4 h-4" /> Llamar ahora
+                    <a href={`https://wa.me/17135242610?text=Hola%20Alanis!%20Quiero%20inscribirme%20en%20el%20curso:%20${encodeURIComponent(course.title)}`} target="_blank" rel="noopener noreferrer">
+                      <Button className="w-full h-14 rounded-xl gap-2 text-sm font-bold bg-[#25D366] hover:bg-[#1ebd5c] text-white shadow-lg">
+                        <MessageCircle className="w-5 h-5" /> Inscribirme vía WhatsApp
                       </Button>
                     </a>
                   </div>
@@ -362,19 +357,12 @@ const CourseDetailPage = () => {
                     </Button>
                   </form>
                   <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
-                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">Need help or want to purchase?</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <a href={`sms:17135242610?body=Hello%20Alanis!%20I%2520want%2520access%2520to:%20${encodeURIComponent(course.title)}`}>
-                        <Button variant="gold" size="lg" className="rounded-xl gap-2 shadow-lg shadow-accent/20">
-                          <MessageSquare className="w-4 h-4" /> SMS
-                        </Button>
-                      </a>
-                      <a href="tel:17135242610">
-                        <Button variant="outline" size="lg" className="rounded-xl gap-2 border-accent/20 text-accent hover:bg-accent/5">
-                          <PhoneCall className="w-4 h-4" /> Call
-                        </Button>
-                      </a>
-                    </div>
+                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">¿Aún no tienes el código de acceso?</p>
+                    <a href={`https://wa.me/17135242610?text=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} target="_blank" rel="noopener noreferrer">
+                      <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-[#25D366] hover:bg-[#1ebd5c] text-white shadow-lg">
+                        <MessageCircle className="w-4 h-4" /> Comprar vía WhatsApp
+                      </Button>
+                    </a>
                   </div>
                 </div>
               </div>
