@@ -49,7 +49,7 @@ const CourseDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [inputCode, setInputCode] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
-  const [activeLesson, setActiveLesson] = useState<number | null>(null);
+  const [activeLesson, setActiveLesson] = useState<number>(0);
 
   // Student auth states
   const [student, setStudent] = useState<any>(null);
@@ -215,11 +215,11 @@ const CourseDetailPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-start">
             
             {/* LEFT COLUMN: Image/Player, Button, Info */}
-            <div className={`space-y-10 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
+            <div className="space-y-10 animate-fade-in">
               
               {isUnlocked ? (
                 /* Course Player */
-                activeLesson !== null && course.curriculum[activeLesson] && (
+                course.curriculum[activeLesson] && (
                   <div className="animate-reveal-up" id="player">
                     <div className="bg-black rounded-[2.5rem] overflow-hidden shadow-2xl mb-8 ring-1 ring-white/10">
                       {course.curriculum[activeLesson].video_url ? (
@@ -327,7 +327,7 @@ const CourseDetailPage = () => {
             </div>
 
             {/* RIGHT COLUMN: Unlock Form & Modules */}
-            <div className={`space-y-10 lg:sticky lg:top-32 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`} style={{ transitionDelay: '100ms' }}>
+            <div className="space-y-10 lg:sticky lg:top-32 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
               
               {!isUnlocked ? (
                 /* Unlock Form */
