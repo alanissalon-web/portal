@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { LocalDB } from '@/services/LocalDatabase';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Mail, Phone } from 'lucide-react';
@@ -7,20 +7,23 @@ import { useLocation } from 'react-router-dom';
 export const NotificationManager = () => {
   const { toast } = useToast();
   const location = useLocation();
-  const [notifiedIds, setNotifiedIds] = useState<Set<string>>(new Set());
+  const notifiedIds = useRef<Set<string>>(new Set());
+  const hasInitialized = useRef(false);
 
   useEffect(() => {
     const initialize = async () => {
+      if (hasInitialized.current) return;
+      hasInitialized.current = true;
       // Initial load: mark all existing 'new' messages as notified so we don't spam on refresh
       const { data: initialMessages } = await LocalDB.getMessages();
       const initialIds = new Set<string>((initialMessages || []).filter((m: any) => m.status === 'new').map((m: any) => m.id as string));
-      setNotifiedIds(initialIds);
+      notifiedIds.current = initialIds;
     };
     initialize();
 
     const checkNewMessages = async () => {
       const { data: messages } = await LocalDB.getMessages();
-      const newMessages = (messages || []).filter((m: any) => m.status === 'new' && !notifiedIds.has(m.id));
+      const newMessages = (messages || []).filter((m: any) => m.status === 'new' && !notifiedIds.current.has(m.id));
 
       if (newMessages.length > 0) {
         newMessages.forEach((msg: any) => {
@@ -46,7 +49,7 @@ export const NotificationManager = () => {
                       className="bg-white/10 text-white px-3 py-1 rounded-lg text-xs font-medium"
                       onClick={async () => {
                         await LocalDB.deleteMessage(msg.id);
-                        setNotifiedIds(prev => new Set(prev).add(msg.id));
+                        notifiedIds.current.add(msg.id);
                       }}
                     >
                       Rechazar
@@ -70,14 +73,14 @@ export const NotificationManager = () => {
             }
           }
           
-          setNotifiedIds(prev => new Set(prev).add(msg.id));
+          notifiedIds.current.add(msg.id);
         });
       }
     };
 
     const interval = setInterval(checkNewMessages, 3000);
     return () => clearInterval(interval);
-  }, [notifiedIds, location.pathname, toast]);
+  }, [location.pathname, toast]);
 
   return null;
 };
