@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { LocalDB } from '@/services/LocalDatabase';
@@ -8,14 +8,25 @@ import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Heart, Calendar, MessageSquare, LogOut, BookOpen,
   ExternalLink, Clock, Trash2, ShoppingBag, User, Loader2,
-  CheckCircle, Award, Mail, Send, Plus, X
+  CheckCircle, Award, Mail, Send, Plus, X, Settings, Camera
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Send as SendIcon, CheckCheck } from 'lucide-react';
+
+interface ChatMsg {
+  id: string;
+  text?: string;
+  image?: string;
+  voice?: string;
+  sender: 'me' | 'them';
+  timestamp: string;
+  status?: 'sent' | 'delivered' | 'read';
+}
 
 export default function ClientPortalPage() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'courses' | 'favorites' | 'reservations' | 'purchases' | 'messages'>('courses');
+  const [activeTab, setActiveTab] = useState<'courses' | 'favorites' | 'reservations' | 'purchases' | 'messages' | 'settings'>('courses');
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -32,6 +43,30 @@ export default function ClientPortalPage() {
   const [msgName, setMsgName] = useState('');
   const [msgText, setMsgText] = useState('');
   const [msgSending, setMsgSending] = useState(false);
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  // Settings
+  const [settingsName, setSettingsName] = useState('');
+  const [settingsEmail, setSettingsEmail] = useState('');
+  const [settingsPassword, setSettingsPassword] = useState('');
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Initialize settings when student loads
+  useEffect(() => {
+    if (student) {
+      setSettingsName(student.user_metadata?.full_name || '');
+      setSettingsEmail(student.email || '');
+    }
+  }, [student]);
+
+  // Auto scroll
+  useEffect(() => {
+    if (activeTab === 'messages' && scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, activeTab]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -76,7 +111,19 @@ export default function ClientPortalPage() {
         }));
 
         const { data: msgData } = await LocalDB.getMessages();
-        setMessages((msgData || []).filter((m: any) => m.email?.toLowerCase() === student.email?.toLowerCase()));
+        const idStr = student.email;
+        const filteredMsgs = (msgData || []).filter((m: any) =>
+          (m.type === 'chat' || !m.type) && (m.email === idStr || m.toEmail === idStr)
+        );
+        setMessages(filteredMsgs.map((m: any) => ({
+          id: m.id,
+          text: m.message,
+          image: m.image,
+          voice: m.voice,
+          sender: m.email === idStr ? 'me' : 'them',
+          timestamp: m.date || m.created_at || new Date().toISOString(),
+          status: 'delivered',
+        })).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()));
       } catch (err) {
         console.error('Error fetching portal data:', err);
       } finally {
@@ -107,8 +154,41 @@ export default function ClientPortalPage() {
       )
       .subscribe();
 
+    // 🔴 Realtime: listen for new messages
+    const msgChannel = supabase
+      .channel(`messages:${student.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload: any) => {
+          const newMsg = payload.new;
+          if (newMsg.email === student.email || newMsg.toEmail === student.email) {
+            setMessages(prev => {
+              // Avoid duplicates
+              if (prev.find(m => m.id === newMsg.id)) return prev;
+              const formatted = {
+                id: newMsg.id,
+                text: newMsg.message,
+                image: newMsg.image,
+                voice: newMsg.voice,
+                sender: newMsg.email === student.email ? 'me' as const : 'them' as const,
+                timestamp: newMsg.date || newMsg.created_at || new Date().toISOString(),
+                status: 'delivered' as const,
+              };
+              return [...prev, formatted].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+            });
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(msgChannel);
     };
   }, [student]);
 
@@ -124,16 +204,25 @@ export default function ClientPortalPage() {
     setMsgSending(true);
     try {
       const { data, error } = await supabase.from('messages').insert({
-        name: msgName || student?.email?.split('@')[0] || 'Cliente',
+        name: student?.user_metadata?.full_name || student?.email?.split('@')[0] || 'Cliente',
         email: student?.email,
         message: msgText.trim(),
+        type: 'chat',
+        date: new Date().toISOString(),
       }).select().single();
       if (error) throw error;
-      setMessages(prev => [data, ...prev]);
       setMsgText('');
-      setMsgName('');
-      setShowCompose(false);
-      toast({ title: '✅ Mensaje enviado', description: 'Te responderemos pronto.' });
+      const formatted = {
+        id: data.id,
+        text: data.message,
+        sender: 'me' as const,
+        timestamp: data.date || data.created_at || new Date().toISOString(),
+        status: 'delivered' as const,
+      };
+      setMessages(prev => {
+        if (prev.find(m => m.id === formatted.id)) return prev;
+        return [...prev, formatted];
+      });
     } catch (err: any) {
       toast({ title: 'Error', description: 'No se pudo enviar el mensaje.', variant: 'destructive' });
     } finally {
@@ -145,6 +234,67 @@ export default function ClientPortalPage() {
     await LocalDB.toggleFavorite(student.id, productId);
     setProductFavorites(prev => prev.filter(p => p.id !== productId));
     toast({ title: 'Eliminado de favoritos' });
+  };
+
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingSettings(true);
+    try {
+      const updates: any = {};
+      if (settingsPassword) updates.password = settingsPassword;
+      if (settingsEmail && settingsEmail !== student.email) updates.email = settingsEmail;
+      if (settingsName && settingsName !== student.user_metadata?.full_name) {
+        updates.data = { full_name: settingsName };
+      }
+
+      if (Object.keys(updates).length > 0) {
+        const { error } = await supabase.auth.updateUser(updates);
+        if (error) throw error;
+        toast({ title: 'Perfil actualizado', description: 'Tus cambios han sido guardados.' });
+        if (settingsPassword) setSettingsPassword('');
+        // Reload session data
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) setStudent(session.user);
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
+  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `avatar-${student.id}-${Date.now()}.${fileExt}`;
+      const filePath = `avatars/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('site-images').getPublicUrl(filePath);
+      
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: data.publicUrl }
+      });
+
+      if (updateError) throw updateError;
+
+      toast({ title: 'Foto actualizada' });
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) setStudent(session.user);
+    } catch (err: any) {
+      toast({ title: 'Error', description: 'No se pudo subir la imagen.', variant: 'destructive' });
+    } finally {
+      setUploadingAvatar(false);
+    }
   };
 
   if (loading) {
@@ -166,6 +316,7 @@ export default function ClientPortalPage() {
     { id: 'reservations', icon: Calendar,       label: 'Reservaciones',   count: reservations.length },
     { id: 'purchases',    icon: ShoppingBag,    label: 'Mis Compras',     count: purchases.length },
     { id: 'messages',     icon: MessageSquare,  label: 'Mensajes',        count: messages.length },
+    { id: 'settings',     icon: Settings,       label: 'Configuración',   count: undefined },
   ] as const;
 
   return (
@@ -454,127 +605,148 @@ export default function ClientPortalPage() {
                 </div>
               )}
 
-              {/* ── MENSAJES ── */}
+              {/* ── MENSAJES (LIVE CHAT) ── */}
               {activeTab === 'messages' && (
-                <div>
-                  <div className="mb-8 flex items-center justify-between">
-                    <div>
-                      <h2 className="font-display text-2xl font-light text-foreground">Mis Mensajes</h2>
-                      <p className="font-body text-sm text-muted-foreground mt-1">Consultas y comunicaciones con el salón.</p>
+                <div className="flex flex-col h-[600px] bg-white rounded-3xl border border-border shadow-sm overflow-hidden">
+                  <div className="p-6 border-b border-border bg-accent/5 flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-accent text-white flex items-center justify-center shadow-md">
+                      <MessageSquare className="w-6 h-6" />
                     </div>
-                    <Button
-                      variant="gold"
-                      className="rounded-xl gap-2"
-                      onClick={() => setShowCompose(v => !v)}
-                    >
-                      {showCompose ? <><X className="w-4 h-4" /> Cancelar</> : <><Plus className="w-4 h-4" /> Nuevo Mensaje</>}
-                    </Button>
+                    <div>
+                      <h2 className="font-display text-xl font-medium text-foreground">Alanís Salon & Spa</h2>
+                      <p className="font-body text-xs text-muted-foreground">Normalmente respondemos en minutos</p>
+                    </div>
                   </div>
 
-                  {/* Compose Box */}
-                  {showCompose && (
-                    <form onSubmit={handleSendMessage} className="bg-white rounded-3xl border border-accent/20 shadow-lg p-8 mb-8">
-                      <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
-                        <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
-                          <Send className="w-4 h-4 text-accent" />
-                        </div>
-                        <div>
-                          <p className="font-display text-sm font-semibold text-foreground">Nuevo mensaje</p>
-                          <p className="font-body text-[10px] text-muted-foreground">Para: Alanís Salon & Spa</p>
-                        </div>
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-[#FAFAF8]" ref={scrollRef}>
+                    {messages.length === 0 ? (
+                      <div className="text-center text-muted-foreground my-10 font-body text-sm">
+                        Envíanos un mensaje y te responderemos lo antes posible.
                       </div>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="font-body text-xs font-medium text-foreground block mb-1.5">Tu nombre</label>
-                          <input
-                            type="text"
-                            value={msgName}
-                            onChange={e => setMsgName(e.target.value)}
-                            placeholder={student?.email?.split('@')[0] || 'Tu nombre'}
-                            className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                          />
+                    ) : (
+                      messages.map((msg: any) => (
+                        <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                          <div className={`max-w-[80%] rounded-2xl p-4 ${msg.sender === 'me' ? 'bg-accent text-white rounded-tr-sm' : 'bg-white border border-border text-foreground shadow-sm rounded-tl-sm'}`}>
+                            <p className="font-body text-sm whitespace-pre-wrap">{msg.text}</p>
+                            <div className={`text-[10px] mt-2 flex items-center gap-1 ${msg.sender === 'me' ? 'text-white/70' : 'text-muted-foreground'}`}>
+                              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              {msg.sender === 'me' && <CheckCheck className="w-3 h-3 ml-1" />}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <label className="font-body text-xs font-medium text-foreground block mb-1.5">Tu mensaje <span className="text-destructive">*</span></label>
-                          <textarea
-                            value={msgText}
-                            onChange={e => setMsgText(e.target.value)}
-                            required
-                            rows={5}
-                            placeholder="Escribe tu pregunta o consulta aquí..."
-                            className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 resize-none"
-                          />
-                        </div>
-                        <div className="flex items-center justify-between pt-2">
-                          <p className="font-body text-xs text-muted-foreground flex items-center gap-1.5">
-                            <Mail className="w-3.5 h-3.5" />
-                            Respuesta a: <span className="font-medium text-foreground">{student?.email}</span>
-                          </p>
-                          <Button
-                            type="submit"
-                            className="bg-accent hover:bg-accent/90 text-white rounded-xl gap-2 px-6"
-                            disabled={msgSending || !msgText.trim()}
-                          >
-                            {msgSending ? <><Loader2 className="w-4 h-4 animate-spin" /> Enviando...</> : <><Send className="w-4 h-4" /> Enviar Mensaje</>}
-                          </Button>
-                        </div>
-                      </div>
-                    </form>
-                  )}
+                      ))
+                    )}
+                  </div>
 
-                  {/* Message History */}
-                  {messages.length === 0 && !showCompose ? (
-                    <div className="bg-white rounded-3xl border border-border p-16 text-center shadow-sm">
-                      <div className="w-20 h-20 rounded-full bg-accent/5 flex items-center justify-center mx-auto mb-6">
-                        <MessageSquare className="w-10 h-10 text-accent/30" />
+                  <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-border">
+                    <div className="relative flex items-center">
+                      <input
+                        type="text"
+                        value={msgText}
+                        onChange={e => setMsgText(e.target.value)}
+                        placeholder="Escribe tu mensaje..."
+                        className="w-full bg-muted/50 border border-border rounded-full pl-6 pr-14 py-4 font-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/30"
+                        disabled={msgSending}
+                      />
+                      <button
+                        type="submit"
+                        disabled={!msgText.trim() || msgSending}
+                        className="absolute right-2 w-10 h-10 bg-accent hover:bg-accent/90 text-white rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+                      >
+                        {msgSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <SendIcon className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* ── SETTINGS ── */}
+              {activeTab === 'settings' && (
+                <div className="bg-white rounded-3xl border border-border shadow-sm p-8">
+                  <div className="mb-8 border-b border-border pb-6">
+                    <h2 className="font-display text-2xl font-light text-foreground flex items-center gap-3">
+                      <Settings className="w-6 h-6 text-accent" />
+                      Configuración de la Cuenta
+                    </h2>
+                    <p className="font-body text-sm text-muted-foreground mt-1">Actualiza tu información personal y opciones de seguridad.</p>
+                  </div>
+
+                  <form onSubmit={handleUpdateProfile} className="space-y-6 max-w-lg">
+                    {/* Avatar Upload (Alternative) */}
+                    <div className="flex items-center gap-6 mb-8">
+                      <div className="w-20 h-20 rounded-2xl bg-muted overflow-hidden relative border border-border">
+                        {student.user_metadata?.avatar_url ? (
+                          <img src={student.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-accent/5 text-accent">
+                            <User className="w-8 h-8" />
+                          </div>
+                        )}
+                        {uploadingAvatar && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 text-white animate-spin" />
+                          </div>
+                        )}
                       </div>
-                      <h3 className="font-display text-xl text-foreground mb-2">Sin mensajes aún</h3>
-                      <p className="font-body text-sm text-muted-foreground mb-8 max-w-xs mx-auto">
-                        ¿Tienes alguna pregunta? Escríbenos directamente desde aquí.
-                      </p>
-                      <Button variant="gold" className="rounded-xl gap-2" onClick={() => setShowCompose(true)}>
-                        <Plus className="w-4 h-4" /> Escribir Mensaje
+                      <div>
+                        <p className="font-body text-sm font-medium text-foreground mb-2">Foto de Perfil</p>
+                        <Button 
+                          type="button" 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => fileInputRef.current?.click()}
+                          disabled={uploadingAvatar}
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          Cambiar Foto
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">Nombre Completo</label>
+                      <input
+                        type="text"
+                        value={settingsName}
+                        onChange={e => setSettingsName(e.target.value)}
+                        className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        placeholder="Tu nombre completo"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">Correo Electrónico</label>
+                      <input
+                        type="email"
+                        value={settingsEmail}
+                        onChange={e => setSettingsEmail(e.target.value)}
+                        className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        placeholder="tu@correo.com"
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1 px-1">Se enviará un correo de confirmación a ambas direcciones al cambiarlo.</p>
+                    </div>
+
+                    <div className="pt-4 border-t border-border">
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">Nueva Contraseña</label>
+                      <input
+                        type="password"
+                        value={settingsPassword}
+                        onChange={e => setSettingsPassword(e.target.value)}
+                        className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
+                        placeholder="Déjalo en blanco para mantener la actual"
+                      />
+                    </div>
+
+                    <div className="pt-6">
+                      <Button
+                        type="submit"
+                        className="bg-accent hover:bg-accent/90 text-white rounded-xl gap-2 w-full md:w-auto px-8"
+                        disabled={savingSettings}
+                      >
+                        {savingSettings ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : 'Guardar Cambios'}
                       </Button>
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {messages.map(msg => (
-                        <div key={msg.id} className="bg-white rounded-2xl border border-border p-6 shadow-sm space-y-4">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                                <User className="w-4 h-4 text-accent" />
-                              </div>
-                              <span className="font-display text-sm font-semibold">{msg.name || 'Consulta'}</span>
-                            </div>
-                            <span className="font-body text-[10px] text-muted-foreground">
-                              {new Date(msg.created_at || Date.now()).toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </span>
-                          </div>
-                          <div className="bg-muted/40 rounded-xl p-4 border border-border/30">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase mb-2">Tu mensaje</p>
-                            <p className="font-body text-sm text-foreground leading-relaxed">{msg.message}</p>
-                          </div>
-                          {msg.response ? (
-                            <div className="bg-accent/5 rounded-xl p-4 border border-accent/15">
-                              <div className="flex items-center gap-2 mb-2">
-                                <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center">
-                                  <CheckCircle className="w-3 h-3 text-accent" />
-                                </div>
-                                <p className="text-[10px] font-bold text-accent uppercase">Respuesta del Salón</p>
-                              </div>
-                              <p className="font-body text-sm text-foreground leading-relaxed">{msg.response}</p>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground px-1">
-                              <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0" />
-                              Esperando respuesta del equipo...
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  </form>
                 </div>
               )}
             </>

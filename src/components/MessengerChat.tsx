@@ -86,17 +86,30 @@ export function MessengerChat() {
       const { data: msgs } = await LocalDB.getMessages();
       const id = clientEmail || clientName;
       const filtered = (msgs || []).filter((m: any) =>
-        m.type === 'chat' && (m.email === id || m.toEmail === id)
+        (!m.type || m.type === 'chat' || m.type === 'web') && (m.email === id || m.toEmail === id)
       );
-      setChatHistory(filtered.map((m: any) => ({
+      
+      let newHistory: ChatMsg[] = filtered.map((m: any) => ({
         id: m.id,
         text: m.message,
         image: m.image,
         voice: m.voice,
-        sender: m.email === id ? 'me' : 'them',
-        timestamp: m.date || '',
-        status: 'delivered',
-      })));
+        sender: m.email === id ? ('me' as const) : ('them' as const),
+        timestamp: m.date || m.created_at || new Date().toISOString(),
+        status: 'delivered' as const,
+      })).sort((a: ChatMsg, b: ChatMsg) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+      
+      if (newHistory.length === 0) {
+        newHistory = [{
+          id: 'welcome',
+          text: `¡Hola${clientName ? ` ${clientName}` : ''}! 👋 Bienvenidos a Alanís Salon & Spa. ¿En qué te podemos ayudar?`,
+          sender: 'them' as const,
+          timestamp: new Date().toISOString(),
+          status: 'read' as const,
+        }];
+      }
+      
+      setChatHistory(newHistory);
     };
     fetchChat();
     const interval = setInterval(fetchChat, 4000);
@@ -117,20 +130,7 @@ export function MessengerChat() {
   const handleIdentify = () => {
     if (!clientName.trim()) return;
     setIsIdentified(true);
-    // Simulate salon greeting
-    setTimeout(() => {
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        setChatHistory(prev => [...prev, {
-          id: 'welcome',
-          text: `Hello${clientName ? `, ${clientName}` : ''}! 👋 Welcome to Alanís Salon & Spa. How can we help you today?`,
-          sender: 'them',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          status: 'read',
-        }]);
-      }, 1800);
-    }, 500);
+    // Welcome message will be handled by fetchChat if empty
   };
 
   const handleSend = async () => {
