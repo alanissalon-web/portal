@@ -149,23 +149,30 @@ const CourseDetailPage = () => {
     let embedUrl = "";
     if (url.includes('youtube.com') || url.includes('youtu.be')) {
       const id = url.includes('v=') ? url.split('v=')[1].split('&')[0] : url.split('/').pop();
-      embedUrl = `https://www.youtube.com/embed/${id}`;
+      // Remove controls, branding, related videos, keyboard controls
+      embedUrl = `https://www.youtube.com/embed/${id}?controls=0&modestbranding=1&rel=0&disablekb=1&playsinline=1&fs=0`;
     } else if (url.includes('loom.com')) {
       const id = url.split('/').pop();
-      embedUrl = `https://www.loom.com/embed/${id}`;
+      embedUrl = `https://www.loom.com/embed/${id}?hide_owner=true&hide_share=true&hide_title=true&hideEmbedTopBar=true`;
     } else if (url.includes('vimeo.com')) {
       const id = url.split('/').pop();
-      embedUrl = `https://player.vimeo.com/video/${id}`;
+      embedUrl = `https://player.vimeo.com/video/${id}?controls=0&title=0&byline=0&portrait=0&dnt=1`;
     }
 
     if (embedUrl) {
       return (
-        <iframe 
-          className="w-full aspect-video rounded-3xl"
-          src={embedUrl} 
-          allowFullScreen
-          title="Lesson Video"
-        />
+        <div className="relative w-full aspect-[9/16] md:aspect-video rounded-3xl overflow-hidden group">
+          <iframe 
+            className="w-full h-full absolute inset-0"
+            src={embedUrl} 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen={false}
+            title="Lesson Video"
+          />
+          {/* Transparent overlays to block direct clicks on logo/title while allowing play/pause in center */}
+          <div className="absolute inset-x-0 top-0 h-16 bg-transparent z-10" />
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-transparent z-10" />
+        </div>
       );
     }
 
@@ -365,38 +372,62 @@ const CourseDetailPage = () => {
                             </div>
                           </button>
                           
-                          {/* Accordion Content */}
-                          {isUnlocked && activeLesson === i && (
-                            <div className="px-4 pb-4 pl-[4.5rem] animate-fade-in space-y-6">
-                              {/* Video Player for this module */}
-                              <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 max-w-lg mx-auto" id={`player-${i}`}>
-                                {lesson.video_url ? (
-                                  renderVideo(lesson.video_url)
-                                ) : (
-                                  <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
-                                    <Video className="w-12 h-12 mb-2" />
-                                    <p className="font-display text-sm">Video en Preparación...</p>
+                          {/* Accordion Content with Smooth Collapse Animation */}
+                          <div 
+                            className={`grid transition-[grid-template-rows,opacity,margin] duration-500 ease-in-out ${
+                              isUnlocked && activeLesson === i 
+                                ? 'grid-rows-[1fr] opacity-100 mt-2' 
+                                : 'grid-rows-[0fr] opacity-0 mt-0 pointer-events-none'
+                            }`}
+                          >
+                            <div className="overflow-hidden">
+                              <div className="px-4 pb-4 pl-[4.5rem] space-y-6 pt-2">
+                                <div className="flex flex-col md:flex-row gap-6 items-stretch">
+                                  {/* Left: Video Player */}
+                                  <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 w-full md:w-1/2 lg:w-[350px] shrink-0" id={`player-${i}`}>
+                                    {lesson.video_url ? (
+                                      /* Render video only when open, fallback to fixed aspect ratio to prevent snap */
+                                      (isUnlocked && activeLesson === i) ? renderVideo(lesson.video_url) : <div className="aspect-[9/16] md:aspect-video bg-black"></div>
+                                    ) : (
+                                      <div className="aspect-[9/16] md:aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
+                                        <Video className="w-12 h-12 mb-2" />
+                                        <p className="font-display text-sm">Video en Preparación...</p>
+                                      </div>
+                                    )}
                                   </div>
-                                )}
-                              </div>
 
-                              <div>
-                                <p className="font-body text-muted-foreground text-sm leading-relaxed mb-4 whitespace-pre-wrap">
-                                  {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
-                                </p>
-                                {lesson.pdf_url && (
-                                  <a 
-                                    href={lesson.pdf_url} 
-                                    download={lesson.pdf_name || 'Material.pdf'} 
-                                    className="inline-flex items-center gap-2 bg-white text-accent hover:bg-accent/5 px-4 py-2 rounded-lg font-bold text-xs transition-colors border border-accent/20 shadow-sm"
-                                  >
-                                    <Download className="w-3.5 h-3.5" /> 
-                                    Descargar {lesson.pdf_name || 'Material'}
-                                  </a>
-                                )}
+                                  {/* Right: Material Download Section */}
+                                  <div className="w-full md:flex-1 bg-accent/5 border border-accent/10 rounded-2xl p-6 flex flex-col justify-center items-center text-center">
+                                    <h4 className="font-display text-lg font-medium mb-2 text-foreground">Material Adjunto</h4>
+                                    {lesson.pdf_url ? (
+                                      <>
+                                        <p className="font-body text-xs text-muted-foreground mb-4">Descarga el documento de apoyo para este módulo.</p>
+                                        <a 
+                                          href={lesson.pdf_url} 
+                                          download={lesson.pdf_name || 'Material.pdf'} 
+                                          className="inline-flex items-center justify-center gap-2 bg-accent text-white hover:bg-accent/90 px-6 py-3 rounded-full font-bold text-sm transition-colors shadow-sm w-full max-w-[200px]"
+                                        >
+                                          <Download className="w-4 h-4" /> 
+                                          Descargar PDF
+                                        </a>
+                                      </>
+                                    ) : (
+                                      <p className="font-body text-sm text-muted-foreground">
+                                        No hay material adicional para este módulo.
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {/* Bottom: General Content Text */}
+                                <div className="pt-2">
+                                  <p className="font-body text-foreground/80 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
+                                  </p>
+                                </div>
                               </div>
                             </div>
-                          )}
+                          </div>
                         </div>
                       ))
                     ) : (
