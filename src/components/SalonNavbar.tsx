@@ -117,7 +117,7 @@ export function SalonNavbar() {
                 </Button>
               </a>
               {loggedUser ? (
-                <Link to="/portal" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg overflow-hidden border-2 border-accent" title="Client Portal">
+                <Link to={isAdmin ? "/admin" : "/portal"} className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg overflow-hidden border-2 border-accent" title={isAdmin ? "Panel de Administración" : "Portal de Cliente"}>
                   {loggedUser.user_metadata?.avatar_url ? (
                     <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
@@ -200,19 +200,17 @@ export function SalonNavbar() {
               </p>
               <div className="flex justify-center pt-2">
                 {loggedUser ? (
-                  <Link to="/portal" onClick={() => setMobileOpen(false)} className="flex items-center gap-4 bg-accent/10 p-4 rounded-xl border border-accent/20">
-                    <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white overflow-hidden shadow-sm shrink-0">
+                  <Link to={isAdmin ? "/admin" : "/portal"} onClick={() => setMobileOpen(false)} className="flex items-center gap-4 bg-accent/10 p-4 rounded-xl border border-accent/20">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-accent flex items-center justify-center">
                       {loggedUser.user_metadata?.avatar_url ? (
                         <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                       ) : (
-                        <User className="w-6 h-6" />
+                        <User className="w-6 h-6 text-white" />
                       )}
                     </div>
                     <div>
-                      <p className="font-display text-lg text-charcoal">
-                        {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')[0]}
-                      </p>
-                      <p className="font-body text-xs text-charcoal/60">Portal de Cliente</p>
+                      <p className="font-display text-xl text-charcoal">{loggedUser.user_metadata?.full_name || loggedUser.email}</p>
+                      <p className="font-body text-xs text-charcoal/60">{isAdmin ? "Panel de Administración" : "Portal de Cliente"}</p>
                     </div>
                   </Link>
                 ) : (

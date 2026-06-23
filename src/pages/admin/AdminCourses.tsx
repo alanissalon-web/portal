@@ -56,6 +56,7 @@ const AdminCourses = () => {
     video_url: '',
     content: ''
   });
+  const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
   const { toast } = useToast();
 
   const fetchCourses = async () => {
@@ -71,12 +72,14 @@ const AdminCourses = () => {
     setEditing(null);
     setForm(empty);
     setTopicInput('');
+    setEditingModuleIndex(null);
     setCreating(true);
   };
 
   const startEdit = (c: Course) => {
     setCreating(false);
     setEditing(c);
+    setEditingModuleIndex(null);
     
     const parsedCurriculum = Array.isArray(c.curriculum) 
       ? c.curriculum 
@@ -86,7 +89,7 @@ const AdminCourses = () => {
     
     const topicsArray = Array.isArray(c.topics) 
       ? c.topics 
-      : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+      : (typeof c.topics === 'string' ? (c.topics as any).split(',') : []);
     
     setTopicInput(topicsArray.join(', '));
   };
@@ -283,12 +286,23 @@ const AdminCourses = () => {
                     <p className="font-body text-sm font-medium truncate">{curr.title}</p>
                     <p className="text-[10px] text-muted-foreground uppercase">{curr.module} · {curr.lessons} lecciones · {curr.duration}</p>
                   </div>
-                  <Button 
-                    variant="ghost" size="icon" className="text-destructive h-8 w-8"
-                    onClick={() => setForm(p => ({ ...p, curriculum: p.curriculum.filter((_, i) => i !== idx) }))}
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button 
+                      variant="ghost" size="icon" className="text-muted-foreground hover:text-accent h-8 w-8"
+                      onClick={() => {
+                        setEditingModuleIndex(idx);
+                        setNewModule({ ...curr, video_url: curr.video_url || '', content: curr.content || '' });
+                      }}
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button 
+                      variant="ghost" size="icon" className="text-destructive h-8 w-8"
+                      onClick={() => setForm(p => ({ ...p, curriculum: p.curriculum.filter((_, i) => i !== idx) }))}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               {form.curriculum.length === 0 && (
@@ -337,15 +351,44 @@ const AdminCourses = () => {
                 </div>
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
+                {editingModuleIndex !== null && (
+                  <Button 
+                    type="button" 
+                    variant="ghost"
+                    className="rounded-lg h-9 gap-2 text-xs"
+                    onClick={() => {
+                      setEditingModuleIndex(null);
+                      setNewModule({ 
+                        module: `Módulo ${form.curriculum.length + 1}`, 
+                        title: '', 
+                        lessons: 1, 
+                        duration: '30m',
+                        video_url: '',
+                        content: ''
+                      });
+                    }}
+                  >
+                    Cancelar Edición
+                  </Button>
+                )}
                 <Button 
                   type="button" 
                   className="rounded-lg h-9 gap-2 text-xs bg-accent hover:bg-accent/90"
                   onClick={() => {
                     if (!newModule.title) return;
-                    setForm(p => ({ ...p, curriculum: [...p.curriculum, newModule] }));
+                    if (editingModuleIndex !== null) {
+                      setForm(p => {
+                        const newCurriculum = [...p.curriculum];
+                        newCurriculum[editingModuleIndex] = newModule;
+                        return { ...p, curriculum: newCurriculum };
+                      });
+                      setEditingModuleIndex(null);
+                    } else {
+                      setForm(p => ({ ...p, curriculum: [...p.curriculum, newModule] }));
+                    }
                     setNewModule({ 
-                      module: `Módulo ${form.curriculum.length + 2}`, 
+                      module: `Módulo ${form.curriculum.length + (editingModuleIndex !== null ? 1 : 2)}`, 
                       title: '', 
                       lessons: 1, 
                       duration: '30m',
@@ -354,7 +397,7 @@ const AdminCourses = () => {
                     });
                   }}
                 >
-                  <Plus className="w-3.5 h-3.5" /> Añadir Lección al Temario
+                  <Plus className="w-4 h-4" /> {editingModuleIndex !== null ? 'Guardar Cambios' : 'Añadir Módulo'}
                 </Button>
               </div>
             </div>
@@ -394,13 +437,13 @@ const AdminCourses = () => {
               </div>
               <div className="flex flex-wrap gap-2 mb-4">
                 {(() => {
-                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? (c.topics as any).split(',') : []);
                   return topicsArray.slice(0, 3).map((t: string) => (
                     <span key={t} className="bg-black/5 px-2 py-1 rounded text-[10px] font-medium text-muted-foreground">{t.trim()}</span>
                   ));
                 })()}
                 {(() => {
-                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? c.topics.split(',') : []);
+                  const topicsArray = Array.isArray(c.topics) ? c.topics : (typeof c.topics === 'string' ? (c.topics as any).split(',') : []);
                   return topicsArray.length > 3 ? (
                     <span className="text-[10px] text-muted-foreground font-medium">+{topicsArray.length - 3}</span>
                   ) : null;
