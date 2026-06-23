@@ -243,25 +243,68 @@ const CourseDetailPage = () => {
                     )}
                   </div>
                 )}
-                {isUnlocked ? (
-                  /* Course Player */
-                  course.curriculum[activeLesson] && (
-                    <div className="p-4 md:p-6 pb-0 animate-reveal-up" id="player">
-                      <div className="bg-black rounded-[2rem] overflow-hidden shadow-md ring-1 ring-border/50">
-                        {course.curriculum[activeLesson].video_url ? (
-                          renderVideo(course.curriculum[activeLesson].video_url!)
-                        ) : (
-                          <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
-                            <Video className="w-20 h-20 mb-4" />
-                            <p className="font-display text-lg">Preparando Video...</p>
-                          </div>
-                        )}
+                {/* Course Info */}
+                <div className={`p-8 md:p-12 pb-4 ${isUnlocked ? 'flex flex-col xl:flex-row gap-8 items-center' : 'space-y-6'}`}>
+                  {/* Left Side: Text Info */}
+                  <div className={`space-y-6 ${isUnlocked ? 'flex-1' : ''}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
+                      </span>
+                      {course.badge && (
+                        <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                          {course.badge}
+                        </span>
+                      )}
+                    </div>
+                    
+                    <h1 className="font-display text-4xl md:text-5xl font-light text-foreground leading-[1.1]">
+                      {course.title}
+                    </h1>
+                    
+                    <p className="font-body text-lg text-muted-foreground leading-relaxed">
+                      {course.description}
+                    </p>
+
+                    <div className="flex flex-wrap gap-8 py-6 border-y border-border">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                          <Clock className="w-5 h-5 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-display text-sm font-medium">{course.duration}</p>
+                          <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                          <GraduationCap className="w-5 h-5 text-accent" />
+                        </div>
+                        <div>
+                          <p className="font-display text-sm font-medium">{course.level}</p>
+                          <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
+                        </div>
                       </div>
                     </div>
-                  )
-                ) : (
-                  /* Image */
-                  <div className="p-4 md:p-6 pb-0">
+                  </div>
+
+                  {/* Right Side: Image (Only when unlocked, placed next to text) */}
+                  {isUnlocked && (
+                    <div className="w-full xl:w-[40%] shrink-0">
+                      <div className="aspect-[4/3] rounded-[2rem] overflow-hidden shadow-sm relative">
+                        <img 
+                          src={course.image} 
+                          alt={course.title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* If NOT unlocked, show image full width below info */}
+                {!isUnlocked && (
+                  <div className="px-4 md:px-6 pb-0">
                     <div className="aspect-[16/10] rounded-[2rem] overflow-hidden shadow-sm relative">
                       <img 
                         src={course.image} 
@@ -272,50 +315,8 @@ const CourseDetailPage = () => {
                   </div>
                 )}
 
-                {/* Course Info */}
-                <div className="p-8 md:p-12 pt-8 md:pt-10 space-y-6">
-                  <div className="flex items-center gap-3">
-                  <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                    {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
-                  </span>
-                  {course.badge && (
-                    <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {course.badge}
-                    </span>
-                  )}
-                </div>
-                
-                <h1 className="font-display text-4xl md:text-5xl font-light text-foreground leading-[1.1]">
-                  {course.title}
-                </h1>
-                
-                <p className="font-body text-lg text-muted-foreground leading-relaxed">
-                  {course.description}
-                </p>
-
-                <div className="flex flex-wrap gap-8 pt-6 border-t border-border">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-display text-sm font-medium">{course.duration}</p>
-                      <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
-                      <GraduationCap className="w-5 h-5 text-accent" />
-                    </div>
-                    <div>
-                      <p className="font-display text-sm font-medium">{course.level}</p>
-                      <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Curriculum Section merged into Info Box */}
-                <div className="pt-6 mt-6 border-t border-border">
+                {/* Curriculum Section */}
+                <div className="p-8 md:p-12 pt-8 mt-2">
                   <div className="mb-8">
                     <h3 className="font-display text-2xl font-medium">Contenido del Curso</h3>
                     <p className="font-body text-sm text-muted-foreground mt-1">
@@ -341,7 +342,9 @@ const CourseDetailPage = () => {
                                 return;
                               }
                               setActiveLesson(i);
-                              document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
+                              setTimeout(() => {
+                                document.getElementById(`player-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }, 100);
                             }}
                             className="w-full text-left p-4 group flex items-start gap-4"
                           >
@@ -364,20 +367,34 @@ const CourseDetailPage = () => {
                           
                           {/* Accordion Content */}
                           {isUnlocked && activeLesson === i && (
-                            <div className="px-4 pb-4 pl-[4.5rem] animate-fade-in">
-                              <p className="font-body text-muted-foreground text-sm leading-relaxed mb-4 whitespace-pre-wrap">
-                                {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
-                              </p>
-                              {lesson.pdf_url && (
-                                <a 
-                                  href={lesson.pdf_url} 
-                                  download={lesson.pdf_name || 'Material.pdf'} 
-                                  className="inline-flex items-center gap-2 bg-white text-accent hover:bg-accent/5 px-4 py-2 rounded-lg font-bold text-xs transition-colors border border-accent/20 shadow-sm"
-                                >
-                                  <Download className="w-3.5 h-3.5" /> 
-                                  Descargar {lesson.pdf_name || 'Material'}
-                                </a>
-                              )}
+                            <div className="px-4 pb-4 pl-[4.5rem] animate-fade-in space-y-6">
+                              {/* Video Player for this module */}
+                              <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 max-w-lg mx-auto" id={`player-${i}`}>
+                                {lesson.video_url ? (
+                                  renderVideo(lesson.video_url)
+                                ) : (
+                                  <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
+                                    <Video className="w-12 h-12 mb-2" />
+                                    <p className="font-display text-sm">Video en Preparación...</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div>
+                                <p className="font-body text-muted-foreground text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+                                  {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
+                                </p>
+                                {lesson.pdf_url && (
+                                  <a 
+                                    href={lesson.pdf_url} 
+                                    download={lesson.pdf_name || 'Material.pdf'} 
+                                    className="inline-flex items-center gap-2 bg-white text-accent hover:bg-accent/5 px-4 py-2 rounded-lg font-bold text-xs transition-colors border border-accent/20 shadow-sm"
+                                  >
+                                    <Download className="w-3.5 h-3.5" /> 
+                                    Descargar {lesson.pdf_name || 'Material'}
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -390,7 +407,6 @@ const CourseDetailPage = () => {
                     )}
                   </div>
                 </div>
-              </div>
             </div>
 
             </div>

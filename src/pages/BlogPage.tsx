@@ -1,8 +1,24 @@
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { SalonNavbar } from '@/components/SalonNavbar';
 import { SalonFooter } from '@/components/SalonFooter';
 import salonLoungeImage from '@/assets/salon-lounge-real.jpg';
+import { LocalDB } from '@/services/LocalDatabase';
+import { ArrowRight, BookOpen } from 'lucide-react';
 
 const BlogPage = () => {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      const { data } = await LocalDB.getBlogs(true);
+      setBlogs(data || []);
+      setLoading(false);
+    };
+    fetchBlogs();
+  }, []);
+
   return (
     <div className="min-h-screen">
       <SalonNavbar />
@@ -22,14 +38,52 @@ const BlogPage = () => {
         </div>
       </section>
       
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-background">
         <div className="container mx-auto px-6 max-w-7xl">
-          <div className="text-center py-16 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
-            <h2 className="font-display text-3xl font-medium mb-4">Próximamente</h2>
-            <p className="font-body text-muted-foreground max-w-xl mx-auto text-lg leading-relaxed">
-              Estamos preparando artículos increíbles para ayudarte a cuidar tu cabello en casa. ¡Vuelve pronto!
-            </p>
-          </div>
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
+            </div>
+          ) : blogs.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {blogs.map((blog) => (
+                <Link to={`/blog/${blog.slug}`} key={blog.id} className="group flex flex-col bg-white rounded-3xl border border-border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                  <div className="aspect-[4/3] overflow-hidden relative bg-accent/5">
+                    {blog.image ? (
+                      <img 
+                        src={blog.image} 
+                        alt={blog.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-accent/20">
+                        <BookOpen className="w-12 h-12" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-8 flex flex-col flex-1">
+                    <h3 className="font-display text-2xl font-medium mb-3 group-hover:text-accent transition-colors line-clamp-2">
+                      {blog.title}
+                    </h3>
+                    <p className="font-body text-muted-foreground text-sm leading-relaxed mb-6 line-clamp-3 flex-1">
+                      {blog.description}
+                    </p>
+                    <div className="flex items-center gap-2 text-accent font-bold text-xs uppercase tracking-widest mt-auto">
+                      Leer Artículo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-16 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
+              <BookOpen className="w-12 h-12 text-accent/30 mx-auto mb-4" />
+              <h2 className="font-display text-3xl font-medium mb-4">Próximamente</h2>
+              <p className="font-body text-muted-foreground max-w-xl mx-auto text-lg leading-relaxed">
+                Estamos preparando artículos increíbles para ayudarte a cuidar tu cabello en casa. ¡Vuelve pronto!
+              </p>
+            </div>
+          )}
         </div>
       </section>
 

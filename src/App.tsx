@@ -11,6 +11,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index.tsx";
 import AboutPage from "./pages/AboutPage.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
+import BlogPostPage from "./pages/BlogPostPage.tsx";
 import ServicesPage from "./pages/ServicesPage.tsx";
 import ExtensionsPage from "./pages/ExtensionsPage.tsx";
 import HairLossPage from "./pages/HairLossPage.tsx";
@@ -78,6 +79,7 @@ const App = () => (
             <Route path="/academy" element={<AcademyPage />} />
             <Route path="/academy/:courseId" element={<CourseDetailPage />} />
             <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/portal" element={<ClientPortalPage />} />
 
