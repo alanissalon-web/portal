@@ -362,6 +362,41 @@ export const LocalDB = {
 
 
 
+  // --- Blogs ---
+  getBlogs: async (onlyPublished = false) => {
+    let query = supabase.from('blogs').select('*').order('created_at', { ascending: false });
+    if (onlyPublished) {
+      query = query.eq('status', 'published');
+    }
+    const { data, error } = await query;
+    return { data: data || [], error };
+  },
+  getBlogBySlug: async (slug: string) => {
+    const { data, error } = await supabase.from('blogs').select('*').eq('slug', slug).single();
+    return { data, error };
+  },
+  saveBlog: async (blog: any) => {
+    // Si no tiene slug, generarlo desde el título
+    if (!blog.slug && blog.title) {
+      blog.slug = blog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    }
+    
+    // Si es actualización
+    if (blog.id) {
+      blog.updated_at = new Date().toISOString();
+      const { error } = await supabase.from('blogs').update(blog).eq('id', blog.id);
+      return { error };
+    } else {
+      // Es nuevo
+      const { error } = await supabase.from('blogs').insert(blog);
+      return { error };
+    }
+  },
+  deleteBlog: async (id: string) => {
+    const { error } = await supabase.from('blogs').delete().eq('id', id);
+    return { error };
+  },
+
   // --- Auth ---
   signUp: async (email: string, pass: string) => {
     try {
