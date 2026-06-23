@@ -71,7 +71,7 @@ const AdminLogin = () => {
         });
         if (error) {
           setClientError(error.message === 'User already registered'
-            ? 'Este email ya tiene cuenta. Inicia sesión.'
+            ? 'This email already has an account. Sign in.'
             : error.message);
           setClientLoading(false);
           return;
@@ -88,9 +88,9 @@ const AdminLogin = () => {
         });
         if (error) {
           setClientError(error.message === 'Invalid login credentials'
-            ? 'Email o contraseña incorrectos'
+            ? 'Incorrect email or password'
             : error.message === 'Email not confirmed'
-            ? 'Debes confirmar tu correo antes de iniciar sesión. Revisa tu bandeja de entrada.'
+            ? 'You must confirm your email before signing in. Check your inbox.'
             : error.message);
           setClientLoading(false);
           return;
@@ -98,7 +98,7 @@ const AdminLogin = () => {
       }
       navigate('/portal');
     } catch (err: any) {
-      setClientError(err?.message || 'Error inesperado');
+      setClientError(err?.message || 'Unexpected error');
       setClientLoading(false);
     }
   };
@@ -134,7 +134,7 @@ const AdminLogin = () => {
             }`}
           >
             <GraduationCap className="w-4 h-4" />
-            Clientes
+            Clients
           </button>
         </div>
 
@@ -143,7 +143,7 @@ const AdminLogin = () => {
           <form onSubmit={handleAdminSubmit} className="bg-card rounded-2xl p-8 shadow-xl space-y-5">
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <Lock className="w-3.5 h-3.5" />
-              <span className="font-body text-xs uppercase tracking-widest">Acceso Administrativo</span>
+              <span className="font-body text-xs uppercase tracking-widest">Admin Access</span>
             </div>
             {adminError && (
               <div className="flex items-center gap-2 bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm">
@@ -163,7 +163,7 @@ const AdminLogin = () => {
               />
             </div>
             <div>
-              <label className="font-body text-sm text-foreground block mb-1.5">Contraseña</label>
+              <label className="font-body text-sm text-foreground block mb-1.5">Password</label>
               <input
                 type="password"
                 value={adminPassword}
@@ -174,7 +174,7 @@ const AdminLogin = () => {
               />
             </div>
             <Button type="submit" variant="default" size="lg" className="w-full" disabled={adminLoading}>
-              {adminLoading ? 'Procesando...' : 'Ingresar al Panel'}
+              {adminLoading ? 'Processing...' : 'Login to Dashboard'}
               <ArrowRight className="w-4 h-4" />
             </Button>
           </form>
@@ -186,7 +186,7 @@ const AdminLogin = () => {
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <GraduationCap className="w-3.5 h-3.5" />
               <span className="font-body text-xs uppercase tracking-widest">
-                {clientMode === 'login' ? 'Portal de Cliente' : 'Crear Cuenta'}
+                {clientMode === 'login' ? 'Client Portal' : 'Create Account'}
               </span>
             </div>
 
@@ -199,7 +199,7 @@ const AdminLogin = () => {
                   clientMode === 'login' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Iniciar Sesión
+                Sign In
               </button>
               <button
                 type="button"
@@ -208,7 +208,7 @@ const AdminLogin = () => {
                   clientMode === 'register' ? 'bg-white shadow text-foreground' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                Registrarse
+                Sign Up
               </button>
             </div>
 
@@ -231,7 +231,7 @@ const AdminLogin = () => {
                 />
               </div>
               <div>
-                <label className="font-body text-sm text-foreground block mb-1.5">Contraseña</label>
+                <label className="font-body text-sm text-foreground block mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -251,7 +251,7 @@ const AdminLogin = () => {
                   </button>
                 </div>
                 {clientMode === 'register' && (
-                  <p className="text-[10px] text-muted-foreground mt-1">Mínimo 6 caracteres</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Minimum 6 characters</p>
                 )}
               </div>
 
@@ -261,16 +261,16 @@ const AdminLogin = () => {
                 disabled={clientLoading}
               >
                 {clientLoading
-                  ? 'Procesando...'
-                  : clientMode === 'login' ? 'Ingresar al Portal' : 'Crear mi Cuenta'}
+                  ? 'Processing...'
+                  : clientMode === 'login' ? 'Enter Portal' : 'Create My Account'}
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </form>
 
             <p className="text-center font-body text-xs text-muted-foreground pt-2 leading-relaxed">
               {clientMode === 'login'
-                ? <>¿No tienes cuenta? <button type="button" onClick={() => setClientMode('register')} className="text-accent hover:underline font-semibold">Regístrate gratis</button></>
-                : <>¿Ya tienes cuenta? <button type="button" onClick={() => setClientMode('login')} className="text-accent hover:underline font-semibold">Inicia sesión</button></>
+                ? <>Don't have an account? <button type="button" onClick={() => setClientMode('register')} className="text-accent hover:underline font-semibold">Sign up for free</button></>
+                : <>Already have an account? <button type="button" onClick={() => setClientMode('login')} className="text-accent hover:underline font-semibold">Sign in</button></>
               }
             </p>
           </div>

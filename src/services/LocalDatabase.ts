@@ -434,7 +434,14 @@ export const LocalDB = {
     return data ? JSON.parse(data) : null;
   },
   logout: async () => {
-    await supabase.auth.signOut();
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await supabase.auth.signOut();
+      }
+    } catch (err) {
+      console.error('Error during logout:', err);
+    }
     localStorage.removeItem(STORAGE_KEYS.AUTH);
   }
 };
