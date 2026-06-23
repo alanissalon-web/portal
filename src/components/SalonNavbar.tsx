@@ -117,12 +117,21 @@ export function SalonNavbar() {
                 </Button>
               </a>
               {loggedUser ? (
-                <Link to={isAdmin ? "/admin" : "/portal"} className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg overflow-hidden border-2 border-accent" title={isAdmin ? "Panel de Administración" : "Portal de Cliente"}>
-                  {loggedUser.user_metadata?.avatar_url ? (
-                    <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-                  ) : (
-                    <User className="w-5 h-5 text-white" />
-                  )}
+                <Link 
+                  to={isAdmin ? "/admin" : "/portal"} 
+                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg border-2 border-accent" 
+                  title={isAdmin ? "Panel de Administración" : "Portal de Cliente"}
+                >
+                  <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-white/20">
+                    {loggedUser.user_metadata?.avatar_url ? (
+                      <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
+                  </div>
+                  <span className="font-body text-xs font-bold text-white max-w-[100px] truncate">
+                    {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')[0] || 'Mi Cuenta'}
+                  </span>
                 </Link>
               ) : (
                 <Link to="/admin/login#client" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Login">
