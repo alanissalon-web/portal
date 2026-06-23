@@ -140,7 +140,7 @@ export function MessengerChat() {
       id: Date.now().toString(),
       text: message,
       sender: 'me',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: new Date().toISOString(),
       status: 'sent',
     };
     setChatHistory(prev => [...prev, newMsg]);
@@ -166,7 +166,7 @@ export function MessengerChat() {
         id: `reply-${Date.now()}`,
         text: "Thank you for reaching out! ✨ A member of our team will get back to you shortly. You can also call us at (713) 524-2610.",
         sender: 'them',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date().toISOString(),
         status: 'read',
       }]);
     }, 4000);
@@ -179,7 +179,7 @@ export function MessengerChat() {
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = reader.result as string;
-      const newMsg: ChatMsg = { id: Date.now().toString(), image: base64, sender: 'me', timestamp: 'Now', status: 'sent' };
+      const newMsg: ChatMsg = { id: Date.now().toString(), image: base64, sender: 'me', timestamp: new Date().toISOString(), status: 'sent' };
       setChatHistory(prev => [...prev, newMsg]);
       await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Image]', image: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
     };
@@ -199,7 +199,7 @@ export function MessengerChat() {
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64 = reader.result as string;
-          setChatHistory(prev => [...prev, { id: Date.now().toString(), voice: base64, sender: 'me', timestamp: 'Now', status: 'sent' }]);
+          setChatHistory(prev => [...prev, { id: Date.now().toString(), voice: base64, sender: 'me', timestamp: new Date().toISOString(), status: 'sent' }]);
           await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Voice Note]', voice: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
         };
         reader.readAsDataURL(audioBlob);
@@ -254,7 +254,7 @@ export function MessengerChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 60, scale: 0.95 }}
             transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] max-w-[360px] h-[500px] sm:h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80"
+            className="fixed bottom-4 left-4 right-4 sm:left-auto sm:bottom-6 sm:right-6 w-auto sm:w-[360px] max-w-[360px] h-[500px] sm:h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80 mx-auto"
           >
             {/* Header */}
             <div className="bg-charcoal px-4 py-3.5 flex items-center justify-between text-white">
