@@ -57,6 +57,9 @@ const AdminLogin = () => {
     setClientLoading(true);
 
     try {
+      // Al iniciar como cliente, debemos borrar cualquier rastro de sesión Admin local
+      await LocalDB.logout();
+      
       if (clientMode === 'register') {
         const { supabase: sb } = await import('@/lib/supabase');
         const { error } = await sb.auth.signUp({

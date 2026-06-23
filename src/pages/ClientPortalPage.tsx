@@ -95,24 +95,33 @@ export default function ClientPortalPage() {
       if (!isMounted) return;
       setDataLoading(true);
       try {
-        const { data: enrollIds } = await LocalDB.getStudentEnrollments(student.id);
-        const { data: allCourses } = await LocalDB.getCourses();
-        const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
-        
-        const { data: cFavIds } = await LocalDB.getCourseFavorites(student.id);
-        const courseFavs = (allCourses || []).filter((c: any) => (cFavIds || []).includes(c.id));
+        const [
+          { data: enrollIds },
+          { data: allCourses },
+          { data: cFavIds },
+          { data: pFavIds },
+          { data: allProducts },
+          { data: resData },
+          { data: msgData }
+        ] = await Promise.all([
+          LocalDB.getStudentEnrollments(student.id),
+          LocalDB.getCourses(),
+          LocalDB.getCourseFavorites(student.id),
+          LocalDB.getProductFavorites(student.id),
+          LocalDB.getProducts(),
+          LocalDB.getProductReservations(student.id),
+          LocalDB.getMessages()
+        ]);
 
-        const { data: pFavIds } = await LocalDB.getProductFavorites(student.id);
-        const { data: allProducts } = await LocalDB.getProducts();
+        const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
+        const courseFavs = (allCourses || []).filter((c: any) => (cFavIds || []).includes(c.id));
         const prodFavs = (allProducts || []).filter((p: any) => (pFavIds || []).includes(p.id));
 
-        const { data: resData } = await LocalDB.getProductReservations(student.id);
         const mappedRes = (resData || []).map((res: any) => {
           const prod = (allProducts || []).find((p: any) => p.id === res.product_id);
           return { ...res, productName: prod?.name || 'Producto', productPrice: prod?.price || 0 };
         });
 
-        const { data: msgData } = await LocalDB.getMessages();
         const idStr = student.email;
         const filteredMsgs = (msgData || []).filter((m: any) =>
           (m.type === 'chat' || !m.type) && (m.email === idStr || m.toEmail === idStr)

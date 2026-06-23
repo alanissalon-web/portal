@@ -31,6 +31,7 @@ import AdminMessages from "./pages/admin/AdminMessages.tsx";
 import AdminAnalytics from "./pages/admin/AdminAnalytics.tsx";
 import AdminSettings from "./pages/admin/AdminSettings.tsx";
 import AdminBookings from "./pages/admin/AdminBookings.tsx";
+import AdminBlog from "./pages/admin/AdminBlog.tsx";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { CustomCursor } from "@/components/CustomCursor";
 import { CMSProvider } from "@/contexts/CMSContext";
@@ -91,6 +92,7 @@ const App = () => (
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="bookings" element={<AdminBookings />} />
+              <Route path="blog" element={<AdminBlog />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

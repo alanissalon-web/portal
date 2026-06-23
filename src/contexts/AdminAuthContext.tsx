@@ -33,12 +33,33 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const session = LocalDB.getSession();
-    if (session) {
-      setUser(session.user);
-      setIsAdmin(session.isAdmin);
-    }
-    setLoading(false);
+    const checkSession = async () => {
+      const { data: { session: supaSession } } = await supabase.auth.getSession();
+      const localSession = LocalDB.getSession();
+      
+      // Si hay sesión local pero no hay sesión en Supabase (o viceversa), o si los IDs no coinciden
+      if (!supaSession && localSession) {
+        await LocalDB.logout();
+        setUser(null);
+        setIsAdmin(false);
+      } else if (localSession) {
+        setUser(localSession.user);
+        setIsAdmin(localSession.isAdmin);
+      }
+      setLoading(false);
+    };
+
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        LocalDB.logout();
+        setUser(null);
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const signIn = async (email: string, password: string) => {

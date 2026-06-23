@@ -20,44 +20,7 @@ interface CourseDisplay {
   badge?: string | null;
 }
 
-const courses: CourseDisplay[] = [
-  {
-    id: 'extensions-masterclass',
-    title: 'Extensions Masterclass',
-    type: 'On-Demand',
-    duration: '6 hours',
-    level: 'Intermediate',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1603381349501-NID1QSSHZLWD7A894B3U/Micro+Points++.jpg',
-    description: 'Learn keratin bonding, tape-ins, microlinks, and Mago techniques from a certified Great Lengths educator.',
-    topics: ['Keratin Fusion', 'Tape-In Application', 'Color Matching', 'Client Consultation'],
-    price: '$299',
-    badge: 'Best Seller',
-  },
-  {
-    id: 'color-balayage',
-    title: 'Color Science & Balayage',
-    type: 'On-Demand',
-    duration: '4 hours',
-    level: 'Advanced',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712180693376-7W0S5SXPIT7GDU3S4Q3G/IMG_5139.jpeg',
-    description: 'Master the art of dimensional color, balayage, and corrective color techniques.',
-    topics: ['Color Theory', 'Balayage Techniques', 'Toner Formulation', 'Color Correction'],
-    price: '$249',
-    badge: 'New',
-  },
-  {
-    id: 'hair-loss',
-    title: 'Hair Loss Solutions',
-    type: 'On-Demand',
-    duration: '3 hours',
-    level: 'All Levels',
-    image: 'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712181291533-HY1UX4BEZ8J9BVSK20V3/IMG_6453.jpeg',
-    description: 'Understanding thinning hair, scalp analysis, and non-surgical volumizing solutions.',
-    topics: ['Scalp Analysis', 'Micro Point', 'Toppers & Wigs', 'Client Care'],
-    price: '$199',
-    badge: null,
-  },
-];
+// Cursos se cargan desde LocalDB y Supabase
 
 const liveClasses = [
   { title: 'Live Q&A: Extension Troubleshooting', date: 'Every 2nd Thursday', time: '7:00 PM CST', price: 'Free with any course' },

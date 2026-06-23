@@ -221,8 +221,8 @@ export const LocalDB = {
   enrollStudentInCourse: async (userId: string, courseId: string) => {
     const { error } = await supabase
       .from('enrollments')
-      .upsert({ user_id: userId, course_id: courseId });
-    if (error) {
+      .insert({ user_id: userId, course_id: courseId });
+    if (error && error.code !== '23505') { // 23505 is unique constraint violation (already enrolled)
       console.error('Error enrolling student:', error);
       return { error };
     }
