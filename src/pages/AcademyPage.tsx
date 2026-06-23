@@ -53,7 +53,7 @@ const AcademyPage = () => {
             {[
               { value: '3+', label: 'Expert Courses' },
               { value: '13+', label: 'Hours of Content' },
-              { value: '25+', label: 'Years Experience' },
+              { value: '100%', label: 'Premium Quality' },
               { value: '500+', label: 'Stylists Trained' },
             ].map(s => (
               <div key={s.label}>

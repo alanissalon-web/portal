@@ -99,7 +99,7 @@ export function HeroSection() {
             <EditableText 
               section="hero" 
               field="badge" 
-              defaultText="25+ Years of Excellence in Houston" 
+              defaultText="Excellence in Houston" 
               as="span"
               className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium"
             />

@@ -36,7 +36,7 @@ function AnimatedCounter({ target, suffix = '' }: { target: number; suffix?: str
 }
 
 const stats = [
-  { icon: Calendar, value: 25, suffix: '+', label: 'Years Experience' },
+  { icon: Sparkles, value: 100, suffix: '%', label: 'Premium Quality' },
   { icon: Users, value: 2400, suffix: '+', label: 'Happy Clients' },
   { icon: Award, value: 0, suffix: '', label: 'CombLine National Educator', displayValue: 'CombLine' },
   { icon: Heart, value: 0, suffix: '', label: 'Houston, TX', displayValue: 'Est. 2013' },
