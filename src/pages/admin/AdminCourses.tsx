@@ -118,10 +118,10 @@ const AdminCourses = () => {
     const response = await LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
     
     if (response?.error) {
-      toast({ title: 'Error guardando en Supabase', description: response.error.message, variant: 'destructive' });
-      // Keep it in local DB for now, but let user know
+      toast({ title: 'Error guardando', description: response.error.message || 'El archivo puede ser demasiado grande', variant: 'destructive' });
+      return; // Stop here, do not cancel or fetch courses so data is not lost
     } else {
-      toast({ title: editing ? 'Course updated' : 'Course created' });
+      toast({ title: editing ? 'Curso actualizado' : 'Curso creado' });
     }
     
     cancel();
