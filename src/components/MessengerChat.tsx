@@ -54,7 +54,7 @@ export function MessengerChat() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setLoggedUser(session.user);
-        setClientName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '');
+        setClientName(session.user.user_metadata?.full_name || session.user.email?.split('@')?.[0] || '');
         setClientEmail(session.user.email || '');
       }
       setAuthChecked(true);
@@ -62,7 +62,7 @@ export function MessengerChat() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user) {
         setLoggedUser(session.user);
-        setClientName(session.user.user_metadata?.full_name || session.user.email?.split('@')[0] || '');
+        setClientName(session.user.user_metadata?.full_name || session.user.email?.split('@')?.[0] || '');
         setClientEmail(session.user.email || '');
       } else {
         setLoggedUser(null);
@@ -221,8 +221,8 @@ export function MessengerChat() {
 
   if (location.pathname.startsWith('/admin')) return null;
 
-  const displayName = loggedUser
-    ? (loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')[0] || 'there')
+  const displayName = loggedUser 
+    ? (loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')?.[0] || 'there')
     : clientName || 'there';
 
   return (
