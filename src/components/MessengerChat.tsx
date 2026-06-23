@@ -146,7 +146,7 @@ export function MessengerChat() {
     setChatHistory(prev => [...prev, newMsg]);
     const txt = message;
     setMessage('');
-    await LocalDB.saveMessage({
+    const { error } = await LocalDB.saveMessage({
       name: clientName,
       email: clientEmail || clientName,
       message: txt,
@@ -154,6 +154,12 @@ export function MessengerChat() {
       status: 'new',
       type: 'chat',
     });
+    
+    if (error) {
+      toast({ title: 'Error', description: 'No se pudo enviar el mensaje. Verifica tu conexión.', variant: 'destructive' });
+      setSending(false);
+      return;
+    }
     // Simulate "delivered" status
     setTimeout(() => {
       setChatHistory(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m));

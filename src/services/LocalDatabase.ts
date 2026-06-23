@@ -155,17 +155,67 @@ export const LocalDB = {
     // No-op
   },
   getMessages: async () => {
-    const { data } = await supabase.from('messages').select('*');
-    return { data: data || [], error: null };
+    const { data, error } = await supabase.from('messages').select('*').order('created_at', { ascending: false });
+    if (data) {
+      data.forEach((m: any) => {
+         // Decode type & toEmail
+         if (m.phone === 'CHAT_MSG') {
+            m.type = 'chat';
+            m.phone = undefined;
+         } else if (typeof m.phone === 'string' && m.phone.startsWith('REPLY_TO:')) {
+            m.type = 'chat';
+            m.toEmail = m.phone.substring(9);
+            m.phone = undefined;
+         } else {
+            m.type = 'form';
+         }
+         
+         // Decode image & voice
+         if (typeof m.message === 'string') {
+            if (m.message.startsWith('[IMAGE]')) {
+               m.image = m.message.substring(7);
+               m.message = '[Imagen]';
+            } else if (m.message.startsWith('[VOICE]')) {
+               m.voice = m.message.substring(7);
+               m.message = '[Nota de voz]';
+            }
+         }
+      });
+    }
+    return { data, error };
   },
   saveMessage: async (msg: any) => {
+    // Encode 'type' and 'toEmail' into the 'phone' column if they are not standard columns
+    let phoneVal = msg.phone || '';
+    if (msg.type === 'chat') {
+       if (msg.toEmail) {
+          phoneVal = `REPLY_TO:${msg.toEmail}`;
+       } else {
+          phoneVal = `CHAT_MSG`;
+       }
+    } else if (msg.type === 'contact') {
+       phoneVal = msg.phone || '';
+    }
+    
+    // Encode 'image' and 'voice' into the 'message' column
+    let messageVal = msg.message;
+    if (msg.image) {
+       messageVal = `[IMAGE]${msg.image}`;
+    } else if (msg.voice) {
+       messageVal = `[VOICE]${msg.voice}`;
+    }
+    
     const newItem = { 
-      ...msg, 
-      id: msg.id || (Math.random().toString(36).substring(2) + Date.now().toString(36)),
-      status: msg.status || 'new' 
+      name: msg.name || 'Anonymous',
+      email: msg.email || 'no-email',
+      phone: phoneVal,
+      message: messageVal,
+      date: msg.date || new Date().toISOString(),
+      status: msg.status || 'new'
     };
-    const { error } = await supabase.from('messages').upsert(newItem);
-    if (error) console.error('Error saving message:', error);
+
+    const { error } = await supabase.from('messages').insert(newItem);
+    if (error) console.error("Supabase Error saving message:", error);
     return { error };
   },
   updateMessageStatus: async (id: string, status: string) => {
