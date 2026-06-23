@@ -138,33 +138,40 @@ const AdminProducts = () => {
                     try {
                       const url = new URL(form.amazon_url);
                       const parts = url.pathname.split('/');
-                      const namePart = parts.find(p => p.length > 10 && !p.includes('dp'));
+                      let namePart = parts.find(p => p.length > 10 && !p.includes('dp') && !p.includes('ref='));
                       
-                      if (namePart) {
-                        const cleanName = namePart.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        
-                        // Smart detection for Price & Description
-                        let detectedPrice = 45;
-                        const detectedDesc = `Professional product: ${cleanName}. High quality and recommended by our stylists.`;
-                        
-                        if (cleanName.toLowerCase().includes('plancha') || cleanName.toLowerCase().includes('iron')) {
-                          detectedPrice = 149;
-                        } else if (cleanName.toLowerCase().includes('dryer') || cleanName.toLowerCase().includes('secador')) {
-                          detectedPrice = 199;
-                        } else if (cleanName.toLowerCase().includes('shampoo')) {
-                          detectedPrice = 32;
+                      if (!namePart) {
+                        const dpIndex = parts.indexOf('dp');
+                        if (dpIndex !== -1 && parts[dpIndex + 1]) {
+                          namePart = 'Producto Amazon ' + parts[dpIndex + 1];
+                        } else {
+                          namePart = parts[parts.length - 1] || 'Producto Generado';
                         }
-
-                        setForm(prev => ({ 
-                          ...prev, 
-                          name: cleanName.substring(0, 50), 
-                          price: detectedPrice,
-                          description: detectedDesc,
-                          category: 'Productos en Amazon',
-                          badge: 'Amazon Choice'
-                        }));
-                        toast({ title: '¡Sincronización Mágica!', description: 'Hemos extraído nombre, precio y descripción sugerida.' });
                       }
+                      
+                      const cleanName = namePart.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                      
+                      // Smart detection for Price & Description
+                      let detectedPrice = 45;
+                      const detectedDesc = `Professional product: ${cleanName}. High quality and recommended by our stylists.`;
+                      
+                      if (cleanName.toLowerCase().includes('plancha') || cleanName.toLowerCase().includes('iron')) {
+                        detectedPrice = 149;
+                      } else if (cleanName.toLowerCase().includes('dryer') || cleanName.toLowerCase().includes('secador')) {
+                        detectedPrice = 199;
+                      } else if (cleanName.toLowerCase().includes('shampoo')) {
+                        detectedPrice = 32;
+                      }
+
+                      setForm(prev => ({ 
+                        ...prev, 
+                        name: cleanName.substring(0, 50), 
+                        price: detectedPrice,
+                        description: detectedDesc,
+                        category: 'Productos en Amazon',
+                        badge: 'Amazon Choice'
+                      }));
+                      toast({ title: '¡Sincronización Mágica!', description: 'Hemos extraído nombre, precio y descripción sugerida.' });
                     } catch (e) {
                       toast({ variant: 'destructive', title: 'Error', description: 'Revisa el link del marketplace.' });
                     }
