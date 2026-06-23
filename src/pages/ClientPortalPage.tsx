@@ -341,18 +341,28 @@ export default function ClientPortalPage() {
                 <p className="font-body text-xs text-white/40 mt-1">{student?.email}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              className="border-white/20 text-white hover:bg-white/10 gap-2 rounded-xl"
-              onClick={handleSignOut}
-            >
-              <LogOut className="w-4 h-4" />
-              Cerrar Sesión
-            </Button>
+            <div className="flex gap-3 mt-4 sm:mt-0">
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10 gap-2 rounded-xl"
+                onClick={() => setActiveTab('settings')}
+              >
+                <Settings className="w-4 h-4" />
+                Configurar Perfil
+              </Button>
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10 gap-2 rounded-xl"
+                onClick={handleSignOut}
+              >
+                <LogOut className="w-4 h-4" />
+                Cerrar Sesión
+              </Button>
+            </div>
           </div>
 
           {/* Stats row */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-10">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-10">
             {[
               { label: 'Cursos', value: courses.length, icon: GraduationCap },
               { label: 'Favoritos', value: courseFavorites.length + productFavorites.length, icon: Heart },
@@ -360,13 +370,13 @@ export default function ClientPortalPage() {
               { label: 'Compras', value: purchases.length, icon: ShoppingBag },
               { label: 'Mensajes', value: messages.length, icon: Mail },
             ].map(s => (
-              <div key={s.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-accent/15 flex items-center justify-center">
-                  <s.icon className="w-4 h-4 text-accent" />
+              <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-accent/15 flex items-center justify-center shrink-0">
+                  <s.icon className="w-3.5 h-3.5 text-accent" />
                 </div>
                 <div>
-                  <p className="font-display text-xl text-white">{s.value}</p>
-                  <p className="font-body text-[10px] text-white/40 uppercase">{s.label}</p>
+                  <p className="font-display text-lg text-white leading-none mb-1">{s.value}</p>
+                  <p className="font-body text-[9px] text-white/50 uppercase tracking-wider">{s.label}</p>
                 </div>
               </div>
             ))}
