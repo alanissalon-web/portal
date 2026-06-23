@@ -222,7 +222,12 @@ const CourseDetailPage = () => {
         >
           {/* Capa para ocultar el título de YouTube cuando está en pausa */}
           {!isPlaying && isYoutube && (
-            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black via-black/80 to-transparent z-[5] pointer-events-none" />
+            <>
+              {/* Barra negra sólida para tapar el texto */}
+              <div className="absolute top-0 left-0 right-0 h-16 bg-black z-[5] pointer-events-none" />
+              {/* Degradado suave para integrarlo con el video */}
+              <div className="absolute top-16 left-0 right-0 h-12 bg-gradient-to-b from-black to-transparent z-[5] pointer-events-none" />
+            </>
           )}
 
           {/* Botón de Play personalizado (solo se muestra cuando está pausado) */}
