@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { MessageCircle, Star, Users, Award, ChevronDown, ImagePlus } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef, useState } from 'react';
-import heroImage from '@/assets/hero-salon-real.jpg';
+import heroImage from '@/assets/hero-salon-blue.jpg';
 import { EditableText } from './cms/EditableText';
 import { EditableImage } from './cms/EditableImage';
 import { useCMS } from '@/contexts/CMSContext';
@@ -19,7 +19,7 @@ export function HeroSection() {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
 
-  const currentHeroImage = content['hero']?.['bg_image'] || heroImage;
+  const currentHeroImage = heroImage;
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
