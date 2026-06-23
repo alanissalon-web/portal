@@ -215,9 +215,34 @@ const CourseDetailPage = () => {
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             
             {/* LEFT COLUMN: Image/Player, Info */}
-            <div className="lg:col-span-7 animate-fade-in">
+            <div className={`${isUnlocked ? (course.meetLink ? 'lg:col-span-8' : 'lg:col-span-12') : 'lg:col-span-7'} transition-all duration-500 animate-fade-in`}>
               <div className="bg-white rounded-[2.5rem] border border-border shadow-xl overflow-hidden flex flex-col">
               
+                {isUnlocked && (
+                  <div className="bg-emerald-50 border-b border-emerald-100 p-4 md:px-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
+                        <CheckCircle className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-emerald-800 leading-tight">Access Granted</p>
+                        <p className="text-xs text-emerald-600 font-medium mt-0.5">
+                          {student ? 'Saved to your account' : 'Guest access (will be lost on sign out)'}
+                        </p>
+                      </div>
+                    </div>
+                    {!student && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        className="bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 rounded-xl text-xs font-bold shadow-sm h-9"
+                        onClick={() => setIsAuthModalOpen(true)}
+                      >
+                        Save to Account
+                      </Button>
+                    )}
+                  </div>
+                )}
                 {isUnlocked ? (
                   /* Course Player */
                   course.curriculum[activeLesson] && (
@@ -371,9 +396,10 @@ const CourseDetailPage = () => {
             </div>
 
             {/* RIGHT COLUMN: Unlock Form & Modules */}
-            <div className="lg:col-span-5 space-y-8 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
+            {(!isUnlocked || course.meetLink) && (
+              <div className={`${isUnlocked ? 'lg:col-span-4' : 'lg:col-span-5'} space-y-8 animate-fade-in`} style={{ animationDelay: '100ms', animationFillMode: 'both' }}>
               
-              {!isUnlocked ? (
+                {!isUnlocked && (
                 /* Unlock Form Vertical Card */
                 <div className="bg-white border border-border rounded-[2.5rem] shadow-xl overflow-hidden flex flex-col">
                   {/* Top Area: Instructions */}
@@ -460,30 +486,6 @@ const CourseDetailPage = () => {
                     </div>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-emerald-50/40 border border-emerald-200 rounded-3xl p-6 flex flex-col gap-4 shadow-xl">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                      <CheckCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-emerald-800">Access Granted</p>
-                      <p className="text-xs text-emerald-700 leading-tight mt-0.5">
-                        {student ? 'Saved to your account' : 'Guest access (will be lost on sign out)'}
-                      </p>
-                    </div>
-                  </div>
-                  {!student && (
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="border-emerald-300 text-emerald-800 hover:bg-emerald-100 h-10 rounded-xl text-xs font-bold w-full"
-                      onClick={() => setIsAuthModalOpen(true)}
-                    >
-                      Save Course to Account
-                    </Button>
-                  )}
-                </div>
               )}
 
               {/* Live Session if available */}
@@ -508,6 +510,7 @@ const CourseDetailPage = () => {
               )}
 
             </div>
+            )}
           </div>
         </div>
       </section>

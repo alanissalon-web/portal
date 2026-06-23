@@ -15,6 +15,7 @@ const navLinks = [
   { label: 'Extensions', href: '/extensions' },
   { label: 'Hair Loss', href: '/hair-loss' },
   { label: 'Academy', href: '/academy' },
+  { label: 'Blog', href: '/blog' },
   { label: 'Shop', href: '/shop' },
   { label: 'Contact', href: '/contact' },
 ];
