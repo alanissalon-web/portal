@@ -249,13 +249,17 @@ export default function ClientPortalPage() {
       }
 
       if (Object.keys(updates).length > 0) {
-        const { error } = await supabase.auth.updateUser(updates);
+        const { data, error } = await supabase.auth.updateUser(updates);
         if (error) throw error;
         toast({ title: 'Perfil actualizado' });
         
-        // Refresh session
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session?.user) setStudent(session.user);
+        // Optimistic update so it reflects immediately
+        if (data?.user) {
+          setStudent({ ...data.user });
+        } else {
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session?.user) setStudent({ ...session.user });
+        }
         
         if (settingsPassword) setSettingsPassword('');
       } else {
@@ -286,15 +290,20 @@ export default function ClientPortalPage() {
 
       const { data } = supabase.storage.from('site-images').getPublicUrl(filePath);
       
-      const { error: updateError } = await supabase.auth.updateUser({
+      const { data: updateData, error: updateError } = await supabase.auth.updateUser({
         data: { avatar_url: data.publicUrl }
       });
 
       if (updateError) throw updateError;
 
       toast({ title: 'Foto actualizada' });
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) setStudent(session.user);
+      
+      if (updateData?.user) {
+        setStudent({ ...updateData.user });
+      } else {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) setStudent({ ...session.user });
+      }
     } catch (err: any) {
       toast({ title: 'Error', description: 'No se pudo subir la imagen.', variant: 'destructive' });
     } finally {

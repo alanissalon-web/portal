@@ -30,10 +30,10 @@ export function SalonNavbar() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setLoggedUser(session?.user || null);
+      setLoggedUser(session?.user ? { ...session.user } : null);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setLoggedUser(session?.user || null);
+      setLoggedUser(session?.user ? { ...session.user } : null);
     });
     return () => subscription.unsubscribe();
   }, []);
