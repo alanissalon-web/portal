@@ -60,6 +60,14 @@ const AdminLogin = () => {
       // Al iniciar como cliente, debemos borrar cualquier rastro de sesión Admin local
       await LocalDB.logout();
       
+      // Bloquear acceso de cuenta administradora al portal de clientes
+      const ADMIN_EMAILS = ['alanis.salon@gmail.com'];
+      if (ADMIN_EMAILS.includes(clientEmail.toLowerCase().trim())) {
+        setClientError("Las cuentas de administrador no pueden acceder al portal de clientes. Por favor, usa la pestaña 'Administración'.");
+        setClientLoading(false);
+        return;
+      }
+      
       if (clientMode === 'register') {
         const { supabase: sb } = await import('@/lib/supabase');
         const { error } = await sb.auth.signUp({
