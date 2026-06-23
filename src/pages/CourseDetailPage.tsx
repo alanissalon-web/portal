@@ -282,11 +282,11 @@ const CourseDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-[#FAFAF8] w-full overflow-x-hidden">
       <SalonNavbar />
 
       <section className="pt-40 pb-20 overflow-hidden" ref={revealRef}>
-        <div className="container mx-auto px-6 max-w-7xl">
+        <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           <Link to="/academy" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-8 group w-fit">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-body text-xs uppercase tracking-widest font-bold">Cursos Academy</span>
@@ -324,7 +324,7 @@ const CourseDetailPage = () => {
                   </div>
                 )}
                 {/* Course Info */}
-                <div className={`p-8 md:p-12 pb-4 ${isUnlocked ? 'flex flex-col xl:flex-row gap-8 items-center' : 'space-y-6'}`}>
+                <div className={`p-5 md:p-8 lg:p-12 pb-4 ${isUnlocked ? 'flex flex-col xl:flex-row gap-8 items-center' : 'space-y-6'}`}>
                   {/* Left Side: Text Info */}
                   <div className={`space-y-6 ${isUnlocked ? 'flex-1' : ''}`}>
                     <div className="flex items-center gap-3">
@@ -396,7 +396,7 @@ const CourseDetailPage = () => {
                 )}
 
                 {/* Curriculum Section */}
-                <div className="p-8 md:p-12 pt-8 mt-2">
+                <div className="p-5 md:p-8 lg:p-12 pt-8 mt-2">
                   <div className="mb-8">
                     <h3 className="font-display text-2xl font-medium">Contenido del Curso</h3>
                     <p className="font-body text-sm text-muted-foreground mt-1">
@@ -523,7 +523,7 @@ const CourseDetailPage = () => {
                 /* Unlock Form Vertical Card */
                 <div className="bg-white border border-border rounded-[2.5rem] shadow-xl overflow-hidden flex flex-col">
                   {/* Top Area: Instructions */}
-                  <div className="bg-accent/[0.03] p-8 md:p-10 border-b border-border/50">
+                  <div className="bg-accent/[0.03] p-6 md:p-10 border-b border-border/50">
                     <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
                       <LockIcon className="w-6 h-6 text-accent" />
                     </div>
@@ -548,7 +548,7 @@ const CourseDetailPage = () => {
                   </div>
 
                   {/* Bottom Area: Form and Purchase */}
-                  <div className="p-8 md:p-10 flex flex-col relative bg-white">
+                  <div className="p-6 md:p-10 flex flex-col relative bg-white">
                     <h4 className="font-display text-xl font-medium mb-6 text-center italic">Unlock Masterclass</h4>
                     
                     {!student ? (
@@ -610,7 +610,7 @@ const CourseDetailPage = () => {
 
               {/* Live Session if available */}
               {isUnlocked && course.meetLink && (
-                <div className="bg-accent text-white rounded-[2.5rem] p-8 md:p-10 relative overflow-hidden group shadow-2xl shadow-accent/20">
+                <div className="bg-accent text-white rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group shadow-2xl shadow-accent/20">
                   <div className="relative z-10 flex flex-col items-center text-center gap-6">
                     <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       <Video className="w-3.5 h-3.5" /> Live
