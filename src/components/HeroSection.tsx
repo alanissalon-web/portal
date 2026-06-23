@@ -143,6 +143,7 @@ export function HeroSection() {
               section="hero" 
               field="description" 
               defaultText="Personalized diagnosis meets premium artistry. Experience the pinnacle of hair extensions and styling." 
+              as="span"
             />
           </motion.p>
 
