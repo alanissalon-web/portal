@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, Clock, BookOpen, Video, Users, CheckCircle, Star, 
   PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
-  PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
   GraduationCap, MessageSquare, PhoneCall, Download, FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -203,343 +202,321 @@ const CourseDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#FAFAF8]">
       <SalonNavbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-44 pb-20 overflow-hidden bg-background" ref={revealRef}>
-        <div className="container mx-auto px-6 relative z-10">
-          <Link to="/academy" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-10 group">
+      <section className="pt-40 pb-20 overflow-hidden" ref={revealRef}>
+        <div className="container mx-auto px-6 max-w-7xl">
+          <Link to="/academy" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-8 group w-fit">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
             <span className="font-body text-xs uppercase tracking-widest font-bold">Cursos Academy</span>
           </Link>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className={`space-y-6 ${isVisible ? 'animate-reveal-left' : ''}`}>
-              <div className="flex items-center gap-3">
-                <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                  {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
-                </span>
-                {course.badge && (
-                  <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                    {course.badge}
+          <div className="grid xl:grid-cols-3 gap-12 items-start">
+            
+            {/* LEFT COLUMN: Info, Image/Player, Unlock Form */}
+            <div className={`xl:col-span-2 space-y-10 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
+              
+              {/* Info Header */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                    {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
                   </span>
-                )}
-              </div>
-              
-              <h1 className="font-display text-4xl md:text-6xl font-light text-foreground leading-[1.1]">
-                {course.title}
-              </h1>
-              
-              <p className="font-body text-lg text-muted-foreground leading-relaxed max-w-xl">
-                {course.description}
-              </p>
-
-              <div className="flex flex-wrap gap-8 pt-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-display text-sm font-medium">{course.duration}</p>
-                    <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
-                  </div>
+                  {course.badge && (
+                    <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                      {course.badge}
+                    </span>
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
-                    <GraduationCap className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <p className="font-display text-sm font-medium">{course.level}</p>
-                    <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className={`relative ${isVisible ? 'animate-reveal-right' : ''}`}>
-              <div className="aspect-[4/5] rounded-[2.5rem] overflow-hidden shadow-2xl relative">
-                <img 
-                  src={course.image} 
-                  alt={course.title} 
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                <div className="absolute bottom-10 left-10 right-10 text-white">
-                  <p className="font-body text-xs uppercase tracking-widest opacity-70 mb-2">Inversión</p>
-                  <p className="font-display text-5xl font-light">{course.price}</p>
-                  <div className="mt-6 flex flex-col gap-3">
-
-                    <div className="mt-4 flex flex-col gap-3">
-                      <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20inscribirme%20en%20el%20curso:%20${encodeURIComponent(course.title)}`} >
-                        <Button className="w-full h-14 rounded-xl gap-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg">
-                          <MessageSquare className="w-5 h-5" /> Inscribirme vía SMS
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Curriculum / Content Area */}
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-6">
-          {!isUnlocked ? (
-            <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-0 overflow-hidden bg-card border border-border rounded-[2.5rem] shadow-2xl animate-reveal-up">
-              {/* Left Side: Steps */}
-              <div className="p-10 md:p-14 flex flex-col justify-center bg-accent/[0.02]">
-                <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
-                  <LockIcon className="w-6 h-6 text-accent" />
-                </div>
-                <h3 className="font-display text-3xl font-medium mb-4">Student Area</h3>
-                <p className="font-body text-sm text-muted-foreground mb-10 leading-relaxed">
-                  Access the advanced techniques that will transform your professional career. Follow these steps to unlock the content:
-                </p>
                 
-                <div className="space-y-6">
-                  {[
-                    { step: '1', text: 'Make your payment via Zelle or CashApp.' },
-                    { step: '2', text: 'Send your receipt via SMS.' },
-                    { step: '3', text: 'Enter your personal access code.' },
-                  ].map(s => (
-                    <div key={s.step} className="flex gap-5">
-                      <div className="w-7 h-7 rounded-full bg-accent text-white font-display text-xs flex items-center justify-center flex-shrink-0">
-                        {s.step}
-                      </div>
-                      <p className="font-body text-sm text-foreground/80 pt-1">{s.text}</p>
+                <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-light text-foreground leading-[1.1]">
+                  {course.title}
+                </h1>
+                
+                <p className="font-body text-lg text-muted-foreground leading-relaxed max-w-2xl">
+                  {course.description}
+                </p>
+
+                <div className="flex flex-wrap gap-8 pt-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-accent" />
                     </div>
-                  ))}
+                    <div>
+                      <p className="font-display text-sm font-medium">{course.duration}</p>
+                      <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-accent/5 flex items-center justify-center">
+                      <GraduationCap className="w-5 h-5 text-accent" />
+                    </div>
+                    <div>
+                      <p className="font-display text-sm font-medium">{course.level}</p>
+                      <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Right Side: Form */}
-              <div className="p-10 md:p-14 bg-accent/5 flex flex-col justify-center border-l border-border/50">
-                <div className="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl border border-accent/10">
-                  <h4 className="font-display text-xl font-medium mb-6 text-center italic">Unlock Masterclass</h4>
-                  
-                  {!student ? (
-                    <div className="mb-6 text-center">
-                      <p className="text-xs text-muted-foreground mb-3">Already have an account? Sign in to restore access.</p>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        className="w-full h-11 rounded-xl text-xs gap-2 border-accent/20 text-accent hover:bg-accent/5"
-                        onClick={() => setIsAuthModalOpen(true)}
-                      >
-                        Sign In to Your Account
-                      </Button>
-                      <div className="relative my-4">
-                        <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                        <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-white px-2 text-muted-foreground">Or Unlock with Code</span></div>
+              {/* Media: Player or Image */}
+              {isUnlocked ? (
+                <>
+                  {/* Course Player */}
+                  {activeLesson !== null && course.curriculum[activeLesson] && (
+                    <div className="animate-reveal-up" id="player">
+                      <div className="bg-black rounded-[2.5rem] overflow-hidden shadow-2xl mb-8 ring-1 ring-white/10">
+                        {course.curriculum[activeLesson].video_url ? (
+                          renderVideo(course.curriculum[activeLesson].video_url!)
+                        ) : (
+                          <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
+                            <Video className="w-20 h-20 mb-4" />
+                            <p className="font-display text-lg">Preparando Video...</p>
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ) : (
-                    <div className="mb-6 p-4 bg-accent/5 rounded-xl border border-accent/10 flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground truncate">Signed in as <strong>{student.email}</strong></span>
-                      <button 
-                        type="button"
-                        onClick={() => supabase.auth.signOut()} 
-                        className="text-destructive hover:underline font-semibold ml-2 flex-shrink-0"
-                      >
-                        Sign Out
-                      </button>
+                      <div className="px-2 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <span className="text-accent font-display text-sm font-bold uppercase tracking-widest">{course.curriculum[activeLesson].module}</span>
+                          <div className="h-px flex-1 bg-border/50" />
+                        </div>
+                        <h2 className="font-display text-4xl font-light">{course.curriculum[activeLesson].title}</h2>
+                        <p className="font-body text-muted-foreground leading-relaxed text-lg max-w-3xl whitespace-pre-wrap">
+                          {course.curriculum[activeLesson].content || 'Explora esta fase detalladamente en la masterclass.'}
+                        </p>
+                        
+                        {course.curriculum[activeLesson].pdf_url && (
+                          <div className="pt-4">
+                            <a 
+                              href={course.curriculum[activeLesson].pdf_url} 
+                              download={course.curriculum[activeLesson].pdf_name || 'Material.pdf'} 
+                              className="inline-flex items-center gap-2 bg-accent/10 text-accent hover:bg-accent/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors border border-accent/20"
+                            >
+                              <Download className="w-4 h-4" /> 
+                              Descargar Material: {course.curriculum[activeLesson].pdf_name || 'PDF'}
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  <form onSubmit={handleUnlock} className="space-y-4">
-                    <input 
-                      type="text" 
-                      value={inputCode}
-                      onChange={(e) => setInputCode(e.target.value)}
-                      placeholder="ENTER ACCESS CODE HERE"
-                      className="w-full bg-[#F8F8F8] border border-border rounded-2xl px-6 py-5 font-body text-sm text-center tracking-[0.3em] outline-none focus:ring-2 focus:ring-accent/40 uppercase font-black"
-                    />
-                    <Button type="submit" variant="gold" className="w-full h-14 rounded-2xl text-sm font-bold shadow-xl shadow-accent/20">
-                      Access Course
-                    </Button>
-                  </form>
-                  <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
-                    <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">Don't have the access code yet?</p>
-                    <p className="font-body text-sm text-muted-foreground mb-2">Pay via Zelle: send the receipt to alanis@zelle.com and mention the course name.</p>
-
-                    <div className="mt-4 flex flex-col gap-3">
-                      <a href={`sms:17135242610?body=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} >
-                        <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg">
-                          <MessageSquare className="w-4 h-4" /> Purchase via SMS
-                        </Button>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <h2 className="font-display text-3xl font-medium">Masterclass Lessons</h2>
-                  <p className="font-body text-sm text-muted-foreground mt-1 tracking-wide uppercase">Select a lesson below to start learning.</p>
-                </div>
-                <div className="bg-emerald-50 text-emerald-600 px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold border border-emerald-100">
-                  <CheckCircle className="w-4 h-4" /> Access Granted
-                </div>
-              </div>
-
-              {!student && (
-                <div className="bg-amber-50/60 border border-amber-200 rounded-3xl p-6 mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 flex-shrink-0">
-                      <LockIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-amber-800">Viewing as Guest</p>
-                      <p className="text-xs text-amber-700 mt-0.5">Your access will reset if you close the window. Sign in or register to save this course permanently to your account.</p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-amber-300 text-amber-800 hover:bg-amber-100 h-10 px-5 rounded-xl text-xs font-bold w-full sm:w-auto"
-                    onClick={() => setIsAuthModalOpen(true)}
-                  >
-                    Save Course to Account
-                  </Button>
-                </div>
-              )}
-
-              {student && (
-                <div className="bg-emerald-50/40 border border-emerald-200 rounded-3xl p-6 mb-12 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 flex-shrink-0">
-                      <CheckCircle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-emerald-800">Linked to Account</p>
-                      <p className="text-xs text-emerald-700 mt-0.5">This course is permanently saved to <strong>{student.email}</strong>.</p>
-                    </div>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="border-emerald-300 text-emerald-800 hover:bg-emerald-100 h-10 px-5 rounded-xl text-xs font-bold w-full sm:w-auto"
-                    onClick={() => supabase.auth.signOut()}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              )}
-
-              {/* Live Session if available */}
-              {course.meetLink && (
-                <div className="bg-accent text-white rounded-[2.5rem] p-8 md:p-12 mb-12 relative overflow-hidden group shadow-2xl shadow-accent/20">
-                  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div className="text-center md:text-left space-y-3">
-                      <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                        <Video className="w-3.5 h-3.5" /> En Vivo
+                  {/* Live Session if available */}
+                  {course.meetLink && (
+                    <div className="bg-accent text-white rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden group shadow-2xl shadow-accent/20 mt-12">
+                      <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                        <div className="text-center md:text-left space-y-3">
+                          <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                            <Video className="w-3.5 h-3.5" /> En Vivo
+                          </div>
+                          <h3 className="font-display text-3xl font-medium">Únete a la Próxima Sesión</h3>
+                          <p className="font-body text-white/70 max-w-md">Interacción directa con Alanis para resolver dudas y perfeccionar tu técnica.</p>
+                        </div>
+                        <a href={course.meetLink} target="_blank" rel="noopener noreferrer">
+                          <Button className="bg-white text-accent hover:bg-white/90 h-16 px-10 rounded-2xl font-bold shadow-xl">
+                            Entrar a la Clase <ExternalLink className="w-4 h-4 ml-2" />
+                          </Button>
+                        </a>
                       </div>
-                      <h3 className="font-display text-3xl font-medium">Join the Next Session</h3>
-                      <p className="font-body text-white/70 max-w-md">Direct interaction with Alanis to answer questions and perfect your technique.</p>
+                      <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40 blur-3xl" />
                     </div>
-                    <a href={course.meetLink} target="_blank" rel="noopener noreferrer">
-                      <Button className="bg-white text-accent hover:bg-white/90 h-16 px-10 rounded-2xl font-bold shadow-xl">
-                        Enter the Class <ExternalLink className="w-4 h-4 ml-2" />
+                  )}
+                </>
+              ) : (
+                <>
+                  {/* Image for non-unlocked */}
+                  <div className="aspect-[4/3] md:aspect-[16/9] rounded-[2.5rem] overflow-hidden shadow-2xl relative">
+                    <img 
+                      src={course.image} 
+                      alt={course.title} 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+
+                  {/* Unlock Form */}
+                  <div className="grid md:grid-cols-2 gap-0 overflow-hidden bg-white border border-border rounded-[2.5rem] shadow-xl mt-12">
+                    {/* Left Side: Steps */}
+                    <div className="p-8 md:p-10 flex flex-col justify-center bg-accent/[0.02]">
+                      <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mb-6">
+                        <LockIcon className="w-6 h-6 text-accent" />
+                      </div>
+                      <h3 className="font-display text-3xl font-medium mb-4">Área de Estudiantes</h3>
+                      <p className="font-body text-sm text-muted-foreground mb-8 leading-relaxed">
+                        Accede a las técnicas avanzadas que transformarán tu carrera profesional. Sigue estos pasos para desbloquear el contenido:
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          { step: '1', text: 'Realiza tu pago vía Zelle o CashApp.' },
+                          { step: '2', text: 'Envía tu comprobante vía SMS.' },
+                          { step: '3', text: 'Ingresa tu código de acceso personal.' },
+                        ].map(s => (
+                          <div key={s.step} className="flex gap-5">
+                            <div className="w-7 h-7 rounded-full bg-accent text-white font-display text-xs flex items-center justify-center flex-shrink-0">
+                              {s.step}
+                            </div>
+                            <p className="font-body text-sm text-foreground/80 pt-1">{s.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right Side: Form */}
+                    <div className="p-8 md:p-10 bg-accent/5 flex flex-col justify-center border-t md:border-t-0 md:border-l border-border/50">
+                      <h4 className="font-display text-xl font-medium mb-6 text-center italic">Desbloquear Masterclass</h4>
+                      
+                      {!student ? (
+                        <div className="mb-6 text-center">
+                          <p className="text-xs text-muted-foreground mb-3">¿Ya tienes una cuenta? Inicia sesión para restaurar tu acceso.</p>
+                          <Button 
+                            type="button" 
+                            variant="outline" 
+                            className="w-full h-11 rounded-xl text-xs gap-2 border-accent/20 text-accent hover:bg-accent/5"
+                            onClick={() => setIsAuthModalOpen(true)}
+                          >
+                            Iniciar Sesión
+                          </Button>
+                          <div className="relative my-4">
+                            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                            <div className="relative flex justify-center text-[10px] uppercase"><span className="bg-[#f8f8f6] px-2 text-muted-foreground">O Desbloquear con Código</span></div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="mb-6 p-4 bg-accent/5 rounded-xl border border-accent/10 flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground truncate">Sesión como <strong>{student.email}</strong></span>
+                          <button 
+                            type="button"
+                            onClick={() => supabase.auth.signOut()} 
+                            className="text-destructive hover:underline font-semibold ml-2 flex-shrink-0"
+                          >
+                            Cerrar Sesión
+                          </button>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleUnlock} className="space-y-4">
+                        <input 
+                          type="text" 
+                          value={inputCode}
+                          onChange={(e) => setInputCode(e.target.value)}
+                          placeholder="CÓDIGO DE ACCESO"
+                          className="w-full bg-white border border-border rounded-2xl px-6 py-5 font-body text-sm text-center tracking-[0.3em] outline-none focus:ring-2 focus:ring-accent/40 uppercase font-black shadow-sm"
+                        />
+                        <Button type="submit" variant="gold" className="w-full h-14 rounded-2xl text-sm font-bold shadow-xl shadow-accent/20">
+                          Acceder al Curso
+                        </Button>
+                      </form>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* RIGHT COLUMN: Price Card & Modules */}
+            <div className={`xl:col-span-1 space-y-8 lg:sticky lg:top-32 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`} style={{ transitionDelay: '100ms' }}>
+              
+              {!isUnlocked && (
+                <div className="bg-white rounded-[2.5rem] border border-border p-8 md:p-10 shadow-2xl relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-bl-full -mr-10 -mt-10" />
+                  
+                  <p className="font-body text-xs uppercase tracking-widest text-muted-foreground mb-2 relative z-10">Inversión</p>
+                  <p className="font-display text-5xl font-light text-foreground relative z-10">{course.price}</p>
+                  
+                  <div className="mt-10 pt-8 border-t border-dashed border-border text-center relative z-10">
+                    <p className="font-body text-sm text-muted-foreground mb-4">Paga vía Zelle: envía tu comprobante a alanis@zelle.com y menciona el curso.</p>
+                    <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20inscribirme%20en%20el%20curso:%20${encodeURIComponent(course.title)}`} >
+                      <Button className="w-full h-14 rounded-2xl gap-2 text-sm font-bold bg-[#111] hover:bg-black text-white shadow-xl mt-2 transition-all hover:scale-[1.02]">
+                        <MessageSquare className="w-4 h-4" /> Inscribirme vía SMS
                       </Button>
                     </a>
                   </div>
-                  <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full -mr-40 -mt-40 blur-3xl" />
                 </div>
               )}
 
-              {/* Course Player */}
-              {activeLesson !== null && course.curriculum[activeLesson] && (
-                <div className="mb-16 animate-reveal-up" id="player">
-                  <div className="bg-black rounded-[2.5rem] overflow-hidden shadow-2xl mb-8 ring-1 ring-white/10">
-                    {course.curriculum[activeLesson].video_url ? (
-                      renderVideo(course.curriculum[activeLesson].video_url!)
-                    ) : (
-                      <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
-                        <Video className="w-20 h-20 mb-4" />
-                        <p className="font-display text-lg">Preparando Video...</p>
-                      </div>
-                    )}
-                  </div>
-                  <div className="px-6 space-y-4">
-                    <div className="flex items-center gap-3">
-                      <span className="text-accent font-display text-sm font-bold uppercase tracking-widest">{course.curriculum[activeLesson].module}</span>
-                      <div className="h-px flex-1 bg-border/50" />
+              {/* Status Banner */}
+              {isUnlocked ? (
+                <div className="bg-emerald-50/40 border border-emerald-200 rounded-3xl p-6 flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+                      <CheckCircle className="w-5 h-5" />
                     </div>
-                    <h2 className="font-display text-4xl font-light">{course.curriculum[activeLesson].title}</h2>
-                    <p className="font-body text-muted-foreground leading-relaxed text-lg max-w-3xl whitespace-pre-wrap">
-                      {course.curriculum[activeLesson].content || 'Explora esta fase detalladamente en la masterclass.'}
-                    </p>
-                    
-                    {course.curriculum[activeLesson].pdf_url && (
-                      <div className="pt-4">
-                        <a 
-                          href={course.curriculum[activeLesson].pdf_url} 
-                          download={course.curriculum[activeLesson].pdf_name || 'Material.pdf'} 
-                          className="inline-flex items-center gap-2 bg-accent/10 text-accent hover:bg-accent/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors border border-accent/20"
-                        >
-                          <Download className="w-4 h-4" /> 
-                          Descargar Material: {course.curriculum[activeLesson].pdf_name || 'PDF'}
-                        </a>
-                      </div>
-                    )}
+                    <div>
+                      <p className="text-sm font-bold text-emerald-800">Acceso Otorgado</p>
+                      <p className="text-xs text-emerald-700 leading-tight mt-0.5">
+                        {student ? 'Guardado en tu cuenta' : 'Acceso de invitado (se perderá al cerrar)'}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-
-              {/* Lessons List */}
-              <div className="space-y-4">
-                {course.curriculum.length > 0 ? (
-                  course.curriculum.map((lesson, i) => (
-                    <button
-                      key={i}
-                      onClick={() => {
-                        setActiveLesson(i);
-                        document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
-                      }}
-                      className={`w-full text-left bg-card rounded-2xl p-6 border transition-all duration-300 group flex items-center justify-between ${
-                        activeLesson === i 
-                          ? 'border-accent shadow-xl ring-1 ring-accent bg-accent/[0.02]' 
-                          : 'border-border hover:border-accent/40 hover:shadow-lg'
-                      }`}
+                  {!student && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-emerald-300 text-emerald-800 hover:bg-emerald-100 h-10 rounded-xl text-xs font-bold w-full"
+                      onClick={() => setIsAuthModalOpen(true)}
                     >
-                      <div className="flex items-center gap-6">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-display text-sm font-bold transition-all ${
-                          activeLesson === i ? 'bg-accent text-white scale-110 shadow-lg shadow-accent/20' : 'bg-accent/10 text-accent group-hover:bg-accent/20'
+                      Guardar Curso en Cuenta
+                    </Button>
+                  )}
+                </div>
+              ) : null}
+
+              {/* Curriculum List */}
+              <div className="bg-white rounded-[2.5rem] border border-border p-8 shadow-xl">
+                <div className="mb-8">
+                  <h3 className="font-display text-2xl font-medium">Contenido del Curso</h3>
+                  <p className="font-body text-sm text-muted-foreground mt-1">
+                    {course.curriculum.length} módulos incluidos
+                  </p>
+                </div>
+                
+                <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                  {course.curriculum.length > 0 ? (
+                    course.curriculum.map((lesson, i) => (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          if (!isUnlocked) {
+                            toast({ title: "Curso bloqueado", description: "Por favor desbloquea el curso para ver este módulo." });
+                            return;
+                          }
+                          setActiveLesson(i);
+                          document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
+                        }}
+                        className={`w-full text-left rounded-2xl p-4 border transition-all duration-300 group flex items-start gap-4 ${
+                          isUnlocked && activeLesson === i 
+                            ? 'border-accent shadow-md ring-1 ring-accent bg-accent/[0.02]' 
+                            : 'border-border hover:border-accent/40 bg-card hover:shadow-md'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-display text-xs font-bold transition-all ${
+                          isUnlocked && activeLesson === i ? 'bg-accent text-white shadow-md scale-110' : 'bg-accent/10 text-accent group-hover:bg-accent/20'
                         }`}>
-                          {activeLesson === i ? <PlayCircle className="w-6 h-6" /> : i + 1}
+                          {!isUnlocked ? <LockIcon className="w-4 h-4" /> : (activeLesson === i ? <PlayCircle className="w-5 h-5" /> : i + 1)}
                         </div>
-                        <div>
-                          <p className={`font-body text-[10px] uppercase tracking-widest font-bold mb-1 ${activeLesson === i ? 'text-accent' : 'text-muted-foreground'}`}>
+                        <div className="flex-1 min-w-0 pt-0.5">
+                          <p className={`font-body text-[9px] uppercase tracking-widest font-bold mb-1 ${isUnlocked && activeLesson === i ? 'text-accent' : 'text-muted-foreground'}`}>
                             {lesson.module}
                           </p>
-                          <h4 className="font-display text-lg font-medium">{lesson.title}</h4>
+                          <h4 className="font-display text-sm font-medium leading-tight mb-2 line-clamp-2">{lesson.title}</h4>
+                          <div className="flex items-center gap-3 text-muted-foreground font-body text-[10px]">
+                            {lesson.duration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {lesson.duration}</span>}
+                            {lesson.pdf_url && <span className="flex items-center gap-1 text-accent"><FileText className="w-3 h-3" /> PDF</span>}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="hidden sm:flex items-center gap-2 text-muted-foreground font-body text-xs">
-                          <Clock className="w-3.5 h-3.5" /> {lesson.duration}
-                        </div>
-                        <ArrowLeft className={`w-5 h-5 transition-transform rotate-180 ${activeLesson === i ? 'text-accent translate-x-2' : 'opacity-0 group-hover:opacity-100 group-hover:translate-x-2'}`} />
-                      </div>
-                    </button>
-                  ))
-                ) : (
-                  <div className="text-center py-24 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
-                    <BookOpen className="w-16 h-16 text-accent/20 mx-auto mb-6" />
-                    <h3 className="font-display text-xl text-foreground mb-2">Contenido en Preparación</h3>
-                    <p className="font-body text-sm text-muted-foreground">Loading lessons… Please check back later.</p>
-                  </div>
-                )}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="text-center py-12 bg-accent/5 rounded-2xl border border-dashed border-accent/20">
+                      <BookOpen className="w-10 h-10 text-accent/20 mx-auto mb-4" />
+                      <h3 className="font-display text-sm text-foreground">Contenido en Preparación</h3>
+                    </div>
+                  )}
+                </div>
               </div>
+
             </div>
-          )}
+          </div>
         </div>
       </section>
 
