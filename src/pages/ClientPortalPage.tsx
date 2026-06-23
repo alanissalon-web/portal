@@ -87,35 +87,37 @@ export default function ClientPortalPage() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!student) return;
+    if (!student?.id) return;
+
+    let isMounted = true;
 
     const fetchPortalData = async () => {
+      if (!isMounted) return;
       setDataLoading(true);
       try {
         const { data: enrollIds } = await LocalDB.getStudentEnrollments(student.id);
         const { data: allCourses } = await LocalDB.getCourses();
         const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
-        setCourses(enrolled);
-
+        
         const { data: cFavIds } = await LocalDB.getCourseFavorites(student.id);
-        setCourseFavorites((allCourses || []).filter((c: any) => (cFavIds || []).includes(c.id)));
+        const courseFavs = (allCourses || []).filter((c: any) => (cFavIds || []).includes(c.id));
 
         const { data: pFavIds } = await LocalDB.getProductFavorites(student.id);
         const { data: allProducts } = await LocalDB.getProducts();
-        setProductFavorites((allProducts || []).filter((p: any) => (pFavIds || []).includes(p.id)));
+        const prodFavs = (allProducts || []).filter((p: any) => (pFavIds || []).includes(p.id));
 
         const { data: resData } = await LocalDB.getProductReservations(student.id);
-        setReservations((resData || []).map((res: any) => {
+        const mappedRes = (resData || []).map((res: any) => {
           const prod = (allProducts || []).find((p: any) => p.id === res.product_id);
           return { ...res, productName: prod?.name || 'Producto', productPrice: prod?.price || 0 };
-        }));
+        });
 
         const { data: msgData } = await LocalDB.getMessages();
         const idStr = student.email;
         const filteredMsgs = (msgData || []).filter((m: any) =>
           (m.type === 'chat' || !m.type) && (m.email === idStr || m.toEmail === idStr)
         );
-        setMessages(filteredMsgs.map((m: any) => ({
+        const mappedMsgs = filteredMsgs.map((m: any) => ({
           id: m.id,
           text: m.message,
           image: m.image,
@@ -123,11 +125,19 @@ export default function ClientPortalPage() {
           sender: m.email === idStr ? 'me' : 'them',
           timestamp: m.date || m.created_at || new Date().toISOString(),
           status: 'delivered',
-        })).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()));
+        })).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        if (isMounted) {
+          setCourses(enrolled);
+          setCourseFavorites(courseFavs);
+          setProductFavorites(prodFavs);
+          setReservations(mappedRes);
+          setMessages(mappedMsgs);
+        }
       } catch (err) {
         console.error('Error fetching portal data:', err);
       } finally {
-        setDataLoading(false);
+        if (isMounted) setDataLoading(false);
       }
     };
 
@@ -149,7 +159,7 @@ export default function ClientPortalPage() {
           const { data: enrollIds } = await LocalDB.getStudentEnrollments(student.id);
           const { data: allCourses } = await LocalDB.getCourses();
           const enrolled = (allCourses || []).filter((c: any) => (enrollIds || []).includes(c.id));
-          setCourses(enrolled);
+          if (isMounted) setCourses(enrolled);
         }
       )
       .subscribe();
@@ -160,37 +170,38 @@ export default function ClientPortalPage() {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'messages',
         },
-        (payload: any) => {
-          const newMsg = payload.new;
-          if (newMsg.email === student.email || newMsg.toEmail === student.email) {
-            setMessages(prev => {
-              // Avoid duplicates
-              if (prev.find(m => m.id === newMsg.id)) return prev;
-              const formatted = {
-                id: newMsg.id,
-                text: newMsg.message,
-                image: newMsg.image,
-                voice: newMsg.voice,
-                sender: newMsg.email === student.email ? 'me' as const : 'them' as const,
-                timestamp: newMsg.date || newMsg.created_at || new Date().toISOString(),
-                status: 'delivered' as const,
-              };
-              return [...prev, formatted].sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
-            });
-          }
+        () => {
+          // Re-fetch messages on change
+          LocalDB.getMessages().then(({ data }) => {
+            if (!isMounted) return;
+            const idStr = student.email;
+            const filteredMsgs = (data || []).filter((m: any) =>
+              (m.type === 'chat' || !m.type) && (m.email === idStr || m.toEmail === idStr)
+            );
+            setMessages(filteredMsgs.map((m: any) => ({
+              id: m.id,
+              text: m.message,
+              image: m.image,
+              voice: m.voice,
+              sender: m.email === idStr ? 'me' : 'them',
+              timestamp: m.date || m.created_at || new Date().toISOString(),
+              status: 'delivered',
+            })).sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()));
+          });
         }
       )
       .subscribe();
 
     return () => {
+      isMounted = false;
       supabase.removeChannel(channel);
       supabase.removeChannel(msgChannel);
     };
-  }, [student]);
+  }, [student?.id, student?.email]);
 
   const handleSignOut = async () => {
     await LocalDB.logout();
@@ -732,17 +743,14 @@ export default function ClientPortalPage() {
                       </div>
                       <div>
                         <p className="font-body text-sm font-medium text-foreground mb-2">Foto de Perfil</p>
-                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarUpload} />
-                        <Button 
-                          type="button" 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={() => fileInputRef.current?.click()}
-                          disabled={uploadingAvatar}
+                        <input type="file" id="avatar-upload" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
+                        <label 
+                          htmlFor="avatar-upload"
+                          className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-border bg-background hover:bg-muted transition-colors cursor-pointer ${uploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}
                         >
-                          <Camera className="w-4 h-4 mr-2" />
+                          <Camera className="w-4 h-4" />
                           Cambiar Foto
-                        </Button>
+                        </label>
                       </div>
                     </div>
 
