@@ -222,36 +222,13 @@ const CourseDetailPage = () => {
                   /* Course Player */
                   course.curriculum[activeLesson] && (
                     <div className="p-4 md:p-6 pb-0 animate-reveal-up" id="player">
-                      <div className="bg-black rounded-[2rem] overflow-hidden shadow-md mb-8 ring-1 ring-border/50">
+                      <div className="bg-black rounded-[2rem] overflow-hidden shadow-md ring-1 ring-border/50">
                         {course.curriculum[activeLesson].video_url ? (
                           renderVideo(course.curriculum[activeLesson].video_url!)
                         ) : (
                           <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
                             <Video className="w-20 h-20 mb-4" />
                             <p className="font-display text-lg">Preparando Video...</p>
-                          </div>
-                        )}
-                      </div>
-                      <div className="px-4 md:px-6 mb-8 space-y-4">
-                        <div className="flex items-center gap-3">
-                          <span className="text-accent font-display text-sm font-bold uppercase tracking-widest">{course.curriculum[activeLesson].module}</span>
-                          <div className="h-px flex-1 bg-border/50" />
-                        </div>
-                        <h2 className="font-display text-3xl font-light">{course.curriculum[activeLesson].title}</h2>
-                        <p className="font-body text-muted-foreground leading-relaxed text-base max-w-3xl whitespace-pre-wrap">
-                          {course.curriculum[activeLesson].content || 'Explora esta fase detalladamente en la masterclass.'}
-                        </p>
-                        
-                        {course.curriculum[activeLesson].pdf_url && (
-                          <div className="pt-4">
-                            <a 
-                              href={course.curriculum[activeLesson].pdf_url} 
-                              download={course.curriculum[activeLesson].pdf_name || 'Material.pdf'} 
-                              className="inline-flex items-center gap-2 bg-accent/10 text-accent hover:bg-accent/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors border border-accent/20"
-                            >
-                              <Download className="w-4 h-4" /> 
-                              Descargar Material: {course.curriculum[activeLesson].pdf_name || 'PDF'}
-                            </a>
                           </div>
                         )}
                       </div>
@@ -324,38 +301,61 @@ const CourseDetailPage = () => {
                   <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                     {course.curriculum.length > 0 ? (
                       course.curriculum.map((lesson, i) => (
-                        <button
+                        <div 
                           key={i}
-                          onClick={() => {
-                            if (!isUnlocked) {
-                              toast({ title: "Curso bloqueado", description: "Por favor desbloquea el curso para ver este módulo." });
-                              return;
-                            }
-                            setActiveLesson(i);
-                            document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
-                          }}
-                          className={`w-full text-left rounded-2xl p-4 border transition-all duration-300 group flex items-start gap-4 ${
+                          className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
                             isUnlocked && activeLesson === i 
                               ? 'border-accent shadow-md ring-1 ring-accent bg-accent/[0.02]' 
                               : 'border-border hover:border-accent/40 bg-card hover:shadow-md'
                           }`}
                         >
-                          <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-display text-xs font-bold transition-all ${
-                            isUnlocked && activeLesson === i ? 'bg-accent text-white shadow-md scale-110' : 'bg-accent/10 text-accent group-hover:bg-accent/20'
-                          }`}>
-                            {!isUnlocked ? <LockIcon className="w-4 h-4" /> : (activeLesson === i ? <PlayCircle className="w-5 h-5" /> : i + 1)}
-                          </div>
-                          <div className="flex-1 min-w-0 pt-0.5">
-                            <p className={`font-body text-[9px] uppercase tracking-widest font-bold mb-1 ${isUnlocked && activeLesson === i ? 'text-accent' : 'text-muted-foreground'}`}>
-                              {lesson.module}
-                            </p>
-                            <h4 className="font-display text-sm font-medium leading-tight mb-2 line-clamp-2">{lesson.title}</h4>
-                            <div className="flex items-center gap-3 text-muted-foreground font-body text-[10px]">
-                              {lesson.duration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {lesson.duration}</span>}
-                              {lesson.pdf_url && <span className="flex items-center gap-1 text-accent"><FileText className="w-3 h-3" /> PDF</span>}
+                          <button
+                            onClick={() => {
+                              if (!isUnlocked) {
+                                toast({ title: "Curso bloqueado", description: "Por favor desbloquea el curso para ver este módulo." });
+                                return;
+                              }
+                              setActiveLesson(i);
+                              document.getElementById('player')?.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="w-full text-left p-4 group flex items-start gap-4"
+                          >
+                            <div className={`w-10 h-10 shrink-0 rounded-xl flex items-center justify-center font-display text-xs font-bold transition-all ${
+                              isUnlocked && activeLesson === i ? 'bg-accent text-white shadow-md scale-110' : 'bg-accent/10 text-accent group-hover:bg-accent/20'
+                            }`}>
+                              {!isUnlocked ? <LockIcon className="w-4 h-4" /> : (activeLesson === i ? <PlayCircle className="w-5 h-5" /> : i + 1)}
                             </div>
-                          </div>
-                        </button>
+                            <div className="flex-1 min-w-0 pt-0.5">
+                              <p className={`font-body text-[9px] uppercase tracking-widest font-bold mb-1 ${isUnlocked && activeLesson === i ? 'text-accent' : 'text-muted-foreground'}`}>
+                                {lesson.module}
+                              </p>
+                              <h4 className="font-display text-sm font-medium leading-tight mb-2 line-clamp-2">{lesson.title}</h4>
+                              <div className="flex items-center gap-3 text-muted-foreground font-body text-[10px]">
+                                {lesson.duration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {lesson.duration}</span>}
+                                {lesson.pdf_url && <span className="flex items-center gap-1 text-accent"><FileText className="w-3 h-3" /> PDF</span>}
+                              </div>
+                            </div>
+                          </button>
+                          
+                          {/* Accordion Content */}
+                          {isUnlocked && activeLesson === i && (
+                            <div className="px-4 pb-4 pl-[4.5rem] animate-fade-in">
+                              <p className="font-body text-muted-foreground text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+                                {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
+                              </p>
+                              {lesson.pdf_url && (
+                                <a 
+                                  href={lesson.pdf_url} 
+                                  download={lesson.pdf_name || 'Material.pdf'} 
+                                  className="inline-flex items-center gap-2 bg-white text-accent hover:bg-accent/5 px-4 py-2 rounded-lg font-bold text-xs transition-colors border border-accent/20 shadow-sm"
+                                >
+                                  <Download className="w-3.5 h-3.5" /> 
+                                  Descargar {lesson.pdf_name || 'Material'}
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       ))
                     ) : (
                       <div className="text-center py-12 bg-accent/5 rounded-2xl border border-dashed border-accent/20">
