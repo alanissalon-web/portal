@@ -217,13 +217,17 @@ export function AcademySection() {
         {/* Student Session Bar */}
         <div className="max-w-6xl mx-auto mb-12 flex flex-col sm:flex-row items-center justify-between gap-4 p-5 bg-card border border-border rounded-2xl shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent">
-              <GraduationCap className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent overflow-hidden">
+              {student?.user_metadata?.avatar_url ? (
+                <img src={student.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <GraduationCap className="w-5 h-5" />
+              )}
             </div>
             <div>
-              <p className="font-display text-base font-medium text-foreground">Academy Portal</p>
+              <p className="font-display text-base font-medium text-foreground">Portal Academy</p>
               <p className="font-body text-xs text-muted-foreground">
-                {student ? `Welcome back, ${student.email}` : 'Sign in to access your course panel and progress.'}
+                {student ? `Bienvenido/a, ${student.user_metadata?.full_name || student.email}` : 'Inicia sesión para acceder a tus cursos.'}
               </p>
             </div>
           </div>
@@ -236,7 +240,7 @@ export function AcademySection() {
                     size="sm"
                     className="rounded-xl h-10 px-5 font-bold shadow-md shadow-accent/10"
                   >
-                    Go to Portal
+                    Ir al Portal
                   </Button>
                 </Link>
                 <Button

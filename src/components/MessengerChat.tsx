@@ -254,7 +254,7 @@ export function MessengerChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 60, scale: 0.95 }}
             transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-            className="fixed bottom-6 right-6 w-[380px] h-[620px] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[340px] sm:w-[360px] h-[500px] sm:h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80"
           >
             {/* Header */}
             <div className="bg-charcoal px-4 py-3.5 flex items-center justify-between text-white">
@@ -313,12 +313,21 @@ export function MessengerChat() {
                 {/* Personalized greeting if logged in */}
                 {loggedUser ? (
                   <div className="mx-4 mt-4 bg-accent/5 border border-accent/15 rounded-2xl p-4">
-                    <p className="font-display text-sm font-semibold text-foreground mb-0.5">
-                      Hello, {displayName}! 👋
-                    </p>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-10 h-10 rounded-full bg-accent/20 border border-accent/30 overflow-hidden flex items-center justify-center flex-shrink-0">
+                        {loggedUser.user_metadata?.avatar_url ? (
+                          <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <Star className="w-5 h-5 text-accent fill-accent opacity-50" />
+                        )}
+                      </div>
+                      <p className="font-display text-sm font-semibold text-foreground">
+                        ¡Hola, {displayName}! 👋
+                      </p>
+                    </div>
                     <p className="font-body text-xs text-muted-foreground leading-relaxed">
-                      You're signed in as <span className="font-medium text-foreground">{loggedUser.email}</span>.<br />
-                      Would you like to send a message to Alanís Salon?
+                      Has iniciado sesión como <span className="font-medium text-foreground">{loggedUser.email}</span>.<br />
+                      ¿Te gustaría enviarnos un mensaje?
                     </p>
                     <Button
                       onClick={handleIdentify}
@@ -353,7 +362,7 @@ export function MessengerChat() {
                       disabled={!clientName.trim()}
                       className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-white rounded-xl h-12 font-bold text-sm"
                     >
-                      Start Conversation →
+                      Iniciar Conversación →
                     </Button>
                   </div>
                 )}
@@ -402,12 +411,24 @@ export function MessengerChat() {
                           )}
                         </div>
                         <div className={`flex items-center gap-1 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-                          <span className="text-[9px] text-muted-foreground/60">{msg.timestamp}</span>
+                          <span className="text-[9px] text-muted-foreground/60">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
                           {msg.sender === 'me' && (
                             <CheckCheck className={`w-3 h-3 ${msg.status === 'read' ? 'text-blue-500' : 'text-muted-foreground/40'}`} />
                           )}
                         </div>
                       </div>
+                      {/* User Avatar */}
+                      {msg.sender === 'me' && (
+                        <div className="w-7 h-7 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center flex-shrink-0 mb-0.5 overflow-hidden">
+                          {loggedUser?.user_metadata?.avatar_url ? (
+                            <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                          ) : (
+                            <Smile className="w-3.5 h-3.5 text-accent opacity-70" />
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
 

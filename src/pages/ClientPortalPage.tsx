@@ -250,11 +250,15 @@ export default function ClientPortalPage() {
       if (Object.keys(updates).length > 0) {
         const { error } = await supabase.auth.updateUser(updates);
         if (error) throw error;
-        toast({ title: 'Perfil actualizado', description: 'Tus cambios han sido guardados.' });
-        if (settingsPassword) setSettingsPassword('');
-        // Reload session data
+        toast({ title: 'Perfil actualizado' });
+        
+        // Refresh session
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) setStudent(session.user);
+        
+        if (settingsPassword) setSettingsPassword('');
+      } else {
+        toast({ title: 'Sin cambios', description: 'No modificaste ningún dato.' });
       }
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -263,9 +267,9 @@ export default function ClientPortalPage() {
     }
   };
 
-  const handleUploadAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || !student) return;
 
     setUploadingAvatar(true);
     try {
@@ -635,7 +639,12 @@ export default function ClientPortalPage() {
                       </div>
                     ) : (
                       messages.map((msg: any) => (
-                        <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
+                        <div key={msg.id} className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'} items-end gap-2`}>
+                          {msg.sender === 'them' && (
+                            <div className="w-8 h-8 rounded-full bg-accent text-white flex items-center justify-center shrink-0">
+                              <MessageSquare className="w-4 h-4" />
+                            </div>
+                          )}
                           <div className={`max-w-[80%] rounded-2xl p-4 ${msg.sender === 'me' ? 'bg-accent text-white rounded-tr-sm' : 'bg-white border border-border text-foreground shadow-sm rounded-tl-sm'}`}>
                             <p className="font-body text-sm whitespace-pre-wrap">{msg.text}</p>
                             <div className={`text-[10px] mt-2 flex items-center gap-1 ${msg.sender === 'me' ? 'text-white/70' : 'text-muted-foreground'}`}>
@@ -643,6 +652,15 @@ export default function ClientPortalPage() {
                               {msg.sender === 'me' && <CheckCheck className="w-3 h-3 ml-1" />}
                             </div>
                           </div>
+                          {msg.sender === 'me' && (
+                            <div className="w-8 h-8 rounded-full bg-accent/20 border border-accent/30 flex items-center justify-center shrink-0 overflow-hidden">
+                              {student?.user_metadata?.avatar_url ? (
+                                <img src={student.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                              ) : (
+                                <User className="w-4 h-4 text-accent" />
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))
                     )}
@@ -700,6 +718,7 @@ export default function ClientPortalPage() {
                       </div>
                       <div>
                         <p className="font-body text-sm font-medium text-foreground mb-2">Foto de Perfil</p>
+                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarUpload} />
                         <Button 
                           type="button" 
                           variant="outline" 
