@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { 
   ArrowLeft, Clock, BookOpen, Video, Users, CheckCircle, Star, 
   PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
-  GraduationCap, MessageSquare, PhoneCall
+  PlayCircle, Award, MessageCircle, Lock as LockIcon, ExternalLink, Calendar,
+  GraduationCap, MessageSquare, PhoneCall, Download, FileText
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,6 +28,8 @@ interface CourseData {
     duration: string;
     video_url?: string;
     content?: string;
+    pdf_url?: string;
+    pdf_name?: string;
   }[];
   price: string;
   badge?: string | null;
@@ -470,9 +473,22 @@ const CourseDetailPage = () => {
                       <div className="h-px flex-1 bg-border/50" />
                     </div>
                     <h2 className="font-display text-4xl font-light">{course.curriculum[activeLesson].title}</h2>
-                    <p className="font-body text-muted-foreground leading-relaxed text-lg max-w-3xl">
+                    <p className="font-body text-muted-foreground leading-relaxed text-lg max-w-3xl whitespace-pre-wrap">
                       {course.curriculum[activeLesson].content || 'Explora esta fase detalladamente en la masterclass.'}
                     </p>
+                    
+                    {course.curriculum[activeLesson].pdf_url && (
+                      <div className="pt-4">
+                        <a 
+                          href={course.curriculum[activeLesson].pdf_url} 
+                          download={course.curriculum[activeLesson].pdf_name || 'Material.pdf'} 
+                          className="inline-flex items-center gap-2 bg-accent/10 text-accent hover:bg-accent/20 px-5 py-3 rounded-xl font-bold text-sm transition-colors border border-accent/20"
+                        >
+                          <Download className="w-4 h-4" /> 
+                          Descargar Material: {course.curriculum[activeLesson].pdf_name || 'PDF'}
+                        </a>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

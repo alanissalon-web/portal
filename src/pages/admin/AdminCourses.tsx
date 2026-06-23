@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
-import { Plus, Pencil, Trash2, Video, ExternalLink, Save, X, Upload, RefreshCw } from 'lucide-react';
+import { Plus, Pencil, Trash2, Video, ExternalLink, Save, X, Upload, RefreshCw, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type Course = {
@@ -25,6 +25,8 @@ type Course = {
     duration: string;
     video_url?: string;
     content?: string;
+    pdf_url?: string;
+    pdf_name?: string;
   }[];
   next_date: string | null;
 };
@@ -54,7 +56,9 @@ const AdminCourses = () => {
     lessons: 1, 
     duration: '30m',
     video_url: '',
-    content: ''
+    content: '',
+    pdf_url: '',
+    pdf_name: ''
   });
   const [editingModuleIndex, setEditingModuleIndex] = useState<number | null>(null);
   const { toast } = useToast();
@@ -291,7 +295,7 @@ const AdminCourses = () => {
                       variant="ghost" size="icon" className="text-muted-foreground hover:text-accent h-8 w-8"
                       onClick={() => {
                         setEditingModuleIndex(idx);
-                        setNewModule({ ...curr, video_url: curr.video_url || '', content: curr.content || '' });
+                        setNewModule({ ...curr, video_url: curr.video_url || '', content: curr.content || '', pdf_url: curr.pdf_url || '', pdf_name: curr.pdf_name || '' });
                       }}
                     >
                       <Pencil className="w-3.5 h-3.5" />
@@ -344,10 +348,54 @@ const AdminCourses = () => {
                     placeholder="https://..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Descripción Corta</label>
-                  <input 
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block flex items-center gap-1">
+                    <FileText className="w-3 h-3" /> Material PDF Adjunto
+                  </label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="file" 
+                      id={`pdf-upload-${editingModuleIndex || 'new'}`}
+                      className="hidden" 
+                      accept=".pdf"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setNewModule(p => ({ ...p, pdf_url: reader.result as string, pdf_name: file.name }));
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                    />
+                    <Button 
+                      type="button"
+                      variant="outline" 
+                      className="w-full justify-start gap-2 h-9 text-xs border-dashed bg-white"
+                      onClick={() => document.getElementById(`pdf-upload-${editingModuleIndex || 'new'}`)?.click()}
+                    >
+                      <Upload className="w-3 h-3" />
+                      <span className="truncate">{newModule.pdf_url ? newModule.pdf_name : 'Subir Archivo PDF'}</span>
+                    </Button>
+                    {newModule.pdf_url && (
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-9 w-9 shrink-0 text-destructive hover:bg-destructive/10"
+                        onClick={() => setNewModule(p => ({ ...p, pdf_url: '', pdf_name: '' }))}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
+                <div className="sm:col-span-2">
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Explicación / Descripción Detallada</label>
+                  <textarea 
                     value={newModule.content} onChange={e => setNewModule(p => ({ ...p, content: e.target.value }))}
-                    placeholder="En esta lección aprenderás..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                    rows={4}
+                    placeholder="En esta lección aprenderás..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs resize-y" />
                 </div>
               </div>
 
@@ -365,7 +413,9 @@ const AdminCourses = () => {
                         lessons: 1, 
                         duration: '30m',
                         video_url: '',
-                        content: ''
+                        content: '',
+                        pdf_url: '',
+                        pdf_name: ''
                       });
                     }}
                   >
@@ -393,7 +443,9 @@ const AdminCourses = () => {
                       lessons: 1, 
                       duration: '30m',
                       video_url: '',
-                      content: ''
+                      content: '',
+                      pdf_url: '',
+                      pdf_name: ''
                     });
                   }}
                 >
