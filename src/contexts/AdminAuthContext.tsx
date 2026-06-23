@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { LocalDB } from '@/services/LocalDatabase';
+import { supabase } from '@/lib/supabase';
 
 interface User {
   email: string;
