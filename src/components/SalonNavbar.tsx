@@ -26,14 +26,14 @@ export function SalonNavbar() {
   const isHome = location.pathname === '/';
   const { isAdmin } = useAdminAuth();
   const { setIsEditing } = useCMS();
-  const [hasSession, setHasSession] = useState(false);
+  const [loggedUser, setLoggedUser] = useState<any>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setHasSession(!!session);
+      setLoggedUser(session?.user || null);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setHasSession(!!session);
+      setLoggedUser(session?.user || null);
     });
     return () => subscription.unsubscribe();
   }, []);
@@ -116,9 +116,13 @@ export function SalonNavbar() {
                   713-524-2610
                 </Button>
               </a>
-              {hasSession ? (
-                <Link to="/portal" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Client Portal">
-                  <User className="w-5 h-5 text-white" />
+              {loggedUser ? (
+                <Link to="/portal" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg overflow-hidden border-2 border-accent" title="Client Portal">
+                  {loggedUser.user_metadata?.avatar_url ? (
+                    <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5 text-white" />
+                  )}
                 </Link>
               ) : (
                 <Link to="/admin/login#client" className="flex items-center justify-center w-10 h-10 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg" title="Login">
@@ -195,9 +199,21 @@ export function SalonNavbar() {
                 Houston's Premiere Salon
               </p>
               <div className="flex justify-center pt-2">
-                {hasSession ? (
-                  <Link to="/portal" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">
-                    <User className="w-6 h-6 text-white" />
+                {loggedUser ? (
+                  <Link to="/portal" onClick={() => setMobileOpen(false)} className="flex items-center gap-4 bg-accent/10 p-4 rounded-xl border border-accent/20">
+                    <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white overflow-hidden shadow-sm shrink-0">
+                      {loggedUser.user_metadata?.avatar_url ? (
+                        <img src={loggedUser.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="w-6 h-6" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-display text-lg text-charcoal">
+                        {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')[0]}
+                      </p>
+                      <p className="font-body text-xs text-charcoal/60">Portal de Cliente</p>
+                    </div>
                   </Link>
                 ) : (
                   <Link to="/admin/login#client" onClick={() => setMobileOpen(false)} className="flex items-center justify-center w-12 h-12 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md">

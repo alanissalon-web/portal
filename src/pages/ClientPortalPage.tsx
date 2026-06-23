@@ -334,13 +334,17 @@ export default function ClientPortalPage() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
             <div className="flex items-center gap-5">
-              <div className="w-16 h-16 rounded-2xl bg-accent/20 border border-accent/30 flex items-center justify-center">
-                <User className="w-8 h-8 text-accent" />
+              <div className="w-16 h-16 rounded-2xl bg-accent/20 border border-accent/30 flex items-center justify-center overflow-hidden">
+                {student?.user_metadata?.avatar_url ? (
+                  <img src={student.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-8 h-8 text-accent" />
+                )}
               </div>
               <div>
                 <p className="font-body text-xs text-accent/80 uppercase tracking-widest mb-1">Portal para Clientes</p>
                 <h1 className="font-display text-2xl md:text-3xl font-light text-white">
-                  Bienvenida{student?.email ? `, ${student.email.split('@')[0]}` : ''}
+                  Bienvenido/a{student ? `, ${student.user_metadata?.full_name || student.email.split('@')[0]}` : ''}
                 </h1>
                 <p className="font-body text-xs text-white/40 mt-1">{student?.email}</p>
               </div>
