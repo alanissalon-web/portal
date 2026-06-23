@@ -254,7 +254,7 @@ export function MessengerChat() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 60, scale: 0.95 }}
             transition={{ type: 'spring', damping: 26, stiffness: 280 }}
-            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[340px] sm:w-[360px] h-[500px] sm:h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] max-w-[360px] h-[500px] sm:h-[550px] max-h-[85vh] bg-white rounded-3xl shadow-2xl flex flex-col z-[60] overflow-hidden border border-gray-100/80"
           >
             {/* Header */}
             <div className="bg-charcoal px-4 py-3.5 flex items-center justify-between text-white">

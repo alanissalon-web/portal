@@ -201,7 +201,7 @@ const CourseDetailPage = () => {
     return (
       <div 
         ref={containerRef}
-        className="relative w-full aspect-[9/16] md:aspect-video rounded-3xl overflow-hidden bg-black group"
+        className="relative w-full aspect-video rounded-3xl overflow-hidden bg-black group mx-auto"
         onContextMenu={(e) => e.preventDefault()} // Bloquear click derecho
       >
         <iframe 
@@ -454,15 +454,15 @@ const CourseDetailPage = () => {
                             }`}
                           >
                             <div className="overflow-hidden">
-                              <div className="px-4 pb-4 pl-[4.5rem] space-y-6 pt-2">
+                              <div className="px-2 md:pl-[4.5rem] pb-4 space-y-6 pt-2">
                                 <div className="flex flex-col md:flex-row gap-6 items-stretch">
                                   {/* Left: Video Player */}
-                                  <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 w-full md:w-1/2 lg:w-[350px] shrink-0" id={`player-${i}`}>
+                                  <div className="bg-black rounded-2xl overflow-hidden shadow-md ring-1 ring-border/50 w-full md:w-3/4 lg:w-[350px] mx-auto md:mx-0 shrink-0" id={`player-${i}`}>
                                     {lesson.video_url ? (
                                       /* Render video only when open, fallback to fixed aspect ratio to prevent snap */
-                                      (isUnlocked && activeLesson === i) ? <ProtectedVideoPlayer url={lesson.video_url} /> : <div className="aspect-[9/16] md:aspect-video bg-black"></div>
+                                      (isUnlocked && activeLesson === i) ? <ProtectedVideoPlayer url={lesson.video_url} /> : <div className="aspect-video bg-black"></div>
                                     ) : (
-                                      <div className="aspect-[9/16] md:aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
+                                      <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
                                         <Video className="w-12 h-12 mb-2" />
                                         <p className="font-display text-sm">Video en Preparación...</p>
                                       </div>

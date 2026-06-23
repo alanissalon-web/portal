@@ -85,7 +85,7 @@ const AdminMessages = () => {
         date: new Date().toLocaleTimeString(),
         status: 'read',
         type: 'chat',
-        to: selectedUser || ''
+        toEmail: selectedUser || ''
       });
       await fetchMessages();
     };
@@ -103,7 +103,7 @@ const AdminMessages = () => {
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64 = reader.result as string;
-          await LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Nota de voz]', voice: base64, to: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
+          await LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Nota de voz]', voice: base64, toEmail: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
           await fetchMessages();
         };
         reader.readAsDataURL(audioBlob);

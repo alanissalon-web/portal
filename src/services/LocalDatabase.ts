@@ -159,8 +159,13 @@ export const LocalDB = {
     return { data: data || [], error: null };
   },
   saveMessage: async (msg: any) => {
-    const newItem = { ...msg, status: 'new' };
-    const { error } = await supabase.from('messages').insert(newItem);
+    const newItem = { 
+      ...msg, 
+      id: msg.id || (Math.random().toString(36).substring(2) + Date.now().toString(36)),
+      status: msg.status || 'new' 
+    };
+    const { error } = await supabase.from('messages').upsert(newItem);
+    if (error) console.error('Error saving message:', error);
     return { error };
   },
   updateMessageStatus: async (id: string, status: string) => {
