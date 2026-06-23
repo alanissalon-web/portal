@@ -3,7 +3,7 @@ import { useCMS } from '@/contexts/CMSContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown, Layout } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
+import { useLocation } from 'react-router-dom';
 interface Section {
   id: string;
   name: string;
@@ -11,6 +11,9 @@ interface Section {
 
 export const VisualSidebar: React.FC = () => {
   const { isEditing, content, updateContent } = useCMS();
+  const location = useLocation();
+
+  if (!isEditing || location.pathname !== '/') return null;
   
   // Default order if not specified in CMS
   const defaultSections: Section[] = [
