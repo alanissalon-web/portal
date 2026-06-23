@@ -220,15 +220,20 @@ const CourseDetailPage = () => {
           onDoubleClick={(e) => e.preventDefault()}
           onContextMenu={(e) => e.preventDefault()}
         >
+          {/* Capa para ocultar el título de YouTube cuando está en pausa */}
+          {!isPlaying && isYoutube && (
+            <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black via-black/80 to-transparent z-[5] pointer-events-none" />
+          )}
+
           {/* Botón de Play personalizado (solo se muestra cuando está pausado) */}
           {!isPlaying && (
-            <div className="w-20 h-20 bg-accent/90 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform">
+            <div className="w-20 h-20 bg-accent/90 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-10">
               <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
           )}
           
           {/* Controles de la barra inferior (siempre visibles o en hover) */}
-          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <button 
               onClick={toggleFullscreen}
               className="bg-black/50 hover:bg-accent backdrop-blur-sm text-white p-2.5 rounded-full transition-colors"
