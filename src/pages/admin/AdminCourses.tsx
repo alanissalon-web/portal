@@ -101,8 +101,19 @@ const AdminCourses = () => {
   const cancel = () => { setCreating(false); setEditing(null); };
 
   const save = async () => {
+    let finalCurriculum = form.curriculum;
+    // Si el usuario olvidó presionar "Añadir/Actualizar Módulo" antes de guardar, lo auto-agregamos.
+    if (newModule.title || newModule.video_url || newModule.pdf_url) {
+      if (editingModuleIndex !== null) {
+        finalCurriculum = [...finalCurriculum];
+        finalCurriculum[editingModuleIndex] = newModule;
+      } else {
+        finalCurriculum = [...finalCurriculum, newModule];
+      }
+    }
+
     const topics = topicInput.split(',').map(t => t.trim()).filter(Boolean);
-    const payload = { ...form, topics, badge: form.badge || null };
+    const payload = { ...form, curriculum: finalCurriculum, topics, badge: form.badge || null };
 
     const response = await LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
     

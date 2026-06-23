@@ -69,9 +69,12 @@ const BlogPostPage = () => {
       <article className="pt-24 md:pt-32 pb-24">
         {/* Header Section */}
         <div className="container mx-auto px-6 max-w-4xl text-center mb-12">
-          <Link to="/blog" className="inline-flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors font-body text-sm uppercase tracking-widest font-bold mb-8">
-            <ArrowLeft className="w-4 h-4" /> Volver al Blog
-          </Link>
+          {/* Botón flotante/visible de regreso */}
+          <div className="flex justify-center md:justify-start mb-8 md:-ml-12 lg:-ml-24">
+            <Link to="/blog" className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-md border border-border shadow-sm text-foreground hover:text-accent hover:border-accent/30 transition-all px-6 py-3 rounded-full font-body text-xs uppercase tracking-widest font-bold">
+              <ArrowLeft className="w-4 h-4" /> Volver al Blog
+            </Link>
+          </div>
           
           <h1 className="font-display text-4xl md:text-6xl font-medium leading-[1.1] mb-6">
             {blog.title}
