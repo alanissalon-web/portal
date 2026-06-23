@@ -186,7 +186,7 @@ const AdminLogin = () => {
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <GraduationCap className="w-3.5 h-3.5" />
               <span className="font-body text-xs uppercase tracking-widest">
-                {clientMode === 'login' ? 'Portal de Estudiantes' : 'Crear Cuenta'}
+                {clientMode === 'login' ? 'Portal de Cliente' : 'Crear Cuenta'}
               </span>
             </div>
 
