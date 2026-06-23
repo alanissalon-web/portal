@@ -266,11 +266,7 @@ const CourseDetailPage = () => {
                   <p className="font-body text-xs uppercase tracking-widest opacity-70 mb-2">Inversión</p>
                   <p className="font-display text-5xl font-light">{course.price}</p>
                   <div className="mt-6 flex flex-col gap-3">
-                    <a href={`https://wa.me/17135242610?text=Hola%20Alanis!%20Quiero%20inscribirme%20en%20el%20curso:%20${encodeURIComponent(course.title)}`} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full h-14 rounded-xl gap-2 text-sm font-bold bg-[#25D366] hover:bg-[#1ebd5c] text-white shadow-lg">
-                        <MessageCircle className="w-5 h-5" /> Inscribirme vía WhatsApp
-                      </Button>
-                    </a>
+
                     <div className="mt-4 flex flex-col gap-3">
                       <a href={`sms:17135242610?body=Hola%20Alanis!%20Quiero%20inscribirme%20en%20el%20curso:%20${encodeURIComponent(course.title)}`} >
                         <Button className="w-full h-14 rounded-xl gap-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg">
@@ -304,7 +300,7 @@ const CourseDetailPage = () => {
                 <div className="space-y-6">
                   {[
                     { step: '1', text: 'Make your payment via Zelle or CashApp.' },
-                    { step: '2', text: 'Send your receipt via WhatsApp.' },
+                    { step: '2', text: 'Send your receipt via SMS.' },
                     { step: '3', text: 'Enter your personal access code.' },
                   ].map(s => (
                     <div key={s.step} className="flex gap-5">
@@ -366,11 +362,7 @@ const CourseDetailPage = () => {
                   <div className="mt-8 pt-8 border-t border-dashed border-border text-center">
                     <p className="font-body text-xs text-muted-foreground mb-4 uppercase tracking-widest">Don't have the access code yet?</p>
                     <p className="font-body text-sm text-muted-foreground mb-2">Pay via Zelle: send the receipt to alanis@zelle.com and mention the course name.</p>
-                    <a href={`https://wa.me/17135242610?text=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} target="_blank" rel="noopener noreferrer">
-                      <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-[#25D366] hover:bg-[#1ebd5c] text-white shadow-lg">
-                        <MessageCircle className="w-4 h-4" /> Purchase via WhatsApp
-                      </Button>
-                    </a>
+
                     <div className="mt-4 flex flex-col gap-3">
                       <a href={`sms:17135242610?body=Hola%20Alanis!%20Ya%20tengo%20el%20pago%20listo%20para%20el%20curso:%20${encodeURIComponent(course.title)}`} >
                         <Button className="w-full h-12 rounded-xl gap-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-lg">

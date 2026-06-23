@@ -73,7 +73,7 @@ export function BookingWizard() {
   const { ref, isVisible } = useScrollReveal();
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
-  const [contactInfo, setContactInfo] = useState({ name: '', whatsapp: '', email: '' });
+  const [contactInfo, setContactInfo] = useState({ name: '', phone: '', email: '' });
   const [submitted, setSubmitted] = useState(false);
 
   const totalSteps = steps.length + 2;
@@ -98,7 +98,7 @@ export function BookingWizard() {
 
   const canAdvance = () => {
     if (isOptionStep) return (answers[currentStep]?.length || 0) > 0;
-    if (isContactStep) return contactInfo.name && contactInfo.whatsapp;
+    if (isContactStep) return contactInfo.name && contactInfo.phone;
     return true;
   };
 
@@ -108,7 +108,7 @@ export function BookingWizard() {
       await LocalDB.saveBooking({
         id: `book-${Date.now()}`,
         name: contactInfo.name,
-        whatsapp: contactInfo.whatsapp,
+        phone: contactInfo.phone,
         email: contactInfo.email,
         service: recommendation.title,
         date: new Date().toISOString(),
@@ -125,7 +125,7 @@ export function BookingWizard() {
 
   const recommendation = getRecommendation(answers);
 
-  const whatsappMessage = encodeURIComponent(
+  const smsMessage = encodeURIComponent(
     `Hi! I'm ${contactInfo.name}. I'd like to book: ${recommendation.title}. ${recommendation.description}`
   );
 
@@ -204,9 +204,9 @@ export function BookingWizard() {
                   />
                   <input
                     type="tel"
-                    placeholder="WhatsApp number"
-                    value={contactInfo.whatsapp}
-                    onChange={(e) => setContactInfo({ ...contactInfo, whatsapp: e.target.value })}
+                    placeholder="Phone number (SMS)"
+                    value={contactInfo.phone}
+                    onChange={(e) => setContactInfo({ ...contactInfo, phone: e.target.value })}
                     className="w-full rounded-xl border border-border bg-background px-5 py-3.5 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 transition-shadow"
                   />
                   <input
@@ -235,7 +235,7 @@ export function BookingWizard() {
                   {recommendation.description}
                 </p>
                 <div className="flex flex-col gap-3 max-w-sm mx-auto">
-                  <a href={`sms:17135242610?body=${whatsappMessage}`}>
+                  <a href={`sms:17135242610?body=${smsMessage}`}>
                     <Button variant="gold" size="xl" className="w-full gap-3 shadow-lg shadow-accent/20">
                       <MessageSquare className="w-5 h-5" />
                       Confirmar vía SMS
