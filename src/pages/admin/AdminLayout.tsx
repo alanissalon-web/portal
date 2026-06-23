@@ -26,6 +26,7 @@ const navItems = [
   { label: 'Productos Shop', icon: ShoppingBag, path: '/admin/products' },
   { label: 'Reservas', icon: Calendar, path: '/admin/bookings' },
   { label: 'Contenido Visual', icon: Globe, path: '/admin/content' },
+  { label: 'Blog', icon: Edit3, path: '/admin/blog' },
   { label: 'Lista de Espera', icon: Users, path: '/admin/waitlist' },
   { label: 'Multimedia', icon: ImageIcon, path: '/admin/media' },
   { label: 'Mensajes', icon: MessageSquare, path: '/admin/messages' },

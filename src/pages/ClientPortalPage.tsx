@@ -746,7 +746,7 @@ export default function ClientPortalPage() {
                         <input type="file" id="avatar-upload" className="hidden" accept="image/*" onChange={handleAvatarUpload} disabled={uploadingAvatar} />
                         <label 
                           htmlFor="avatar-upload"
-                          className={`inline-flex items-center justify-center gap-2 px-3 py-1.5 text-sm font-medium rounded-md border border-border bg-background hover:bg-muted transition-colors cursor-pointer ${uploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}
+                          className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl border border-accent text-accent hover:bg-accent hover:text-white transition-all shadow-sm cursor-pointer ${uploadingAvatar ? 'opacity-50 pointer-events-none' : ''}`}
                         >
                           <Camera className="w-4 h-4" />
                           Cambiar Foto
