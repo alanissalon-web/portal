@@ -98,7 +98,7 @@ export function HeroSection() {
             <Award className="w-4 h-4 text-accent" />
             <EditableText 
               section="hero" 
-              field="badge" 
+              field="hero_badge" 
               defaultText="Excellence in Houston" 
               as="span"
               className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium"
