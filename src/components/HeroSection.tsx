@@ -19,7 +19,7 @@ export function HeroSection() {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
 
-  const currentHeroImage = heroImage;
+  const currentHeroImage = content['hero']?.bg_image || heroImage;
 
   const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -3,6 +3,7 @@ import { Image as ImageIcon, Upload, Trash2, Search, Filter, Loader2 } from 'luc
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
+import { supabase } from '@/lib/supabase';
 
 const AdminMedia = () => {
   const [files, setFiles] = useState<any[]>([]);
@@ -21,22 +22,37 @@ const AdminMedia = () => {
     fetchFiles();
   }, []);
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const newMedia = {
-          name: file.name,
-          size: `${(file.size / 1024).toFixed(1)}KB`,
-          type: file.type,
-          url: reader.result as string
-        };
-        await LocalDB.saveMedia(newMedia);
-        toast({ title: 'Archivo subido', description: `${file.name} se ha guardado en la biblioteca.` });
-        await fetchFiles();
+    if (!file) return;
+
+    try {
+      setLoading(true);
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `media/${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(fileName, file, { contentType: file.type, upsert: true });
+        
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('site-images').getPublicUrl(fileName);
+      const url = data.publicUrl;
+
+      const newMedia = {
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(1)}KB`,
+        type: file.type,
+        url: url
       };
-      reader.readAsDataURL(file);
+      await LocalDB.saveMedia(newMedia);
+      
+      toast({ title: 'Archivo subido', description: `${file.name} se ha guardado en la biblioteca.` });
+      await fetchFiles();
+    } catch (error: any) {
+      toast({ title: 'Error al subir', description: error.message, variant: 'destructive' });
+      setLoading(false);
     }
   };
 
