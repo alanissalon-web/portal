@@ -63,7 +63,7 @@ export function SalonNavbar() {
             <motion.img
               src={logo}
               alt="Alanís Salon & Spa"
-              className={`transition-all duration-500 ${scrolled ? 'h-20' : 'h-24 md:h-32'}`}
+              className={`w-auto object-contain transition-all duration-500 ${scrolled ? 'h-20' : 'h-24 md:h-32'}`}
               whileHover={{ scale: 1.02 }}
             />
           </Link>
@@ -163,7 +163,7 @@ export function SalonNavbar() {
             className="fixed inset-0 z-[60] bg-white lg:hidden flex flex-col"
           >
             <div className="flex items-center justify-between p-6 border-b border-black/5">
-              <img src={logo} alt="Alanís Salon & Spa" className="h-20" />
+              <img src={logo} alt="Alanís Salon & Spa" className="h-20 w-auto object-contain" />
               <button
                 onClick={() => setMobileOpen(false)}
                 className="p-2 bg-charcoal/5 rounded-full text-charcoal"
@@ -172,7 +172,7 @@ export function SalonNavbar() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-10 px-8 flex flex-col gap-8">
+            <div className="flex-1 overflow-y-auto py-6 px-8 flex flex-col gap-5">
               {navLinks.map((link, i) => (
                 <motion.div
                   key={link.href}
@@ -183,7 +183,7 @@ export function SalonNavbar() {
                   <Link
                     to={link.href}
                     onClick={() => setMobileOpen(false)}
-                    className="block font-display text-4xl font-light text-charcoal hover:text-accent transition-colors"
+                    className="block font-display text-2xl font-light text-charcoal hover:text-accent transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -193,19 +193,13 @@ export function SalonNavbar() {
 
             </div>
 
-            <div className="p-8 border-t border-black/5 space-y-4">
+            <div className="p-6 border-t border-black/5 space-y-4">
               <a href="tel:17135242610" className="block">
                 <Button variant="gold" className="w-full gap-2 h-14 text-base font-bold shadow-lg shadow-accent/20">
-                  <PhoneCall className="w-5 h-5" /> Llamar Ahora (Free Call)
+                  <PhoneCall className="w-5 h-5" /> Llamar Ahora
                 </Button>
               </a>
-              <a href="tel:17135242610">
-                <Button variant="default" size="xl" className="w-full text-lg">
-                  <Phone className="w-5 h-5 mr-3" />
-                  Call Us Now
-                </Button>
-              </a>
-              <p className="text-center font-body text-xs text-muted-foreground tracking-widest uppercase py-4">
+              <p className="text-center font-body text-xs text-muted-foreground tracking-widest uppercase py-2">
                 Houston's Premiere Salon
               </p>
               <div className="flex justify-center pt-2">
