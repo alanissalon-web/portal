@@ -118,8 +118,8 @@ const AdminLayout = () => {
           </div>
           <div className="flex gap-2">
             <Link to="/" className="flex-1">
-              <Button variant="outline" size="sm" className="w-full rounded-lg gap-2 text-[11px] h-9">
-                <ArrowLeft className="w-3 h-3" /> Ver Sitio
+              <Button variant="outline" size="sm" className="w-full rounded-lg gap-2 text-[11px] h-9 border-accent text-accent hover:bg-accent hover:text-white transition-colors">
+                <ArrowLeft className="w-3 h-3" /> Volver al Home
               </Button>
             </Link>
             <Button 

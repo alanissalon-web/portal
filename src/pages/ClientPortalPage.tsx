@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import {
   GraduationCap, Heart, Calendar, MessageSquare, LogOut, BookOpen,
   ExternalLink, Clock, Trash2, ShoppingBag, User, Loader2,
-  CheckCircle, Award, Mail, Send, Plus, X, Settings, Camera
+  CheckCircle, Award, Mail, Send, Plus, X, Settings, Camera, ArrowLeft
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Send as SendIcon, CheckCheck } from 'lucide-react';
@@ -381,7 +381,15 @@ export default function ClientPortalPage() {
                 <p className="font-body text-xs text-white/40 mt-1">{student?.email}</p>
               </div>
             </div>
-            <div className="flex gap-3 mt-4 sm:mt-0">
+            <div className="flex flex-wrap gap-3 mt-4 sm:mt-0">
+              <Button
+                variant="outline"
+                className="border-white/20 text-white hover:bg-white/10 gap-2 rounded-xl"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Volver al Home
+              </Button>
               <Button
                 variant="outline"
                 className="border-white/20 text-white hover:bg-white/10 gap-2 rounded-xl"
