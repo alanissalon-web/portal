@@ -188,7 +188,7 @@ const CourseDetailPage = () => {
     };
 
     const toggleFullscreen = (e: React.MouseEvent) => {
-      e.stopPropagation(); // Evitar que el clic pause/reproduzca el video
+      e.stopPropagation(); // Prevent click from pausing/playing the video
       if (!document.fullscreenElement) {
         containerRef.current?.requestFullscreen().catch(err => {
           console.error(`Error attempting to enable full-screen mode: ${err.message}`);
@@ -202,42 +202,42 @@ const CourseDetailPage = () => {
       <div 
         ref={containerRef}
         className="relative w-full aspect-video rounded-3xl overflow-hidden bg-black group mx-auto"
-        onContextMenu={(e) => e.preventDefault()} // Bloquear click derecho
+        onContextMenu={(e) => e.preventDefault()} // Block right click
       >
         <iframe 
           ref={iframeRef}
-          className="w-full h-full absolute inset-0 pointer-events-none" // Deshabilita clicks directos al iframe
+          className="w-full h-full absolute inset-0 pointer-events-none" // Disables direct clicks to the iframe
           src={embedUrl} 
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen={false}
           title="Lesson Video"
         />
         
-        {/* Capa invisible que cubre todo el video, intercepta clicks e impide el doble click o menu */}
+        {/* Invisible layer that covers the entire video, intercepts clicks and prevents double click or menu */}
         <div 
           className="absolute inset-0 z-10 flex items-center justify-center cursor-pointer bg-transparent transition-colors"
           onClick={togglePlay}
           onDoubleClick={(e) => e.preventDefault()}
           onContextMenu={(e) => e.preventDefault()}
         >
-          {/* Capa para ocultar el título de YouTube cuando está en pausa */}
+          {/* Layer to hide YouTube title when paused */}
           {!isPlaying && isYoutube && (
             <>
-              {/* Barra negra sólida para tapar el texto */}
+              {/* Solid black bar to cover the text */}
               <div className="absolute top-0 left-0 right-0 h-16 bg-black z-[5] pointer-events-none" />
-              {/* Degradado suave para integrarlo con el video */}
+              {/* Smooth gradient to blend with the video */}
               <div className="absolute top-16 left-0 right-0 h-12 bg-gradient-to-b from-black to-transparent z-[5] pointer-events-none" />
             </>
           )}
 
-          {/* Botón de Play personalizado (solo se muestra cuando está pausado) */}
+          {/* Custom Play button (only shown when paused) */}
           {!isPlaying && (
             <div className="w-20 h-20 bg-accent/90 backdrop-blur-md text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-10">
               <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
             </div>
           )}
           
-          {/* Controles de la barra inferior (siempre visibles o en hover) */}
+          {/* Bottom bar controls (always visible or on hover) */}
           <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
             <button 
               onClick={toggleFullscreen}

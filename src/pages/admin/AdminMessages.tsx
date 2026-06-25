@@ -149,7 +149,7 @@ const AdminMessages = () => {
     const lastMsg = userMsgs[userMsgs.length - 1];
     return {
       phone,
-      name: lastMsg?.name || 'Cliente',
+      name: lastMsg?.name || 'Client',
       lastMsg,
       unread: userMsgs.some(m => m.status === 'new' && m.email === phone)
     };
