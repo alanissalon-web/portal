@@ -119,7 +119,7 @@ export default function ClientPortalPage() {
 
         const mappedRes = (resData || []).map((res: any) => {
           const prod = (allProducts || []).find((p: any) => p.id === res.product_id);
-          return { ...res, productName: prod?.name || 'Producto', productPrice: prod?.price || 0 };
+          return { ...res, productName: prod?.name || 'Product', productPrice: prod?.price || 0 };
         });
 
         const idStr = student.email;
@@ -225,7 +225,7 @@ export default function ClientPortalPage() {
     setMsgSending(true);
     try {
       const { data, error } = await supabase.from('messages').insert({
-        name: student?.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Cliente',
+        name: student?.user_metadata?.full_name || student?.email?.split('@')?.[0] || 'Client',
         email: student?.email,
         message: msgText.trim(),
         type: 'chat',
@@ -472,7 +472,7 @@ export default function ClientPortalPage() {
             </div>
           ) : (
             <>
-              {/* ── CURSOS ── */}
+              {/* ── COURSES ── */}
               {activeTab === 'courses' && (
                 <div>
                   <div className="mb-8">
@@ -506,7 +506,7 @@ export default function ClientPortalPage() {
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                             <div className="absolute bottom-3 left-4">
                               <span className="bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
-                                <CheckCircle className="w-3 h-3" /> Acceso Activo
+                                <CheckCircle className="w-3 h-3" /> Active Access
                               </span>
                             </div>
                           </div>
@@ -532,7 +532,7 @@ export default function ClientPortalPage() {
                 </div>
               )}
 
-              {/* ── FAVORITOS ── */}
+              {/* ── FAVORITES ── */}
               {activeTab === 'favorites' && (
                 <div>
                   <div className="mb-8">
@@ -579,7 +579,7 @@ export default function ClientPortalPage() {
                 </div>
               )}
 
-              {/* ── RESERVACIONES ── */}
+              {/* ── RESERVATIONS ── */}
               {activeTab === 'reservations' && (
                 <div>
                   <div className="mb-8">
@@ -632,7 +632,7 @@ export default function ClientPortalPage() {
                 </div>
               )}
 
-              {/* ── COMPRAS ── */}
+              {/* ── PURCHASES ── */}
               {activeTab === 'purchases' && (
                 <div>
                   <div className="mb-8">
@@ -657,13 +657,13 @@ export default function ClientPortalPage() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {/* Aquí se mapearían las compras locales si existieran */}
+                      {/* Local purchases would be mapped here if they existed */}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* ── MENSAJES (LIVE CHAT) ── */}
+              {/* ── MESSAGES (LIVE CHAT) ── */}
               {activeTab === 'messages' && (
                 <div className="flex flex-col h-[600px] bg-white rounded-3xl border border-border shadow-sm overflow-hidden">
                   <div className="p-6 border-b border-border bg-accent/5 flex items-center gap-4">

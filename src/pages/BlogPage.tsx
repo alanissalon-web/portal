@@ -28,12 +28,12 @@ const BlogPage = () => {
           <img src={salonLoungeImage} alt="Alanís Salon Blog" className="w-full h-full object-cover opacity-20" />
         </div>
         <div className="relative z-10 container mx-auto px-6 py-16 text-center">
-          <span className="font-body text-xs uppercase tracking-[0.3em] text-accent mb-4 block">Descubre más</span>
+          <span className="font-body text-xs uppercase tracking-[0.3em] text-accent mb-4 block">Discover more</span>
           <h1 className="font-display text-5xl md:text-6xl font-light text-primary-foreground mb-4">
-            Blog & Consejos
+            Blog & Tips
           </h1>
           <p className="font-body text-lg text-primary-foreground/70 max-w-lg mx-auto">
-            Tendencias, cuidados del cabello y secretos de expertos.
+            Trends, hair care, and expert secrets.
           </p>
         </div>
       </section>
@@ -69,7 +69,7 @@ const BlogPage = () => {
                       {blog.description}
                     </p>
                     <div className="flex items-center gap-2 text-accent font-bold text-xs uppercase tracking-widest mt-auto">
-                      Leer Artículo <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      Read Article <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </div>
                   </div>
                 </Link>
@@ -78,9 +78,9 @@ const BlogPage = () => {
           ) : (
             <div className="text-center py-16 bg-accent/5 rounded-[2.5rem] border border-dashed border-accent/20">
               <BookOpen className="w-12 h-12 text-accent/30 mx-auto mb-4" />
-              <h2 className="font-display text-3xl font-medium mb-4">Próximamente</h2>
+              <h2 className="font-display text-3xl font-medium mb-4">Coming Soon</h2>
               <p className="font-body text-muted-foreground max-w-xl mx-auto text-lg leading-relaxed">
-                Estamos preparando artículos increíbles para ayudarte a cuidar tu cabello en casa. ¡Vuelve pronto!
+                We are preparing amazing articles to help you care for your hair at home. Check back soon!
               </p>
             </div>
           )}

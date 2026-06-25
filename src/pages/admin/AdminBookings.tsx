@@ -80,18 +80,18 @@ const AdminBookings = () => {
       ) : filteredBookings.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">
           <Calendar className="w-12 h-12 text-muted-foreground/20 mx-auto mb-4" />
-          <p className="font-body text-sm text-muted-foreground">No hay reservas registradas.</p>
+          <p className="font-body text-sm text-muted-foreground">No bookings registered.</p>
         </div>
       ) : (
         <div className="bg-white rounded-3xl border border-black/5 shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-[#FAFAFA] border-b border-black/5">
-                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Cliente</th>
-                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Servicio</th>
-                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Fecha & Hora</th>
-                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Estado</th>
-                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Acciones</th>
+                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Client</th>
+                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Service</th>
+                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Date & Time</th>
+                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</th>
+                <th className="px-6 py-4 font-body text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-black/5">
@@ -126,7 +126,7 @@ const AdminBookings = () => {
                       booking.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'
                     }`}>
                       {booking.status === 'confirmed' ? <CheckCircle className="w-3 h-3" /> : <Clock4 className="w-3 h-3" />}
-                      {booking.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                      {booking.status === 'confirmed' ? 'Confirmed' : 'Pending'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">

@@ -38,7 +38,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       const { data: { session: supaSession } } = await supabase.auth.getSession();
       const localSession = LocalDB.getSession();
       
-      // Si hay sesión local pero no hay sesión en Supabase (o viceversa), o si los IDs no coinciden
+      // If local session exists but no Supabase session (or vice versa), or if IDs don't match
       if (!supaSession && localSession) {
         await LocalDB.logout();
         setUser(null);

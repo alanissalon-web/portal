@@ -20,7 +20,7 @@ interface CourseDisplay {
   badge?: string | null;
 }
 
-// Cursos se cargan desde LocalDB y Supabase
+// Courses load from LocalDB and Supabase
 
 const liveClasses = [
   { title: 'Live Q&A: Extension Troubleshooting', date: 'Every 2nd Thursday', time: '7:00 PM CST', price: 'Free with any course' },
