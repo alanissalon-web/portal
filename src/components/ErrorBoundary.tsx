@@ -34,9 +34,9 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100 p-8">
           <div className="bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full border border-red-100">
-            <h1 className="text-2xl font-bold text-red-600 mb-4">Error Inesperado</h1>
+            <h1 className="text-2xl font-bold text-red-600 mb-4">Unexpected Error</h1>
             <p className="text-gray-600 mb-4 text-sm">
-              Por favor toma una captura de pantalla de esto y envíasela al soporte técnico:
+              Please take a screenshot of this and send it to technical support:
             </p>
             <div className="bg-red-50 p-4 rounded-xl mb-4 overflow-auto max-h-64 border border-red-100 text-xs font-mono text-red-800 whitespace-pre-wrap">
               {this.state.error && this.state.error.toString()}
@@ -47,7 +47,7 @@ export class ErrorBoundary extends Component<Props, State> {
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-red-600 text-white rounded-lg font-medium text-sm hover:bg-red-700"
             >
-              Recargar Página
+              Reload Page
             </button>
           </div>
         </div>

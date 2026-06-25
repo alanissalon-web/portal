@@ -100,7 +100,7 @@ export const VisualSidebar: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-8">
         {/* Structure */}
         <section>
-          <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-4 px-2">Estructura de la Página</h4>
+          <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-4 px-2">Page Structure</h4>
           <div className="space-y-2">
             {currentSections.map((section: Section, index: number) => (
               <div 
@@ -150,7 +150,7 @@ export const VisualSidebar: React.FC = () => {
 
         {/* Library */}
         <section>
-          <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-4 px-2">Librería de Bloques</h4>
+          <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-4 px-2">Block Library</h4>
           <div className="grid grid-cols-2 gap-2">
             {availableBlocks.map(block => (
               <button
@@ -170,7 +170,7 @@ export const VisualSidebar: React.FC = () => {
 
       <div className="p-4 border-t border-border bg-accent/5">
         <p className="text-[10px] text-muted-foreground text-center">
-          Arrastra y suelta para reordenar (Próximamente)
+          Drag and drop to reorder (Coming soon)
         </p>
       </div>
     </motion.div>

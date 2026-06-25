@@ -66,8 +66,8 @@ export const EditableImage: React.FC<EditableImageProps> = ({
       const objectUrl = URL.createObjectURL(file);
       setTempUrl(objectUrl);
       toast({
-        title: 'Advertencia: Storage no disponible',
-        description: 'La imagen se mostrará ahora pero puede no guardarse permanentemente. Verifica el bucket "site-images" en Supabase.',
+        title: 'Warning: Storage unavailable',
+        description: 'The image will be shown now but might not be saved permanently. Check the "site-images" bucket in Supabase.',
         variant: 'destructive',
       });
       console.error('Supabase Storage upload error:', err);
@@ -93,7 +93,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
       }
 
       setSaved(true);
-      toast({ title: '✅ Imagen guardada', description: 'La foto se actualizó correctamente.' });
+      toast({ title: '✅ Image saved', description: 'The photo was updated successfully.' });
       setTimeout(() => {
         setSaved(false);
         setOpen(false);
@@ -101,8 +101,8 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     } catch (err: any) {
       console.error('EditableImage save error:', err);
       toast({
-        title: 'Error al guardar',
-        description: err?.message || 'No se pudo guardar la imagen.',
+        title: 'Error saving',
+        description: err?.message || 'Could not save image.',
         variant: 'destructive',
       });
     } finally {
@@ -123,12 +123,12 @@ export const EditableImage: React.FC<EditableImageProps> = ({
           <PopoverTrigger asChild>
             <Button size="sm" className="pointer-events-auto gap-2 bg-accent hover:bg-accent/90">
               <ImagePlus className="w-4 h-4" />
-              Cambiar Imagen
+              Change Image
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 p-4" onOpenAutoFocus={(e) => e.preventDefault()}>
             <div className="space-y-4">
-              <h4 className="font-display font-medium text-sm">Editar Imagen</h4>
+              <h4 className="font-display font-medium text-sm">Edit Image</h4>
 
               {/* Preview */}
               {tempUrl && (
@@ -139,7 +139,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
 
               {/* URL input */}
               <div className="space-y-2">
-                <label className="text-xs text-muted-foreground block">URL de imagen</label>
+                <label className="text-xs text-muted-foreground block">Image URL</label>
                 <input
                   type="text"
                   value={tempUrl.startsWith('data:') || tempUrl.startsWith('blob:') ? '' : tempUrl}
@@ -151,7 +151,7 @@ export const EditableImage: React.FC<EditableImageProps> = ({
 
               {/* File upload */}
               <div>
-                <label className="text-xs text-muted-foreground block mb-2">O sube desde tu dispositivo</label>
+                <label className="text-xs text-muted-foreground block mb-2">Or upload from your device</label>
                 <label className={cn(
                   'flex items-center justify-center gap-2 w-full py-3 rounded-xl border-2 border-dashed text-xs font-medium cursor-pointer transition-colors',
                   uploading
@@ -159,9 +159,9 @@ export const EditableImage: React.FC<EditableImageProps> = ({
                     : 'border-accent/20 text-accent hover:bg-accent/5 hover:border-accent/40'
                 )}>
                   {uploading ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Subiendo...</>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
                   ) : (
-                    <><Upload className="w-4 h-4" /> Seleccionar foto</>
+                    <><Upload className="w-4 h-4" /> Select photo</>
                   )}
                   <input
                     type="file"
@@ -182,11 +182,11 @@ export const EditableImage: React.FC<EditableImageProps> = ({
                   disabled={uploading || !tempUrl}
                 >
                   {uploading ? (
-                    <><Loader2 className="w-3 h-3 animate-spin" /> Guardando...</>
+                    <><Loader2 className="w-3 h-3 animate-spin" /> Saving...</>
                   ) : saved ? (
-                    <><CheckCircle className="w-3 h-3" /> ¡Guardado!</>
+                    <><CheckCircle className="w-3 h-3" /> Saved!</>
                   ) : (
-                    'Guardar imagen'
+                    'Save image'
                   )}
                 </Button>
                 <Button

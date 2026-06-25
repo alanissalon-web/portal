@@ -174,10 +174,10 @@ export const LocalDB = {
          if (typeof m.message === 'string') {
             if (m.message.startsWith('[IMAGE]')) {
                m.image = m.message.substring(7);
-               m.message = '[Imagen]';
+               m.message = '[Image]';
             } else if (m.message.startsWith('[VOICE]')) {
                m.voice = m.message.substring(7);
-               m.message = '[Nota de voz]';
+               m.message = '[Voice note]';
             }
          }
       });
@@ -431,18 +431,18 @@ export const LocalDB = {
     return { data, error };
   },
   saveBlog: async (blog: any) => {
-    // Si no tiene slug, generarlo desde el título
+    // If no slug, generate from title
     if (!blog.slug && blog.title) {
       blog.slug = blog.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     }
     
-    // Si es actualización
+    // If updating
     if (blog.id) {
       blog.updated_at = new Date().toISOString();
       const { error } = await supabase.from('blogs').update(blog).eq('id', blog.id);
       return { error };
     } else {
-      // Es nuevo
+      // Is new
       const { error } = await supabase.from('blogs').insert(blog);
       return { error };
     }
@@ -462,7 +462,7 @@ export const LocalDB = {
       if (error) return { error: error.message };
       return { data, error: null };
     } catch (err: any) {
-      return { error: err.message || 'Error al registrarse' };
+      return { error: err.message || 'Registration error' };
     }
   },
   login: async (email: string, pass: string) => {
@@ -481,7 +481,7 @@ export const LocalDB = {
       
       return { data: session, error: null };
     } catch (err: any) {
-      return { data: null, error: err.message || 'Error al conectar' };
+      return { data: null, error: err.message || 'Connection error' };
     }
   },
   getSession: () => {
