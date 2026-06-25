@@ -14,13 +14,13 @@ import {
 } from 'recharts';
 
 const data = [
-  { name: 'Lun', visitas: 400, ventas: 240 },
-  { name: 'Mar', visitas: 300, ventas: 139 },
-  { name: 'Mie', visitas: 200, ventas: 980 },
-  { name: 'Jue', visitas: 278, ventas: 390 },
-  { name: 'Vie', visitas: 189, ventas: 480 },
-  { name: 'Sab', visitas: 239, ventas: 380 },
-  { name: 'Dom', visitas: 349, ventas: 430 },
+  { name: 'Mon', visits: 400, sales: 240 },
+  { name: 'Tue', visits: 300, sales: 139 },
+  { name: 'Wed', visits: 200, sales: 980 },
+  { name: 'Thu', visits: 278, sales: 390 },
+  { name: 'Fri', visits: 189, sales: 480 },
+  { name: 'Sat', visits: 239, sales: 380 },
+  { name: 'Sun', visits: 349, sales: 430 },
 ];
 
 const AdminAnalytics = () => {
@@ -28,17 +28,17 @@ const AdminAnalytics = () => {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Analíticas</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Monitorea el tráfico y rendimiento de tu plataforma.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Analytics</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Monitor your platform traffic and performance.</p>
         </div>
       </div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {[
-          { label: 'Visitas Totales', value: '14,280', icon: Eye, trend: '+12%', up: true },
-          { label: 'Nuevos Usuarios', value: '840', icon: Users, trend: '+5%', up: true },
-          { label: 'Tasa de Conversión', value: '3.2%', icon: TrendingUp, trend: '-1%', up: false },
-          { label: 'Ventas Academy', value: '$8,450', icon: ShoppingCart, trend: '+18%', up: true },
+          { label: 'Total Visits', value: '14,280', icon: Eye, trend: '+12%', up: true },
+          { label: 'New Users', value: '840', icon: Users, trend: '+5%', up: true },
+          { label: 'Conversion Rate', value: '3.2%', icon: TrendingUp, trend: '-1%', up: false },
+          { label: 'Academy Sales', value: '$8,450', icon: ShoppingCart, trend: '+18%', up: true },
         ].map((item, i) => (
           <div key={i} className="bg-white rounded-2xl p-6 border border-black/5 shadow-sm">
             <div className="flex items-center justify-between mb-4">
@@ -58,7 +58,7 @@ const AdminAnalytics = () => {
 
       <div className="grid lg:grid-cols-2 gap-8">
         <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-          <h3 className="font-display text-lg font-medium mb-8">Tráfico Semanal</h3>
+          <h3 className="font-display text-lg font-medium mb-8">Weekly Traffic</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data}>
@@ -72,14 +72,14 @@ const AdminAnalytics = () => {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fontFamily: 'Inter'}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontFamily: 'Inter'}} />
                 <Tooltip />
-                <Area type="monotone" dataKey="visitas" stroke="#C4A484" fillOpacity={1} fill="url(#colorVisitas)" />
+                <Area type="monotone" dataKey="visits" stroke="#C4A484" fillOpacity={1} fill="url(#colorVisitas)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-          <h3 className="font-display text-lg font-medium mb-8">Ventas por Día</h3>
+          <h3 className="font-display text-lg font-medium mb-8">Sales per Day</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data}>
@@ -87,7 +87,7 @@ const AdminAnalytics = () => {
                 <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 12, fontFamily: 'Inter'}} />
                 <YAxis axisLine={false} tickLine={false} tick={{fontSize: 12, fontFamily: 'Inter'}} />
                 <Tooltip />
-                <Bar dataKey="ventas" fill="#1A1A1A" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="sales" fill="#1A1A1A" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

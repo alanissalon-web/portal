@@ -48,18 +48,18 @@ const AdminMedia = () => {
       };
       await LocalDB.saveMedia(newMedia);
       
-      toast({ title: 'Archivo subido', description: `${file.name} se ha guardado en la biblioteca.` });
+      toast({ title: 'File uploaded', description: `${file.name} has been saved to the library.` });
       await fetchFiles();
     } catch (error: any) {
-      toast({ title: 'Error al subir', description: error.message, variant: 'destructive' });
+      toast({ title: 'Upload error', description: error.message, variant: 'destructive' });
       setLoading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('¿Estás seguro de eliminar este archivo?')) {
+    if (confirm('Are you sure you want to delete this file?')) {
       await LocalDB.deleteMedia(id);
-      toast({ title: 'Archivo eliminado' });
+      toast({ title: 'File deleted' });
       await fetchFiles();
     }
   };
@@ -70,11 +70,11 @@ const AdminMedia = () => {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Multimedia</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Gestiona las imágenes y archivos de tu sitio.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Media</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Manage your site images and files.</p>
         </div>
         <label className="cursor-pointer bg-accent hover:bg-accent/90 text-white px-6 py-2.5 rounded-xl transition-all shadow-lg shadow-accent/20 flex items-center gap-2 font-body text-sm">
-          <Upload className="w-4 h-4" /> Subir Archivo
+          <Upload className="w-4 h-4" /> Upload File
           <input type="file" className="hidden" onChange={handleUpload} accept="image/*" />
         </label>
       </div>
@@ -84,21 +84,21 @@ const AdminMedia = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
             type="text" 
-            placeholder="Buscar archivos..." 
+            placeholder="Search files..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-black/5 rounded-xl pl-10 pr-4 py-2.5 font-body text-sm outline-none focus:ring-1 focus:ring-accent shadow-sm"
           />
         </div>
         <Button variant="outline" className="gap-2 rounded-xl border-black/5 bg-white shadow-sm">
-          <Filter className="w-4 h-4" /> Filtros
+          <Filter className="w-4 h-4" /> Filters
         </Button>
       </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <Loader2 className="w-8 h-8 text-accent animate-spin" />
-          <p className="font-body text-sm text-muted-foreground">Cargando biblioteca...</p>
+          <p className="font-body text-sm text-muted-foreground">Loading library...</p>
         </div>
       ) : filteredFiles.length === 0 ? (
         <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-border">

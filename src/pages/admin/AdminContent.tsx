@@ -38,19 +38,18 @@ const AdminContent = () => {
     
     [newSections[index], newSections[targetIndex]] = [newSections[targetIndex], newSections[index]];
     setSections(newSections);
-    LocalDB.saveContent('page_layout', { sections: newSections });
-    toast({ title: 'Orden actualizado' });
+    toast({ title: 'Order updated' });
   };
 
   const toggleSection = async (id: string) => {
     const newSections = sections.map(s => s.id === id ? { ...s, hidden: !s.hidden } : s);
     setSections(newSections);
     await LocalDB.saveContent('page_layout', { sections: newSections });
-    toast({ title: 'Visibilidad actualizada' });
+    toast({ title: 'Visibility updated' });
   };
 
   const resetToDefault = async () => {
-    if (confirm('¿Estás seguro de restablecer el diseño por defecto? Se perderá el orden personalizado.')) {
+    if (confirm('Are you sure you want to reset the default layout? Custom order will be lost.')) {
       await LocalDB.saveContent('page_layout', { sections: null });
       window.location.reload();
     }
@@ -60,16 +59,16 @@ const AdminContent = () => {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-display text-4xl font-light text-foreground tracking-tight">Diseño Visual</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Controla la estructura y el contenido de tu sitio web.</p>
+          <h1 className="font-display text-4xl font-light text-foreground tracking-tight">Visual Design</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Control the structure and content of your website.</p>
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={resetToDefault} className="rounded-xl border-black/5 bg-white shadow-sm">
-            <RefreshCw className="w-4 h-4" /> Restablecer
+            <RefreshCw className="w-4 h-4" /> Reset
           </Button>
           <Link to="/">
             <Button className="bg-accent hover:bg-accent/90 shadow-lg shadow-accent/20 rounded-xl px-6 gap-2">
-              <Eye className="w-4 h-4" /> Ver en Vivo
+              <Eye className="w-4 h-4" /> View Live
             </Button>
           </Link>
         </div>
@@ -83,13 +82,13 @@ const AdminContent = () => {
               <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md">
                 <Globe className="w-6 h-6 text-white" />
               </div>
-              <h2 className="font-display text-3xl font-medium mb-3">Editor Visual Interactivo</h2>
+              <h2 className="font-display text-3xl font-medium mb-3">Interactive Visual Editor</h2>
               <p className="font-body text-white/70 mb-8 max-w-md leading-relaxed">
-                Edita textos, cambia imágenes y reordena secciones directamente en el sitio con nuestro constructor visual "Live".
+                Edit text, change images, and reorder sections directly on the site with our Live visual builder.
               </p>
               <Link to="/">
                 <Button className="bg-white text-accent hover:bg-white/90 rounded-xl font-bold px-8 h-12">
-                  Abrir Editor <ArrowRight className="w-4 h-4 ml-2" />
+                  Open Editor <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>
             </div>
@@ -98,7 +97,7 @@ const AdminContent = () => {
 
           {/* Current Layout Summary */}
           <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-            <h3 className="font-display text-xl font-medium mb-6">Estructura de la Página</h3>
+            <h3 className="font-display text-xl font-medium mb-6">Page Structure</h3>
             <div className="space-y-3">
               {sections.map((s, i) => (
                 <div 
@@ -147,10 +146,10 @@ const AdminContent = () => {
         <div className="space-y-6">
           {/* Quick Settings */}
           <div className="bg-white rounded-3xl p-8 border border-black/5 shadow-sm">
-            <h3 className="font-display text-lg font-medium mb-6">Estilos Globales</h3>
+            <h3 className="font-display text-lg font-medium mb-6">Global Styles</h3>
             <div className="space-y-6">
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Color de Acento</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Accent Color</label>
                 <div className="flex gap-2">
                   {['#C4A484', '#1A1A1A', '#E5DED5', '#D4AF37'].map(color => (
                     <button 
@@ -165,7 +164,7 @@ const AdminContent = () => {
                 </div>
               </div>
               <div className="space-y-3">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Tipografía Principal</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Main Typography</label>
                 <select className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-3 text-sm font-body outline-none">
                   <option>Cormorant Garamond (Display)</option>
                   <option>Inter (Body)</option>
@@ -173,7 +172,7 @@ const AdminContent = () => {
                 </select>
               </div>
               <Button variant="outline" className="w-full rounded-xl border-black/5 h-12 gap-2 text-xs font-bold">
-                <Palette className="w-4 h-4" /> Personalizar Tema
+                <Palette className="w-4 h-4" /> Customize Theme
               </Button>
             </div>
           </div>
@@ -181,10 +180,10 @@ const AdminContent = () => {
           <div className="bg-cream rounded-3xl p-8 border border-black/5">
             <h3 className="font-display text-lg font-medium mb-3">SEO & Meta</h3>
             <p className="text-xs text-muted-foreground mb-6 leading-relaxed">
-              Configura cómo se ve tu sitio en Google y redes sociales.
+              Configure how your site looks on Google and social networks.
             </p>
             <Button variant="ghost" className="w-full justify-between text-accent font-bold text-xs p-0 h-auto hover:bg-transparent group">
-              Configurar SEO <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              Configure SEO <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>

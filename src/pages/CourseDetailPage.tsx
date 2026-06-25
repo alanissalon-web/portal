@@ -242,7 +242,7 @@ const CourseDetailPage = () => {
             <button 
               onClick={toggleFullscreen}
               className="bg-black/50 hover:bg-accent backdrop-blur-sm text-white p-2.5 rounded-full transition-colors"
-              title="Pantalla Completa"
+              title="Full Screen"
             >
               <Maximize className="w-5 h-5" />
             </button>
@@ -271,10 +271,10 @@ const CourseDetailPage = () => {
       <div className="min-h-screen bg-background">
         <SalonNavbar />
         <div className="pt-40 text-center container mx-auto px-6">
-          <h1 className="font-display text-4xl text-foreground mb-4">Curso No Encontrado</h1>
-          <p className="font-body text-muted-foreground mb-8">El curso que buscas no existe o ha sido movido.</p>
+          <h1 className="font-display text-4xl text-foreground mb-4">Course Not Found</h1>
+          <p className="font-body text-muted-foreground mb-8">The course you are looking for does not exist or has been moved.</p>
           <Link to="/academy">
-            <Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" /> Volver a Academy</Button>
+            <Button variant="outline" className="rounded-xl"><ArrowLeft className="w-4 h-4 mr-2" /> Back to Academy</Button>
           </Link>
         </div>
       </div>
@@ -289,7 +289,7 @@ const CourseDetailPage = () => {
         <div className="container mx-auto px-4 md:px-6 max-w-7xl">
           <Link to="/academy" className="flex items-center gap-2 text-muted-foreground hover:text-accent transition-colors mb-8 group w-fit">
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-body text-xs uppercase tracking-widest font-bold">Cursos Academy</span>
+            <span className="font-body text-xs uppercase tracking-widest font-bold">Academy Courses</span>
           </Link>
 
           <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
@@ -329,7 +329,7 @@ const CourseDetailPage = () => {
                   <div className={`space-y-6 ${isUnlocked ? 'flex-1' : ''}`}>
                     <div className="flex items-center gap-3">
                       <span className="bg-accent/10 text-accent px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                        {course.type === 'live' ? 'Sesión en Vivo' : 'Video Masterclass'}
+                        {course.type === 'live' ? 'Live Session' : 'Video Masterclass'}
                       </span>
                       {course.badge && (
                         <span className="bg-black text-white px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest">
@@ -353,7 +353,7 @@ const CourseDetailPage = () => {
                         </div>
                         <div>
                           <p className="font-display text-sm font-medium">{course.duration}</p>
-                          <p className="font-body text-[10px] text-muted-foreground uppercase">Duración Total</p>
+                          <p className="font-body text-[10px] text-muted-foreground uppercase">Total Duration</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -362,7 +362,7 @@ const CourseDetailPage = () => {
                         </div>
                         <div>
                           <p className="font-display text-sm font-medium">{course.level}</p>
-                          <p className="font-body text-[10px] text-muted-foreground uppercase">Nivel</p>
+                          <p className="font-body text-[10px] text-muted-foreground uppercase">Level</p>
                         </div>
                       </div>
                     </div>
@@ -398,9 +398,9 @@ const CourseDetailPage = () => {
                 {/* Curriculum Section */}
                 <div className="p-5 md:p-8 lg:p-12 pt-8 mt-2">
                   <div className="mb-8">
-                    <h3 className="font-display text-2xl font-medium">Contenido del Curso</h3>
+                    <h3 className="font-display text-2xl font-medium">Course Content</h3>
                     <p className="font-body text-sm text-muted-foreground mt-1">
-                      {course.curriculum.length} módulos incluidos
+                      {course.curriculum.length} modules included
                     </p>
                   </div>
                   
@@ -418,7 +418,7 @@ const CourseDetailPage = () => {
                           <button
                             onClick={() => {
                               if (!isUnlocked) {
-                                toast({ title: "Curso bloqueado", description: "Por favor desbloquea el curso para ver este módulo." });
+                                toast({ title: "Course locked", description: "Please unlock the course to view this module." });
                                 return;
                               }
                               setActiveLesson(i);
@@ -464,29 +464,28 @@ const CourseDetailPage = () => {
                                     ) : (
                                       <div className="aspect-video flex flex-col items-center justify-center bg-charcoal text-white/20">
                                         <Video className="w-12 h-12 mb-2" />
-                                        <p className="font-display text-sm">Video en Preparación...</p>
+                                        <p className="font-display text-sm">Video in Preparation...</p>
                                       </div>
                                     )}
                                   </div>
 
-                                  {/* Right: Material Download Section */}
                                   <div className="w-full md:flex-1 bg-accent/5 border border-accent/10 rounded-2xl p-6 flex flex-col justify-center items-center text-center">
-                                    <h4 className="font-display text-lg font-medium mb-2 text-foreground">Material Adjunto</h4>
+                                    <h4 className="font-display text-lg font-medium mb-2 text-foreground">Attached Material</h4>
                                     {lesson.pdf_url ? (
                                       <>
-                                        <p className="font-body text-xs text-muted-foreground mb-4">Descarga el documento de apoyo para este módulo.</p>
+                                        <p className="font-body text-xs text-muted-foreground mb-4">Download the supporting document for this module.</p>
                                         <a 
                                           href={lesson.pdf_url} 
                                           download={lesson.pdf_name || 'Material.pdf'} 
                                           className="inline-flex items-center justify-center gap-2 bg-accent text-white hover:bg-accent/90 px-6 py-3 rounded-full font-bold text-sm transition-colors shadow-sm w-full max-w-[200px]"
                                         >
                                           <Download className="w-4 h-4" /> 
-                                          Descargar PDF
+                                          Download PDF
                                         </a>
                                       </>
                                     ) : (
                                       <p className="font-body text-sm text-muted-foreground">
-                                        No hay material adicional para este módulo.
+                                        There is no additional material for this module.
                                       </p>
                                     )}
                                   </div>
@@ -495,7 +494,7 @@ const CourseDetailPage = () => {
                                 {/* Bottom: General Content Text */}
                                 <div className="pt-2">
                                   <p className="font-body text-foreground/80 text-sm leading-relaxed whitespace-pre-wrap">
-                                    {lesson.content || 'Explora esta fase detalladamente en la masterclass.'}
+                                    {lesson.content || 'Explore this phase in detail in the masterclass.'}
                                   </p>
                                 </div>
                               </div>
@@ -506,7 +505,7 @@ const CourseDetailPage = () => {
                     ) : (
                       <div className="text-center py-12 bg-accent/5 rounded-2xl border border-dashed border-accent/20">
                         <BookOpen className="w-10 h-10 text-accent/20 mx-auto mb-4" />
-                        <h3 className="font-display text-sm text-foreground">Contenido en Preparación</h3>
+                        <h3 className="font-display text-sm text-foreground">Content in Preparation</h3>
                       </div>
                     )}
                   </div>

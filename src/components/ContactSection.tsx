@@ -29,7 +29,7 @@ export function ContactSection() {
     });
 
     setFormSubmitted(true);
-    toast({ title: '¡Mensaje enviado!', description: "Te contactaremos en menos de 24 horas." });
+    toast({ title: 'Message sent!', description: "We will contact you in less than 24 hours." });
   };
 
   return (

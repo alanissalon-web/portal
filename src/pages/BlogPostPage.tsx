@@ -44,10 +44,10 @@ const BlogPostPage = () => {
       <div className="min-h-screen flex flex-col">
         <SalonNavbar />
         <div className="flex-1 flex flex-col justify-center items-center text-center p-6">
-          <h1 className="font-display text-4xl mb-4">Artículo no encontrado</h1>
-          <p className="font-body text-muted-foreground mb-8">El artículo que buscas no existe o ha sido movido.</p>
+          <h1 className="font-display text-4xl mb-4">Article not found</h1>
+          <p className="font-body text-muted-foreground mb-8">The article you are looking for does not exist or has been moved.</p>
           <Link to="/blog" className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 rounded-full font-bold hover:bg-accent/90 transition-colors">
-            <ArrowLeft className="w-4 h-4" /> Volver al Blog
+            <ArrowLeft className="w-4 h-4" /> Back to Blog
           </Link>
         </div>
         <SalonFooter />
@@ -56,7 +56,7 @@ const BlogPostPage = () => {
   }
 
   // Format date
-  const publishDate = blog.created_at ? new Date(blog.created_at).toLocaleDateString('es-ES', {
+  const publishDate = blog.created_at ? new Date(blog.created_at).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
@@ -72,7 +72,7 @@ const BlogPostPage = () => {
           {/* Botón flotante/visible de regreso */}
           <div className="flex justify-center md:justify-start mb-8 md:-ml-12 lg:-ml-24">
             <Link to="/blog" className="inline-flex items-center gap-2 bg-accent text-white shadow-md hover:bg-accent/90 transition-all px-6 py-3 rounded-full font-body text-xs uppercase tracking-widest font-bold">
-              <ArrowLeft className="w-4 h-4" /> Volver al Blog
+              <ArrowLeft className="w-4 h-4" /> Back to Blog
             </Link>
           </div>
           

@@ -215,7 +215,7 @@ export default function ClientPortalPage() {
   const handleSignOut = async () => {
     await LocalDB.logout();
     // supabase.auth.signOut() already called inside LocalDB.logout()
-    toast({ title: 'Sesión cerrada', description: 'Hasta pronto 👋' });
+    toast({ title: 'Signed out', description: 'See you soon 👋' });
     navigate('/');
   };
 
@@ -245,7 +245,7 @@ export default function ClientPortalPage() {
         return [...prev, formatted];
       });
     } catch (err: any) {
-      toast({ title: 'Error', description: 'No se pudo enviar el mensaje.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Message could not be sent.', variant: 'destructive' });
     } finally {
       setMsgSending(false);
     }
@@ -254,7 +254,7 @@ export default function ClientPortalPage() {
   const handleRemoveFavorite = async (productId: string) => {
     await LocalDB.toggleFavorite(student.id, productId);
     setProductFavorites(prev => prev.filter(p => p.id !== productId));
-    toast({ title: 'Eliminado de favoritos' });
+    toast({ title: 'Removed from favorites' });
   };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
@@ -271,7 +271,7 @@ export default function ClientPortalPage() {
       if (Object.keys(updates).length > 0) {
         const { data, error } = await supabase.auth.updateUser(updates);
         if (error) throw error;
-        toast({ title: 'Perfil actualizado' });
+        toast({ title: 'Profile updated' });
         
         // Optimistic update so it reflects immediately
         if (data?.user) {
@@ -283,7 +283,7 @@ export default function ClientPortalPage() {
         
         if (settingsPassword) setSettingsPassword('');
       } else {
-        toast({ title: 'Sin cambios', description: 'No modificaste ningún dato.' });
+        toast({ title: 'No changes', description: 'You did not modify any data.' });
       }
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -316,7 +316,7 @@ export default function ClientPortalPage() {
 
       if (updateError) throw updateError;
 
-      toast({ title: 'Foto actualizada' });
+      toast({ title: 'Photo updated' });
       
       if (updateData?.user) {
         setStudent({ ...updateData.user });
@@ -325,7 +325,7 @@ export default function ClientPortalPage() {
         if (session?.user) setStudent({ ...session.user });
       }
     } catch (err: any) {
-      toast({ title: 'Error', description: 'No se pudo subir la imagen.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Image could not be uploaded.', variant: 'destructive' });
     } finally {
       setUploadingAvatar(false);
     }
@@ -388,7 +388,7 @@ export default function ClientPortalPage() {
                 onClick={() => navigate('/')}
               >
                 <ArrowLeft className="w-4 h-4" />
-                Volver al Home
+                Back to Home
               </Button>
               <Button
                 variant="outline"
@@ -791,19 +791,19 @@ export default function ClientPortalPage() {
                         value={settingsEmail}
                         onChange={e => setSettingsEmail(e.target.value)}
                         className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="tu@correo.com"
+                        placeholder="you@email.com"
                       />
-                      <p className="text-[10px] text-muted-foreground mt-1 px-1">Se enviará un correo de confirmación a ambas direcciones al cambiarlo.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1 px-1">A confirmation email will be sent to both addresses upon change.</p>
                     </div>
 
                     <div className="pt-4 border-t border-border">
-                      <label className="font-body text-xs font-medium text-foreground block mb-2">Nueva Contraseña</label>
+                      <label className="font-body text-xs font-medium text-foreground block mb-2">New Password</label>
                       <input
                         type="password"
                         value={settingsPassword}
                         onChange={e => setSettingsPassword(e.target.value)}
                         className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                        placeholder="Déjalo en blanco para mantener la actual"
+                        placeholder="Leave blank to keep current password"
                       />
                     </div>
 
@@ -813,7 +813,7 @@ export default function ClientPortalPage() {
                         className="bg-accent hover:bg-accent/90 text-white rounded-xl gap-2 w-full md:w-auto px-8"
                         disabled={savingSettings}
                       >
-                        {savingSettings ? <><Loader2 className="w-4 h-4 animate-spin" /> Guardando...</> : 'Guardar Cambios'}
+                        {savingSettings ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : 'Save Changes'}
                       </Button>
                     </div>
                   </form>

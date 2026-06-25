@@ -172,7 +172,7 @@ export function AcademySection() {
       // Revert if error
       if (isFav) setCourseFavorites(prev => [...prev, courseId]);
       else setCourseFavorites(prev => prev.filter(id => id !== courseId));
-      toast({ title: "Error", description: "No se pudo guardar en favoritos", variant: "destructive" });
+      toast({ title: "Error", description: "Could not save to favorites", variant: "destructive" });
     }
   };
 
@@ -192,7 +192,7 @@ export function AcademySection() {
             <div>
               <p className="font-display text-base font-medium text-foreground">Portal Academy</p>
               <p className="font-body text-xs text-muted-foreground">
-                {student ? `Bienvenido/a, ${student.user_metadata?.full_name || student.email}` : 'Inicia sesión para acceder a tus cursos.'}
+                {student ? `Welcome, ${student.user_metadata?.full_name || student.email}` : 'Log in to access your courses.'}
               </p>
             </div>
           </div>
@@ -205,7 +205,7 @@ export function AcademySection() {
                     size="sm"
                     className="rounded-xl h-10 px-5 font-bold shadow-md shadow-accent/10"
                   >
-                    Ir al Portal
+                    Go to Portal
                   </Button>
                 </Link>
                 <Button

@@ -121,7 +121,7 @@ export function SalonNavbar() {
                 <Link 
                   to={isAdmin ? "/admin" : "/portal"} 
                   className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg border-2 border-accent" 
-                  title={isAdmin ? "Panel de Administración" : "Portal de Cliente"}
+                  title={isAdmin ? "Admin Panel" : "Client Portal"}
                 >
                   <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-white/20">
                     {loggedUser.user_metadata?.avatar_url ? (
@@ -131,7 +131,7 @@ export function SalonNavbar() {
                     )}
                   </div>
                   <span className="font-body text-xs font-bold text-white max-w-[100px] truncate">
-                    {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')?.[0] || 'Mi Cuenta'}
+                    {loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')?.[0] || 'My Account'}
                   </span>
                 </Link>
               ) : (
@@ -196,7 +196,7 @@ export function SalonNavbar() {
             <div className="p-6 border-t border-black/5 space-y-4">
               <a href="tel:17135242610" className="block">
                 <Button variant="gold" className="w-full gap-2 h-14 text-base font-bold shadow-lg shadow-accent/20">
-                  <PhoneCall className="w-5 h-5" /> Llamar Ahora
+                  <PhoneCall className="w-5 h-5" /> Call Now
                 </Button>
               </a>
               <p className="text-center font-body text-xs text-muted-foreground tracking-widest uppercase py-2">
@@ -214,7 +214,7 @@ export function SalonNavbar() {
                     </div>
                     <div>
                       <p className="font-display text-xl text-charcoal">{loggedUser.user_metadata?.full_name || loggedUser.email}</p>
-                      <p className="font-body text-xs text-charcoal/60">{isAdmin ? "Panel de Administración" : "Portal de Cliente"}</p>
+                      <p className="font-body text-xs text-charcoal/60">{isAdmin ? "Admin Panel" : "Client Portal"}</p>
                     </div>
                   </Link>
                 ) : (

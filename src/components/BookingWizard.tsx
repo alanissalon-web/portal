@@ -238,14 +238,14 @@ export function BookingWizard() {
                   <a href={`sms:17135242610?body=${smsMessage}`}>
                     <Button variant="gold" size="xl" className="w-full gap-3 shadow-lg shadow-accent/20">
                       <MessageSquare className="w-5 h-5" />
-                      Confirmar vía SMS
+                      Confirm via SMS
                     </Button>
                   </a>
                   
                   <a href="tel:17135242610">
                     <Button variant="outline" size="xl" className="w-full gap-3 border-accent/20 text-accent hover:bg-accent/5">
                       <PhoneCall className="w-5 h-5" />
-                      Llamar al Salón
+                      Call the Salon
                     </Button>
                   </a>
                 </div>

@@ -28,9 +28,9 @@ const AdminSettings = () => {
     setLoading(true);
     const { error } = await LocalDB.saveSettings(settings);
     if (error) {
-      toast({ title: 'Error guardando ajustes', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: 'Ajustes guardados', description: 'La configuración de la plataforma ha sido actualizada.' });
+      toast({ title: 'Settings saved', description: 'Platform settings have been updated.' });
     }
     setLoading(false);
   };
@@ -47,12 +47,12 @@ const AdminSettings = () => {
     <div className="p-8 max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-10">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Configuración</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Ajustes generales de la plataforma y seguridad.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Settings</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">General platform settings and security.</p>
         </div>
         <Button onClick={handleSave} disabled={loading} className="gap-2 bg-accent hover:bg-accent/90 shadow-lg shadow-accent/20 rounded-xl px-6">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} 
-          Guardar Todo
+          Save All
         </Button>
       </div>
 
@@ -67,7 +67,7 @@ const AdminSettings = () => {
           </div>
           <div className="grid gap-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Nombre del Sitio</label>
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Site Name</label>
               <input 
                 type="text" 
                 value={settings.siteName} 
@@ -77,7 +77,7 @@ const AdminSettings = () => {
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Email de Contacto</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Contact Email</label>
                 <input 
                   type="email" 
                   value={settings.contactEmail} 
@@ -86,7 +86,7 @@ const AdminSettings = () => {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Teléfono</label>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Phone</label>
                 <input 
                   type="text" 
                   value={settings.phone} 
@@ -96,7 +96,7 @@ const AdminSettings = () => {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Dirección Física</label>
+              <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">Physical Address</label>
               <input 
                 type="text" 
                 value={settings.address} 
@@ -113,16 +113,16 @@ const AdminSettings = () => {
             <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
               <Shield className="w-5 h-5" />
             </div>
-            <h3 className="font-display text-lg font-medium">Seguridad</h3>
+            <h3 className="font-display text-lg font-medium">Security</h3>
           </div>
           <div className="space-y-4">
             <Button variant="outline" className="w-full justify-between rounded-xl border-black/5 h-14 px-6 hover:bg-muted/50 transition-all">
-              <span className="flex items-center gap-3 font-body text-sm"><Lock className="w-4 h-4 text-muted-foreground" /> Cambiar Contraseña</span>
-              <span className="text-[10px] text-muted-foreground font-medium bg-muted px-2 py-1 rounded-md">Último cambio: hace 3 meses</span>
+              <span className="flex items-center gap-3 font-body text-sm"><Lock className="w-4 h-4 text-muted-foreground" /> Change Password</span>
+              <span className="text-[10px] text-muted-foreground font-medium bg-muted px-2 py-1 rounded-md">Last change: 3 months ago</span>
             </Button>
             <Button variant="outline" className="w-full justify-between rounded-xl border-black/5 h-14 px-6 hover:bg-muted/50 transition-all">
-              <span className="flex items-center gap-3 font-body text-sm"><Shield className="w-4 h-4 text-muted-foreground" /> Autenticación en dos pasos</span>
-              <span className="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-md">Desactivado</span>
+              <span className="flex items-center gap-3 font-body text-sm"><Shield className="w-4 h-4 text-muted-foreground" /> Two-Factor Authentication</span>
+              <span className="text-[10px] text-rose-600 font-bold bg-rose-50 px-2 py-1 rounded-md">Disabled</span>
             </Button>
           </div>
         </div>
@@ -133,17 +133,17 @@ const AdminSettings = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Palette className="w-5 h-5" />
             </div>
-            <h3 className="font-display text-lg font-medium">Apariencia</h3>
+            <h3 className="font-display text-lg font-medium">Appearance</h3>
           </div>
           <div className="flex items-center justify-between p-6 bg-[#FAFAFA] rounded-2xl border border-black/5">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-full bg-[#C4A484] shadow-inner shadow-black/10" />
               <div>
-                <p className="text-sm font-bold text-foreground">Tema Alanís (Premium Gold)</p>
-                <p className="text-[10px] text-muted-foreground">Paleta oficial Houston 2026</p>
+                <p className="text-sm font-bold text-foreground">Alanís Theme (Premium Gold)</p>
+                <p className="text-[10px] text-muted-foreground">Official Houston 2026 Palette</p>
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-accent font-bold text-xs hover:bg-accent/5 px-4 h-9 rounded-lg">Cambiar</Button>
+            <Button variant="ghost" size="sm" className="text-accent font-bold text-xs hover:bg-accent/5 px-4 h-9 rounded-lg">Change</Button>
           </div>
         </div>
       </div>

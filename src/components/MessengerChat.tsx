@@ -102,7 +102,7 @@ export function MessengerChat() {
       if (newHistory.length === 0) {
         newHistory = [{
           id: 'welcome',
-          text: `¡Hola${clientName ? ` ${clientName}` : ''}! 👋 Bienvenidos a Alanís Salon & Spa. ¿En qué te podemos ayudar?`,
+          text: `Hello${clientName ? ` ${clientName}` : ''}! 👋 Welcome to Alanís Salon & Spa. How can we help you?`,
           sender: 'them' as const,
           timestamp: new Date().toISOString(),
           status: 'read' as const,
@@ -156,7 +156,7 @@ export function MessengerChat() {
     });
     
     if (error) {
-      toast({ title: 'Error', description: 'No se pudo enviar el mensaje. Verifica tu conexión.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Could not send message. Check your connection.', variant: 'destructive' });
       setSending(false);
       return;
     }
@@ -328,12 +328,12 @@ export function MessengerChat() {
                         )}
                       </div>
                       <p className="font-display text-sm font-semibold text-foreground">
-                        ¡Hola, {displayName}! 👋
+                        Hello, {displayName}! 👋
                       </p>
                     </div>
                     <p className="font-body text-xs text-muted-foreground leading-relaxed">
-                      Has iniciado sesión como <span className="font-medium text-foreground">{loggedUser.email}</span>.<br />
-                      ¿Te gustaría enviarnos un mensaje?
+                      You are logged in as <span className="font-medium text-foreground">{loggedUser.email}</span>.<br />
+                      Would you like to send us a message?
                     </p>
                     <Button
                       onClick={handleIdentify}
@@ -368,7 +368,7 @@ export function MessengerChat() {
                       disabled={!clientName.trim()}
                       className="w-full bg-accent hover:bg-accent/90 disabled:opacity-50 text-white rounded-xl h-12 font-bold text-sm"
                     >
-                      Iniciar Conversación →
+                      Start Conversation →
                     </Button>
                   </div>
                 )}

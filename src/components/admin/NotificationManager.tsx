@@ -31,8 +31,8 @@ export const NotificationManager = () => {
           if (!location.pathname.includes('/admin/messages')) {
             if (msg.type === 'call') {
               toast({
-                title: `☎️ LLAMADA ENTRANTE: ${msg.name}`,
-                description: `El cliente está solicitando una llamada directa.`,
+                title: `☎️ INCOMING CALL: ${msg.name}`,
+                description: `The client is requesting a direct call.`,
                 variant: "destructive",
                 duration: 15000,
                 action: (
@@ -43,7 +43,7 @@ export const NotificationManager = () => {
                       }}
                       className="bg-green-600 text-white px-3 py-1 rounded-lg text-xs font-bold shadow-lg animate-pulse"
                     >
-                      CONTESTAR
+                      ANSWER
                     </button>
                     <button 
                       className="bg-white/10 text-white px-3 py-1 rounded-lg text-xs font-medium"
@@ -52,21 +52,21 @@ export const NotificationManager = () => {
                         notifiedIds.current.add(msg.id);
                       }}
                     >
-                      Rechazar
+                      Decline
                     </button>
                   </div>
                 ),
               });
             } else {
               toast({
-                title: `Nuevo mensaje de ${msg.name}`,
+                title: `New message from ${msg.name}`,
                 description: msg.message.substring(0, 50) + (msg.message.length > 50 ? '...' : ''),
                 action: (
                   <button 
                     onClick={() => window.location.href = '/admin/messages'}
                     className="bg-accent text-white px-3 py-1 rounded-lg text-xs font-medium"
                   >
-                    Ver Chat
+                    View Chat
                   </button>
                 ),
               });

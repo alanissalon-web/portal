@@ -41,7 +41,7 @@ export default function AdminBlog() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingBlog.title || !editingBlog.content) {
-      toast({ title: 'Faltan campos', description: 'Título y contenido son obligatorios.', variant: 'destructive' });
+      toast({ title: 'Missing fields', description: 'Title and content are required.', variant: 'destructive' });
       return;
     }
     
@@ -50,7 +50,7 @@ export default function AdminBlog() {
       const { error } = await LocalDB.saveBlog(editingBlog);
       if (error) throw error;
       
-      toast({ title: '¡Éxito!', description: 'Artículo guardado correctamente.' });
+      toast({ title: 'Success!', description: 'Article saved successfully.' });
       setEditingBlog(null);
       fetchBlogs();
     } catch (err: any) {
@@ -61,10 +61,10 @@ export default function AdminBlog() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Seguro que deseas eliminar este artículo?')) return;
+    if (!confirm('Are you sure you want to delete this article?')) return;
     try {
       await LocalDB.deleteBlog(id);
-      toast({ title: 'Eliminado', description: 'Artículo eliminado.' });
+      toast({ title: 'Deleted', description: 'Article deleted.' });
       fetchBlogs();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -86,9 +86,9 @@ export default function AdminBlog() {
 
       const { data } = supabase.storage.from('site-images').getPublicUrl(filePath);
       setEditingBlog({ ...editingBlog, image: data.publicUrl });
-      toast({ title: 'Imagen subida' });
+      toast({ title: 'Image uploaded' });
     } catch (err: any) {
-      toast({ title: 'Error', description: 'No se pudo subir la imagen', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Could not upload image', variant: 'destructive' });
     } finally {
       setUploadingImage(false);
     }
@@ -106,12 +106,12 @@ export default function AdminBlog() {
     <div className="p-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-display font-light text-charcoal">Gestión del Blog</h1>
-          <p className="text-muted-foreground font-body mt-2">Crea y administra tus artículos de blog (SEO).</p>
+          <h1 className="text-3xl font-display font-light text-charcoal">Blog Management</h1>
+          <p className="text-muted-foreground font-body mt-2">Create and manage your blog articles (SEO).</p>
         </div>
         {!editingBlog && (
           <Button onClick={handleCreateNew} className="gap-2 bg-accent text-white hover:bg-accent/90 rounded-xl">
-            <Plus className="w-4 h-4" /> Nuevo Artículo
+            <Plus className="w-4 h-4" /> New Article
           </Button>
         )}
       </div>
@@ -120,14 +120,14 @@ export default function AdminBlog() {
         <form onSubmit={handleSave} className="bg-white rounded-3xl shadow-sm border border-black/5 p-8">
           <div className="flex justify-between items-center mb-6 border-b border-black/5 pb-4">
             <h2 className="text-xl font-display text-charcoal">
-              {editingBlog.id ? 'Editar Artículo' : 'Nuevo Artículo'}
+              {editingBlog.id ? 'Edit Article' : 'New Article'}
             </h2>
             <div className="flex gap-2">
               <Button type="button" variant="ghost" onClick={() => setEditingBlog(null)} className="rounded-xl">
-                Cancelar
+                Cancel
               </Button>
               <Button type="submit" disabled={isSaving} className="gap-2 bg-accent text-white hover:bg-accent/90 rounded-xl">
-                <Save className="w-4 h-4" /> {isSaving ? 'Guardando...' : 'Guardar'}
+                <Save className="w-4 h-4" /> {isSaving ? 'Saving...' : 'Save'}
               </Button>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function AdminBlog() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-6">
               <div>
-                <label className="block text-sm font-medium mb-2">Título del Artículo</label>
+                <label className="block text-sm font-medium mb-2">Article Title</label>
                 <input
                   type="text"
                   value={editingBlog.title}
@@ -146,7 +146,7 @@ export default function AdminBlog() {
               </div>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Descripción (Breve resumen)</label>
+                <label className="block text-sm font-medium mb-2">Description (Brief summary)</label>
                 <textarea
                   value={editingBlog.description}
                   onChange={e => setEditingBlog({...editingBlog, description: e.target.value})}
@@ -155,7 +155,7 @@ export default function AdminBlog() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Contenido Principal (Texto HTML permitido)</label>
+                <label className="block text-sm font-medium mb-2">Main Content (HTML allowed)</label>
                 <textarea
                   value={editingBlog.content}
                   onChange={e => setEditingBlog({...editingBlog, content: e.target.value})}
@@ -166,25 +166,25 @@ export default function AdminBlog() {
             </div>
 
             <div className="space-y-6 bg-accent/5 p-6 rounded-2xl border border-accent/10">
-              <h3 className="font-display text-lg">Configuración SEO y Detalles</h3>
+              <h3 className="font-display text-lg">SEO Settings and Details</h3>
               
               <div>
-                <label className="block text-sm font-medium mb-2">Estado</label>
+                <label className="block text-sm font-medium mb-2">Status</label>
                 <select
                   value={editingBlog.status}
                   onChange={e => setEditingBlog({...editingBlog, status: e.target.value})}
                   className="w-full border border-black/10 rounded-xl p-3 bg-white"
                 >
-                  <option value="draft">Borrador</option>
-                  <option value="published">Publicado</option>
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
                 </select>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Imagen Principal</label>
+                <label className="block text-sm font-medium mb-2">Main Image</label>
                 {editingBlog.image ? (
                   <div className="relative rounded-xl overflow-hidden mb-3 border border-black/10">
-                    <img src={editingBlog.image} alt="Portada" className="w-full h-40 object-cover" />
+                    <img src={editingBlog.image} alt="Cover" className="w-full h-40 object-cover" />
                     <button type="button" onClick={() => setEditingBlog({...editingBlog, image: ''})} className="absolute top-2 right-2 bg-white/80 p-1.5 rounded-full text-destructive hover:bg-white">
                       <X className="w-4 h-4" />
                     </button>
@@ -199,7 +199,7 @@ export default function AdminBlog() {
                     ) : (
                       <>
                         <ImageIcon className="w-8 h-8 text-accent/50 mx-auto mb-2" />
-                        <span className="text-xs text-accent">Subir imagen</span>
+                        <span className="text-xs text-accent">Upload image</span>
                       </>
                     )}
                   </div>
@@ -214,7 +214,7 @@ export default function AdminBlog() {
                   value={editingBlog.meta_title || ''}
                   onChange={e => setEditingBlog({...editingBlog, meta_title: e.target.value})}
                   className="w-full border border-black/10 rounded-xl p-3 bg-white"
-                  placeholder="Dejar en blanco para usar el título"
+                  placeholder="Leave blank to use title"
                 />
               </div>
 
@@ -224,7 +224,7 @@ export default function AdminBlog() {
                   value={editingBlog.meta_description || ''}
                   onChange={e => setEditingBlog({...editingBlog, meta_description: e.target.value})}
                   className="w-full border border-black/10 rounded-xl p-3 bg-white h-24"
-                  placeholder="Dejar en blanco para usar la descripción"
+                  placeholder="Leave blank to use description"
                 />
               </div>
             </div>
@@ -235,17 +235,17 @@ export default function AdminBlog() {
           {blogs.length === 0 ? (
             <div className="p-16 text-center">
               <Edit3 className="w-12 h-12 text-black/20 mx-auto mb-4" />
-              <h3 className="text-xl font-display">No hay artículos</h3>
-              <p className="text-muted-foreground mt-2">Crea tu primer artículo para el blog.</p>
+              <h3 className="text-xl font-display">No articles</h3>
+              <p className="text-muted-foreground mt-2">Create your first blog article.</p>
             </div>
           ) : (
             <table className="w-full text-left text-sm">
               <thead className="bg-black/5 border-b border-black/5 font-display text-charcoal">
                 <tr>
-                  <th className="p-4 pl-6">Artículo</th>
-                  <th className="p-4">Estado</th>
-                  <th className="p-4">Fecha</th>
-                  <th className="p-4 text-right pr-6">Acciones</th>
+                  <th className="p-4 pl-6">Article</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4 text-right pr-6">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -271,16 +271,16 @@ export default function AdminBlog() {
                         b.status === 'published' ? 'bg-emerald-50 text-emerald-600 border border-emerald-200' : 'bg-amber-50 text-amber-600 border border-amber-200'
                       }`}>
                         {b.status === 'published' ? <CheckCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
-                        {b.status === 'published' ? 'Publicado' : 'Borrador'}
+                        {b.status === 'published' ? 'Published' : 'Draft'}
                       </span>
                     </td>
                     <td className="p-4 text-muted-foreground">
-                      {new Date(b.created_at).toLocaleDateString('es-MX')}
+                      {new Date(b.created_at).toLocaleDateString('en-US')}
                     </td>
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <Button variant="ghost" size="sm" onClick={() => setEditingBlog(b)} className="rounded-lg h-8">
-                          Editar
+                          Edit
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleDelete(b.id)} className="rounded-lg h-8 text-destructive hover:bg-destructive/10 hover:text-destructive">
                           <Trash2 className="w-4 h-4" />

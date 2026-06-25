@@ -163,12 +163,12 @@ const AdminMessages = () => {
     <div className="h-[calc(100vh-120px)] flex flex-col max-w-7xl mx-auto p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Centro de Comunicación</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Chat en tiempo real y gestión de leads.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Communication Center</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Real-time chat and lead management.</p>
         </div>
         <div className="flex bg-white rounded-xl p-1 border border-black/5 shadow-sm">
           <button onClick={() => setFilterType('chat')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'chat' ? 'bg-accent text-white shadow-md' : 'text-muted-foreground'}`}>Messenger Live</button>
-          <button onClick={() => setFilterType('form')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'form' ? 'bg-accent text-white shadow-md' : 'text-muted-foreground'}`}>Formularios</button>
+          <button onClick={() => setFilterType('form')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'form' ? 'bg-accent text-white shadow-md' : 'text-muted-foreground'}`}>Forms</button>
         </div>
       </div>
 
@@ -178,7 +178,7 @@ const AdminMessages = () => {
           <div className="p-4 border-b border-border">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input type="text" placeholder="Buscar chat..." className="w-full bg-white border border-border rounded-xl pl-10 pr-4 py-2 text-sm outline-none" />
+              <input type="text" placeholder="Search chat..." className="w-full bg-white border border-border rounded-xl pl-10 pr-4 py-2 text-sm outline-none" />
             </div>
           </div>
           <div className="flex-1 overflow-y-auto">
@@ -194,7 +194,7 @@ const AdminMessages = () => {
                     <p className="font-display font-medium text-sm truncate">{conv.name}</p>
                     {conv.unread && <div className="w-2.5 h-2.5 bg-accent rounded-full border-2 border-white" />}
                   </div>
-                  <p className="font-body text-xs text-muted-foreground truncate italic opacity-70">"{conv.lastMsg?.message || 'Multimedia'}"</p>
+                  <p className="font-body text-xs text-muted-foreground truncate italic opacity-70">"{conv.lastMsg?.message || 'Media'}"</p>
                 </div>
               </button>
             ))}
@@ -212,9 +212,9 @@ const AdminMessages = () => {
                   </div>
                   <div>
                     <p className="font-display font-medium text-foreground">
-                      {conversations.find(c => c.phone === selectedUser)?.name || 'Cliente'}
+                      {conversations.find(c => c.phone === selectedUser)?.name || 'Client'}
                     </p>
-                    <p className="text-[10px] text-green-500 font-medium">Chat Activo · {selectedUser}</p>
+                    <p className="text-[10px] text-green-500 font-medium">Active Chat · {selectedUser}</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -223,12 +223,12 @@ const AdminMessages = () => {
                     size="icon" 
                     className="text-muted-foreground hover:text-red-500 transition-colors" 
                     onClick={async () => { 
-                      if(confirm('¿Estás seguro de que deseas eliminar este chat completo? Esta acción no se puede deshacer.')) { 
+                      if(confirm('Are you sure you want to delete this entire chat? This action cannot be undone.')) { 
                         const { data: allMessages } = await LocalDB.getMessages();
                         const toDelete = (allMessages || []).filter((m: any) => m.email === selectedUser || m.toEmail === selectedUser);
                         await Promise.all(toDelete.map((m: any) => LocalDB.deleteMessage(m.id))); 
                         
-                        toast({ title: 'Chat eliminado', description: 'La conversación se ha borrado correctamente.' });
+                        toast({ title: 'Chat deleted', description: 'The conversation was successfully deleted.' });
                         await fetchMessages(); 
                         setSelectedUser(null); 
                       } 
@@ -253,7 +253,7 @@ const AdminMessages = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
-                                    toast({ title: 'Audio antiguo', description: 'Sin sonido real.' });
+                                    toast({ title: 'Old audio', description: 'No real sound.' });
                                     return;
                                   }
                                   handleAudioPlayback(msg.id, msg.voice);
@@ -282,7 +282,7 @@ const AdminMessages = () => {
                                   />
                                 </div>
                                 <div className="flex justify-between text-[10px] opacity-70">
-                                  <span>{playingId === msg.id ? 'Reproduciendo...' : 'Mensaje de voz'}</span>
+                                  <span>{playingId === msg.id ? 'Playing...' : 'Voice message'}</span>
                                   <span>{msg.date || '0:15'}</span>
                                 </div>
                               </div>
@@ -292,7 +292,7 @@ const AdminMessages = () => {
                           msg.message
                         )}
                       </div>
-                      <p className={`text-[9px] mt-1 text-muted-foreground px-1 ${msg.email === 'admin@alanissalon.com' ? 'text-right' : 'text-left'}`}>{msg.date || 'Hoy'}</p>
+                      <p className={`text-[9px] mt-1 text-muted-foreground px-1 ${msg.email === 'admin@alanissalon.com' ? 'text-right' : 'text-left'}`}>{msg.date || 'Today'}</p>
                     </div>
                   </div>
                 ))}
@@ -305,9 +305,9 @@ const AdminMessages = () => {
                   <Mic className={`w-5 h-5 cursor-pointer ${isRecording ? 'text-red-500 animate-pulse' : ''}`} onClick={() => isRecording ? stopRecording() : startRecording()} />
                   <Gift className="w-5 h-5 cursor-pointer" />
                 </div>
-                {isRecording && <div className="bg-red-50 p-3 rounded-xl mb-3 flex justify-between items-center animate-in slide-in-from-bottom-2"><span className="text-xs text-red-600 font-bold">GRABANDO AUDIO...</span><Button size="sm" variant="destructive" onClick={stopRecording}>ENVIAR NOTA</Button></div>}
+                {isRecording && <div className="bg-red-50 p-3 rounded-xl mb-3 flex justify-between items-center animate-in slide-in-from-bottom-2"><span className="text-xs text-red-600 font-bold">RECORDING AUDIO...</span><Button size="sm" variant="destructive" onClick={stopRecording}>SEND NOTE</Button></div>}
                 <div className="flex items-center gap-2">
-                  <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleReply()} placeholder="Escribe tu respuesta..." className="flex-1 bg-muted rounded-full px-5 py-3 text-sm outline-none border border-black/5" />
+                  <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleReply()} placeholder="Type your response..." className="flex-1 bg-muted rounded-full px-5 py-3 text-sm outline-none border border-black/5" />
                   <div className="text-accent">
                     {replyText.trim() ? <Button onClick={handleReply} size="icon" className="bg-accent hover:bg-accent/90 rounded-full w-12 h-12 shadow-lg transition-transform active:scale-95"><Send className="w-5 h-5" /></Button> : <ThumbsUp className="w-8 h-8 cursor-pointer hover:scale-110 active:scale-90 transition-all" onClick={() => { setReplyText('👍'); setTimeout(handleReply, 50); }} />}
                   </div>
@@ -317,8 +317,8 @@ const AdminMessages = () => {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-muted-foreground">
               <div className="w-20 h-20 bg-accent/5 rounded-full flex items-center justify-center mb-4"><MessageSquare className="w-10 h-10 text-accent/20" /></div>
-              <h3 className="font-display text-xl text-foreground mb-2">Bandeja de Entrada</h3>
-              <p className="font-body text-sm max-w-xs opacity-60">Selecciona una conversación para gestionar la atención al cliente.</p>
+              <h3 className="font-display text-xl text-foreground mb-2">Inbox</h3>
+              <p className="font-body text-sm max-w-xs opacity-60">Select a conversation to manage customer support.</p>
             </div>
           )}
         </div>
@@ -344,7 +344,7 @@ const AdminMessages = () => {
               <div className="absolute inset-0 border-4 border-white/20 rounded-full animate-ping" />
             </div>
             
-            <h2 className="text-3xl font-display mb-2">Llamada Entrante</h2>
+            <h2 className="text-3xl font-display mb-2">Incoming Call</h2>
             <p className="text-xl font-body opacity-80 mb-12">{incomingCall.name} · {incomingCall.email}</p>
             
             <div className="flex gap-8">
@@ -353,7 +353,7 @@ const AdminMessages = () => {
                   await LocalDB.updateMessageStatus(incomingCall.id, 'read');
                   setIncomingCall(null);
                   setSelectedUser(incomingCall.email);
-                  toast({ title: 'Llamada conectada', description: 'Ahora estás en línea con el cliente.' });
+                  toast({ title: 'Call connected', description: 'You are now online with the client.' });
                 }}
                 className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg shadow-green-500/30"
               >

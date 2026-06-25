@@ -58,7 +58,7 @@ const AdminProducts = () => {
     const response = await LocalDB.saveProduct(editing ? { ...payload, id: editing.id } : payload);
     
     if (response?.error) {
-      toast({ title: 'Error guardando en Supabase', description: response.error.message, variant: 'destructive' });
+      toast({ title: 'Error saving to Supabase', description: response.error.message, variant: 'destructive' });
     } else {
       toast({ title: editing ? 'Product updated' : 'Product created' });
     }
@@ -120,7 +120,7 @@ const AdminProducts = () => {
                 <option>Kit</option>
                 <option>Scalp Care</option>
                 <option>Styling</option>
-                <option>Productos en Amazon</option>
+                <option>Amazon Products</option>
               </select>
             </div>
             <div className="sm:col-span-2">
@@ -143,9 +143,9 @@ const AdminProducts = () => {
                       if (!namePart) {
                         const dpIndex = parts.indexOf('dp');
                         if (dpIndex !== -1 && parts[dpIndex + 1]) {
-                          namePart = 'Producto Amazon ' + parts[dpIndex + 1];
+                          namePart = 'Amazon Product ' + parts[dpIndex + 1];
                         } else {
-                          namePart = parts[parts.length - 1] || 'Producto Generado';
+                          namePart = parts[parts.length - 1] || 'Generated Product';
                         }
                       }
                       
@@ -168,12 +168,12 @@ const AdminProducts = () => {
                         name: cleanName.substring(0, 50), 
                         price: detectedPrice,
                         description: detectedDesc,
-                        category: 'Productos en Amazon',
+                        category: 'Amazon Products',
                         badge: 'Amazon Choice'
                       }));
-                      toast({ title: '¡Sincronización Mágica!', description: 'Hemos extraído nombre, precio y descripción sugerida.' });
+                      toast({ title: 'Magic Sync!', description: 'We extracted the name, price, and suggested description.' });
                     } catch (e) {
-                      toast({ variant: 'destructive', title: 'Error', description: 'Revisa el link del marketplace.' });
+                      toast({ variant: 'destructive', title: 'Error', description: 'Check the marketplace link.' });
                     }
                   }}
                 >
@@ -234,7 +234,7 @@ const AdminProducts = () => {
                   onClick={() => document.getElementById('product-image')?.click()}
                 >
                   <Upload className="w-4 h-4" />
-                  <span className="truncate">{form.image_url ? 'Imagen Seleccionada' : 'Subir Imagen'}</span>
+                  <span className="truncate">{form.image_url ? 'Image Selected' : 'Upload Image'}</span>
                 </Button>
                 {form.image_url && (
                   <div className="w-10 h-10 rounded-lg overflow-hidden border border-border flex-shrink-0">
@@ -260,7 +260,7 @@ const AdminProducts = () => {
         {loading && !showForm && (
           <div className="text-center py-16 text-muted-foreground">
             <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="font-body text-sm">Cargando productos...</p>
+            <p className="font-body text-sm">Loading products...</p>
           </div>
         )}
         {!loading && products.length === 0 && !showForm && (

@@ -22,16 +22,16 @@ import { useCMS } from '@/contexts/CMSContext';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
-  { label: 'Cursos Academy', icon: GraduationCap, path: '/admin/courses' },
-  { label: 'Productos Shop', icon: ShoppingBag, path: '/admin/products' },
-  { label: 'Reservas', icon: Calendar, path: '/admin/bookings' },
-  { label: 'Contenido Visual', icon: Globe, path: '/admin/content' },
+  { label: 'Academy Courses', icon: GraduationCap, path: '/admin/courses' },
+  { label: 'Shop Products', icon: ShoppingBag, path: '/admin/products' },
+  { label: 'Bookings', icon: Calendar, path: '/admin/bookings' },
+  { label: 'Visual Content', icon: Globe, path: '/admin/content' },
   { label: 'Blog', icon: Edit3, path: '/admin/blog' },
-  { label: 'Lista de Espera', icon: Users, path: '/admin/waitlist' },
-  { label: 'Multimedia', icon: ImageIcon, path: '/admin/media' },
-  { label: 'Mensajes', icon: MessageSquare, path: '/admin/messages' },
-  { label: 'Analíticas', icon: BarChart3, path: '/admin/analytics' },
-  { label: 'Configuración', icon: Settings, path: '/admin/settings' },
+  { label: 'Waitlist', icon: Users, path: '/admin/waitlist' },
+  { label: 'Media', icon: ImageIcon, path: '/admin/media' },
+  { label: 'Messages', icon: MessageSquare, path: '/admin/messages' },
+  { label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
+  { label: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
 
 const AdminLayout = () => {
@@ -84,7 +84,7 @@ const AdminLayout = () => {
 
         {/* CMS Visual Control Section */}
         <div className="mx-6 mb-6 p-4 bg-accent/5 rounded-2xl border border-accent/10">
-          <p className="font-body text-[10px] uppercase tracking-widest text-accent font-bold mb-3">Editor Visual</p>
+          <p className="font-body text-[10px] uppercase tracking-widest text-accent font-bold mb-3">Visual Editor</p>
           <div className="space-y-2">
             {!isEditing ? (
               <Button 
@@ -92,7 +92,7 @@ const AdminLayout = () => {
                 className="w-full justify-start gap-2 bg-white border border-accent/20 text-accent hover:bg-accent hover:text-white transition-all rounded-xl h-10 shadow-sm"
               >
                 <Edit3 className="w-4 h-4" />
-                <span className="text-xs font-bold">Editar Sitio Web</span>
+                <span className="text-xs font-bold">Edit Website</span>
               </Button>
             ) : (
               <Button 
@@ -100,7 +100,7 @@ const AdminLayout = () => {
                 className="w-full justify-start gap-2 bg-accent text-white hover:bg-accent/90 transition-all rounded-xl h-10 shadow-lg shadow-accent/20"
               >
                 <Save className="w-4 h-4" />
-                <span className="text-xs font-bold">Guardar Cambios</span>
+                <span className="text-xs font-bold">Save Changes</span>
               </Button>
             )}
           </div>
@@ -119,7 +119,7 @@ const AdminLayout = () => {
           <div className="flex gap-2">
             <Link to="/" className="flex-1">
               <Button variant="outline" size="sm" className="w-full rounded-lg gap-2 text-[11px] h-9 border-accent text-accent hover:bg-accent hover:text-white transition-colors">
-                <ArrowLeft className="w-3 h-3" /> Volver al Home
+                <ArrowLeft className="w-3 h-3" /> Back to Home
               </Button>
             </Link>
             <Button 
@@ -128,7 +128,7 @@ const AdminLayout = () => {
               size="sm" 
               className="w-full rounded-lg gap-2 text-[11px] text-destructive hover:bg-destructive/5 hover:text-destructive h-9"
             >
-              <LogOut className="w-3 h-3" /> Salir
+              <LogOut className="w-3 h-3" /> Sign Out
             </Button>
           </div>
         </div>

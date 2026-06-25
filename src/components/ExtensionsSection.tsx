@@ -158,7 +158,7 @@ export function ExtensionsSection() {
           <p className="font-body text-sm text-muted-foreground mb-4">
             Consultations are free but do require appointments.
           </p>
-          <a href="#reservar">
+          <a href="#booking">
             <Button variant="default" size="lg">
               Schedule Free Consult
               <ArrowRight className="w-4 h-4" />

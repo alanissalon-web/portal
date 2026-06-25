@@ -52,7 +52,7 @@ export const VisualCMSBar: React.FC = () => {
               onClick={handleStartEditing}
             >
               <Edit3 className="w-4 h-4" />
-              Editar Sitio
+              Edit Site
             </Button>
             <Button 
               variant="ghost" 
@@ -61,7 +61,7 @@ export const VisualCMSBar: React.FC = () => {
               onClick={() => navigate('/admin')}
             >
               <Settings className="w-4 h-4" />
-              Configurar
+              Configure
             </Button>
           </>
         ) : (
@@ -73,7 +73,7 @@ export const VisualCMSBar: React.FC = () => {
               onClick={handleSave}
             >
               <Save className="w-4 h-4" />
-              Guardar Cambios
+              Save Changes
             </Button>
             <Button 
               variant="outline" 
@@ -82,11 +82,11 @@ export const VisualCMSBar: React.FC = () => {
               onClick={() => setIsEditing(false)}
             >
               <X className="w-4 h-4" />
-              Cancelar
+              Cancel
             </Button>
             <div className="ml-4 flex items-center gap-2 text-xs text-muted-foreground animate-pulse">
               <Eye className="w-3 h-3" />
-              Modo Edición Activo
+              Edit Mode Active
             </div>
           </>
         )}

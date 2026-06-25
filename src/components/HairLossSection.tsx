@@ -94,7 +94,7 @@ export function HairLossSection() {
               ))}
             </div>
 
-            <a href="#reservar">
+            <a href="#booking">
               <Button variant="default" size="lg">
                 Book Free Consultation
                 <ArrowRight className="w-4 h-4" />

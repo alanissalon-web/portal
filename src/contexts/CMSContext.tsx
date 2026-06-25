@@ -101,8 +101,8 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       if (failed.length > 0) {
         console.error('CMS save errors:', failed.map((r: any) => r.error));
         toast({
-          title: 'Error al guardar',
-          description: `${failed.length} sección(es) no se pudieron guardar en Supabase. Revisa la consola.`,
+          title: 'Error saving',
+          description: `${failed.length} section(s) could not be saved to Supabase. Check console.`,
           variant: 'destructive'
         });
         return;
@@ -111,11 +111,11 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       // Update localStorage cache immediately so next refresh is instant
       writeCache({ content, layout });
 
-      toast({ title: '✅ ¡Cambios Guardados!', description: 'El contenido se actualizó correctamente.' });
+      toast({ title: '✅ Changes Saved!', description: 'The content was successfully updated.' });
       setIsEditing(false);
     } catch (err: any) {
       console.error('saveChanges error:', err);
-      toast({ title: 'Error', description: err?.message || 'No se pudo guardar los cambios.', variant: 'destructive' });
+      toast({ title: 'Error', description: err?.message || 'Could not save changes.', variant: 'destructive' });
     }
   };
 

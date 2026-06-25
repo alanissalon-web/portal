@@ -51,7 +51,7 @@ const AdminCourses = () => {
   
   // Curriculum item state
   const [newModule, setNewModule] = useState({ 
-    module: 'Módulo 1', 
+    module: 'Module 1', 
     title: '', 
     lessons: 1, 
     duration: '30m',
@@ -102,7 +102,7 @@ const AdminCourses = () => {
 
   const save = async () => {
     let finalCurriculum = form.curriculum;
-    // Si el usuario olvidó presionar "Añadir/Actualizar Módulo" antes de guardar, lo auto-agregamos.
+    // If the user forgot to press "Add/Update Module" before saving, we auto-add it.
     if (newModule.title || newModule.video_url || newModule.pdf_url) {
       if (editingModuleIndex !== null) {
         finalCurriculum = [...finalCurriculum];
@@ -118,10 +118,10 @@ const AdminCourses = () => {
     const response = await LocalDB.saveCourse(editing ? { ...payload, id: editing.id } : payload);
     
     if (response?.error) {
-      toast({ title: 'Error guardando', description: response.error.message || 'El archivo puede ser demasiado grande', variant: 'destructive' });
+      toast({ title: 'Error saving', description: response.error.message || 'The file might be too large', variant: 'destructive' });
       return; // Stop here, do not cancel or fetch courses so data is not lost
     } else {
-      toast({ title: editing ? 'Curso actualizado' : 'Curso creado' });
+      toast({ title: editing ? 'Course updated' : 'Course created' });
     }
     
     cancel();
@@ -204,10 +204,10 @@ const AdminCourses = () => {
                 className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
             </div>
             <div>
-              <label className="font-body text-xs text-muted-foreground block mb-1 font-bold text-accent">Código de Acceso (Zelle/Pago)</label>
+              <label className="font-body text-xs text-muted-foreground block mb-1 font-bold text-accent">Access Code (Zelle/Payment)</label>
               <div className="flex gap-2">
                 <input value={form.access_code ?? ''} onChange={e => setForm(p => ({ ...p, access_code: e.target.value.toUpperCase() }))}
-                  placeholder="Ej: ALANIS-2024"
+                  placeholder="E.g.: ALANIS-2024"
                   className="flex-1 bg-background border border-accent/20 rounded-xl px-4 py-2.5 font-body text-sm font-bold uppercase" />
                 <Button 
                   type="button" 
@@ -265,7 +265,7 @@ const AdminCourses = () => {
                 onClick={() => document.getElementById('course-image')?.click()}
               >
                 <Upload className="w-4 h-4" />
-                <span className="truncate">{form.image_url ? 'Imagen Seleccionada' : 'Subir Imagen'}</span>
+                <span className="truncate">{form.image_url ? 'Image Selected' : 'Upload Image'}</span>
               </Button>
               {form.image_url && (
                 <div className="w-10 h-10 rounded-lg overflow-hidden border border-border flex-shrink-0">
@@ -290,7 +290,7 @@ const AdminCourses = () => {
               className="w-full bg-background border border-border rounded-xl px-4 py-2.5 font-body text-sm" />
           </div>
           <div className="pt-4 border-t border-border">
-            <h3 className="font-display text-lg font-medium text-foreground mb-4">Contenido del Curso (Temario)</h3>
+            <h3 className="font-display text-lg font-medium text-foreground mb-4">Course Content (Curriculum)</h3>
             <div className="space-y-3 mb-6">
               {form.curriculum.map((curr, idx) => (
                 <div key={idx} className="flex items-center gap-4 bg-background border border-border p-3 rounded-xl">
@@ -299,7 +299,7 @@ const AdminCourses = () => {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-body text-sm font-medium truncate">{curr.title}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase">{curr.module} · {curr.lessons} lecciones · {curr.duration}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">{curr.module} · {curr.lessons} lessons · {curr.duration}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button 
@@ -322,7 +322,7 @@ const AdminCourses = () => {
               ))}
               {form.curriculum.length === 0 && (
                 <p className="text-center py-4 text-xs text-muted-foreground bg-background border border-dashed border-border rounded-xl">
-                  No hay módulos todavía. Añade el primero abajo.
+                  No modules yet. Add the first one below.
                 </p>
               )}
             </div>
@@ -330,19 +330,19 @@ const AdminCourses = () => {
             <div className="bg-accent/5 p-5 rounded-2xl border border-accent/10 space-y-4">
               <div className="grid sm:grid-cols-4 gap-3 items-end">
                 <div className="sm:col-span-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Módulo / Fase</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Module / Phase</label>
                   <input 
                     value={newModule.module} onChange={e => setNewModule(p => ({ ...p, module: e.target.value }))}
-                    placeholder="Módulo 1" className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                    placeholder="Module 1" className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Título de la Lección</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Lesson Title</label>
                   <input 
                     value={newModule.title} onChange={e => setNewModule(p => ({ ...p, title: e.target.value }))}
-                    placeholder="Introducción a la técnica..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
+                    placeholder="Introduction to the technique..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
                 </div>
                 <div className="sm:col-span-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Duración</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Duration</label>
                   <input 
                     value={newModule.duration} onChange={e => setNewModule(p => ({ ...p, duration: e.target.value }))}
                     placeholder="15 min" className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs" />
@@ -352,7 +352,7 @@ const AdminCourses = () => {
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block flex items-center gap-1">
-                    <Video className="w-3 h-3" /> Link del Video (YouTube/Loom/Vimeo)
+                    <Video className="w-3 h-3" /> Video Link (YouTube/Loom/Vimeo)
                   </label>
                   <input 
                     value={newModule.video_url} onChange={e => setNewModule(p => ({ ...p, video_url: e.target.value }))}
@@ -360,7 +360,7 @@ const AdminCourses = () => {
                 </div>
                 <div>
                   <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block flex items-center gap-1">
-                    <FileText className="w-3 h-3" /> Material PDF Adjunto
+                    <FileText className="w-3 h-3" /> Attached PDF Material
                   </label>
                   <div className="flex gap-2">
                     <input 
@@ -386,7 +386,7 @@ const AdminCourses = () => {
                       onClick={() => document.getElementById(`pdf-upload-${editingModuleIndex || 'new'}`)?.click()}
                     >
                       <Upload className="w-3 h-3" />
-                      <span className="truncate">{newModule.pdf_url ? newModule.pdf_name : 'Subir Archivo PDF'}</span>
+                      <span className="truncate">{newModule.pdf_url ? newModule.pdf_name : 'Upload PDF File'}</span>
                     </Button>
                     {newModule.pdf_url && (
                       <Button 
@@ -402,11 +402,11 @@ const AdminCourses = () => {
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Explicación / Descripción Detallada</label>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase mb-1 block">Explanation / Detailed Description</label>
                   <textarea 
                     value={newModule.content} onChange={e => setNewModule(p => ({ ...p, content: e.target.value }))}
                     rows={4}
-                    placeholder="En esta lección aprenderás..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs resize-y" />
+                    placeholder="In this lesson you will learn..." className="w-full bg-white border border-border rounded-lg px-3 py-2 text-xs resize-y" />
                 </div>
               </div>
 
@@ -419,7 +419,7 @@ const AdminCourses = () => {
                     onClick={() => {
                       setEditingModuleIndex(null);
                       setNewModule({ 
-                        module: `Módulo ${form.curriculum.length + 1}`, 
+                        module: `Module ${form.curriculum.length + 1}`, 
                         title: '', 
                         lessons: 1, 
                         duration: '30m',
@@ -430,7 +430,7 @@ const AdminCourses = () => {
                       });
                     }}
                   >
-                    Cancelar Edición
+                    Cancel Edit
                   </Button>
                 )}
                 <Button 
@@ -449,7 +449,7 @@ const AdminCourses = () => {
                       setForm(p => ({ ...p, curriculum: [...p.curriculum, newModule] }));
                     }
                     setNewModule({ 
-                      module: `Módulo ${form.curriculum.length + (editingModuleIndex !== null ? 1 : 2)}`, 
+                      module: `Module ${form.curriculum.length + (editingModuleIndex !== null ? 1 : 2)}`, 
                       title: '', 
                       lessons: 1, 
                       duration: '30m',
@@ -460,7 +460,7 @@ const AdminCourses = () => {
                     });
                   }}
                 >
-                  <Plus className="w-4 h-4" /> {editingModuleIndex !== null ? 'Guardar Cambios' : 'Añadir Módulo'}
+                  <Plus className="w-4 h-4" /> {editingModuleIndex !== null ? 'Save Changes' : 'Add Module'}
                 </Button>
               </div>
             </div>
@@ -468,9 +468,9 @@ const AdminCourses = () => {
 
           <div className="flex gap-3 pt-6 border-t border-border">
             <Button onClick={save} className="bg-black hover:bg-black/80 rounded-xl px-8 h-12 gap-2">
-              <Save className="w-4 h-4" /> Guardar Curso
+              <Save className="w-4 h-4" /> Save Course
             </Button>
-            <Button variant="outline" onClick={cancel} className="rounded-xl px-8 h-12">Cancelar</Button>
+            <Button variant="outline" onClick={cancel} className="rounded-xl px-8 h-12">Cancel</Button>
           </div>
         </div>
       )}
@@ -480,7 +480,7 @@ const AdminCourses = () => {
         {loading && !showForm && (
           <div className="text-center py-16 text-muted-foreground">
             <div className="animate-spin w-8 h-8 border-2 border-accent border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="font-body text-sm">Cargando cursos...</p>
+            <p className="font-body text-sm">Loading courses...</p>
           </div>
         )}
         {!loading && courses.length === 0 && !showForm && (

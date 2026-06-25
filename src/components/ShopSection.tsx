@@ -266,7 +266,7 @@ export function ShopSection() {
       return [...prev, { product, quantity: 1 }];
     });
     setCartOpen(true);
-    toast({ title: 'Añadido al carrito' });
+    toast({ title: 'Added to cart' });
   };
 
   const handleAmazonClick = async (productId: string) => {

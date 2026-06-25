@@ -24,7 +24,7 @@ export function FinalCTA() {
           </p>
 
           <div className={`flex flex-col sm:flex-row gap-4 justify-center mb-16 ${isVisible ? 'animate-reveal-up delay-200' : 'opacity-0'}`}>
-            <a href="#reservar">
+            <a href="#booking">
               <Button size="xl" variant="gold" className="text-charcoal px-8 group">
                 <EditableText section="cta" field="btn_book" defaultText="Book Consultation" as="span" />
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />

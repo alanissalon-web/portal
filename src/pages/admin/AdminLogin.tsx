@@ -57,13 +57,13 @@ const AdminLogin = () => {
     setClientLoading(true);
 
     try {
-      // Al iniciar como cliente, debemos borrar cualquier rastro de sesión Admin local
+      // When logging in as a client, we must delete any trace of local Admin session
       await LocalDB.logout();
       
-      // Bloquear acceso de cuenta administradora al portal de clientes
+      // Block admin account access to client portal
       const ADMIN_EMAILS = ['alanis.salon@gmail.com'];
       if (ADMIN_EMAILS.includes(clientEmail.toLowerCase().trim())) {
-        setClientError("Las cuentas de administrador no pueden acceder al portal de clientes. Por favor, usa la pestaña 'Administración'.");
+        setClientError("Admin accounts cannot access the client portal. Please use the 'Admin' tab.");
         setClientLoading(false);
         return;
       }
@@ -235,7 +235,7 @@ const AdminLogin = () => {
                   onChange={e => setClientEmail(e.target.value)}
                   required
                   className="w-full bg-background border border-border rounded-xl px-4 py-3 font-body text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50"
-                  placeholder="tu@email.com"
+                  placeholder="you@email.com"
                 />
               </div>
               <div>

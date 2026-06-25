@@ -37,9 +37,9 @@ export function HeroSection() {
       updateContent('hero', 'bg_image', url);
       const updated = { ...(content['hero'] || {}), bg_image: url };
       await LocalDB.saveContent('hero', updated);
-      toast({ title: '✅ Foto del Hero actualizada', description: 'La imagen se guardó correctamente.' });
+      toast({ title: '✅ Hero photo updated', description: 'The image was saved successfully.' });
     } catch (err: any) {
-      toast({ title: 'Error', description: err?.message || 'No se pudo subir la imagen.', variant: 'destructive' });
+      toast({ title: 'Error', description: err?.message || 'Could not upload image.', variant: 'destructive' });
     } finally {
       setUploading(false);
     }
@@ -74,7 +74,7 @@ export function HeroSection() {
               : 'bg-accent hover:bg-accent/90 text-white shadow-accent/30'
           }`}>
             <ImagePlus className="w-4 h-4" />
-            {uploading ? 'Subiendo...' : 'Cambiar foto del Hero'}
+            {uploading ? 'Uploading...' : 'Change Hero photo'}
           </button>
           <input
             id="hero-image-upload"

@@ -27,26 +27,26 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
   if (checking || loggedIn) return null;
 
   const academyBenefits = [
-    { icon: BookOpen,    text: 'Guarda tus cursos y accede desde cualquier dispositivo' },
-    { icon: Star,        text: 'Acceso permanente a lecciones que compres' },
-    { icon: GraduationCap, text: 'Historial de aprendizaje y progreso personal' },
+    { icon: BookOpen,    text: 'Save your courses and access them from any device' },
+    { icon: Star,        text: 'Lifetime access to purchased lessons' },
+    { icon: GraduationCap, text: 'Learning history and personal progress' },
   ];
 
   const shopBenefits = [
-    { icon: Heart,       text: 'Lista de favoritos y productos guardados' },
-    { icon: ShoppingBag, text: 'Historial de reservaciones y pedidos' },
-    { icon: Gift,        text: 'Notificaciones de ofertas exclusivas para clientes' },
+    { icon: Heart,       text: 'Wishlist and saved products' },
+    { icon: ShoppingBag, text: 'Booking and order history' },
+    { icon: Gift,        text: 'Exclusive client offers and notifications' },
   ];
 
   const benefits = variant === 'academy' ? academyBenefits : shopBenefits;
 
   const title = variant === 'academy'
-    ? '¿Quieres guardar tus cursos?'
-    : '¿Quieres guardar tus favoritos?';
+    ? 'Want to save your courses?'
+    : 'Want to save your favorites?';
 
   const subtitle = variant === 'academy'
-    ? 'Crea tu cuenta gratis y accede a todas tus masterclasses desde cualquier lugar, cuando quieras.'
-    : 'Regístrate gratis para guardar productos favoritos, ver tus reservaciones y recibir ofertas exclusivas.';
+    ? 'Create your free account to access your masterclasses from anywhere, anytime.'
+    : 'Sign up for free to save favorite products, view your bookings, and receive exclusive offers.';
 
   return (
     <section className="py-16 bg-gradient-to-br from-charcoal via-charcoal to-charcoal/90 relative overflow-hidden">
@@ -62,7 +62,7 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
             <div>
               <div className="inline-flex items-center gap-2 bg-accent/15 border border-accent/30 text-accent rounded-full px-4 py-1.5 mb-5 font-body text-xs uppercase tracking-widest">
                 <Sparkles className="w-3 h-3" />
-                Área de Clientes — Gratis
+                Client Area — Free
               </div>
               <h2 className="font-display text-3xl md:text-4xl font-light text-white mb-4 leading-tight">
                 {title}
@@ -75,7 +75,7 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
                   <Button
                     className="bg-accent hover:bg-accent/90 text-white h-13 px-8 rounded-xl font-bold text-sm gap-2 shadow-xl shadow-accent/20 w-full sm:w-auto"
                   >
-                    Crear mi cuenta gratis
+                    Create my free account
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -84,7 +84,7 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
                     variant="outline"
                     className="border-white/20 text-white hover:bg-white/5 h-13 px-6 rounded-xl text-sm w-full sm:w-auto"
                   >
-                    Ya tengo cuenta — Ingresar
+                    I already have an account — Log In
                   </Button>
                 </Link>
               </div>
@@ -93,7 +93,7 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
             {/* Right: Benefits */}
             <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 space-y-5">
               <p className="font-body text-xs text-white/40 uppercase tracking-widest mb-6">
-                Beneficios de registrarte
+                Benefits of registering
               </p>
               {benefits.map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-start gap-4">
@@ -111,7 +111,7 @@ export function ClientRegisterCTA({ variant = 'academy' }: ClientRegisterCTAProp
                     </div>
                   ))}
                 </div>
-                <p className="font-body text-xs text-white/40">+500 estudiantes ya registrados</p>
+                <p className="font-body text-xs text-white/40">+500 students already registered</p>
               </div>
             </div>
 

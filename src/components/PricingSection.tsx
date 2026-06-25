@@ -64,7 +64,7 @@ export function PricingSection() {
   const { ref, isVisible } = useScrollReveal();
 
   return (
-    <section id="precios" className="py-24 md:py-32 bg-cream" ref={ref}>
+    <section id="pricing" className="py-24 md:py-32 bg-cream" ref={ref}>
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">

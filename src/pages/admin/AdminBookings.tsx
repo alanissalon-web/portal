@@ -25,15 +25,15 @@ const AdminBookings = () => {
     const booking = bookings.find(b => b.id === id);
     if (booking) {
       await LocalDB.saveBooking({ ...booking, status });
-      toast({ title: 'Estado actualizado', description: `La reserva ahora está ${status}.` });
+      toast({ title: 'Status updated', description: `The booking is now ${status}.` });
       await fetchBookings();
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm('¿Eliminar esta reserva definitivamente?')) {
+    if (confirm('Delete this booking permanently?')) {
       await LocalDB.deleteBooking(id);
-      toast({ title: 'Reserva eliminada' });
+      toast({ title: 'Booking deleted' });
       await fetchBookings();
     }
   };
@@ -47,12 +47,12 @@ const AdminBookings = () => {
     <div className="p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Gestión de Reservas</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Controla las citas y horarios de tus clientes.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Booking Management</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Manage your clients' appointments and schedules.</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2 rounded-xl bg-white shadow-sm border-black/5">
-            <Calendar className="w-4 h-4" /> Ver Calendario
+            <Calendar className="w-4 h-4" /> View Calendar
           </Button>
         </div>
       </div>
@@ -62,14 +62,14 @@ const AdminBookings = () => {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input 
             type="text" 
-            placeholder="Buscar por cliente o servicio..." 
+            placeholder="Search by client or service..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-white border border-black/5 rounded-xl pl-10 pr-4 py-2.5 font-body text-sm outline-none focus:ring-1 focus:ring-accent shadow-sm"
           />
         </div>
         <Button variant="outline" className="gap-2 rounded-xl border-black/5 bg-white shadow-sm">
-          <Filter className="w-4 h-4" /> Hoy
+          <Filter className="w-4 h-4" /> Today
         </Button>
       </div>
 
