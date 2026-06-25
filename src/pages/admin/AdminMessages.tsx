@@ -80,7 +80,7 @@ const AdminMessages = () => {
       await LocalDB.saveMessage({
         name: 'Alanís Salon',
         email: 'admin@alanissalon.com',
-        message: '[Imagen]',
+        message: '[Image]',
         image: base64,
         date: new Date().toLocaleTimeString(),
         status: 'read',
@@ -103,7 +103,7 @@ const AdminMessages = () => {
         const reader = new FileReader();
         reader.onloadend = async () => {
           const base64 = reader.result as string;
-          await LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Nota de voz]', voice: base64, toEmail: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
+          await LocalDB.saveMessage({ name: 'Alanís Salon', email: 'admin@alanissalon.com', message: '[Voice Note]', voice: base64, toEmail: selectedUser || '', date: new Date().toLocaleTimeString(), status: 'read', type: 'chat' });
           await fetchMessages();
         };
         reader.readAsDataURL(audioBlob);
@@ -113,7 +113,7 @@ const AdminMessages = () => {
       setMediaRecorder(recorder);
       setIsRecording(true);
     } catch (err) {
-      toast({ title: 'Error', description: 'Micrófono no disponible.' });
+      toast({ title: 'Error', description: 'Microphone not available.' });
     }
   };
 
@@ -135,7 +135,7 @@ const AdminMessages = () => {
       setPlayingId(id);
       audio.ontimeupdate = () => setAudioProgress((audio.currentTime / audio.duration) * 100);
       audio.onended = () => { setPlayingId(null); setAudioProgress(0); };
-      audio.play().catch(() => toast({ title: 'Error', description: 'No se pudo reproducir.' }));
+      audio.play().catch(() => toast({ title: 'Error', description: 'Could not play audio.' }));
     }
   };
 
