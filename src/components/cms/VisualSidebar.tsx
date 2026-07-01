@@ -34,7 +34,7 @@ export const VisualSidebar: React.FC = () => {
     if (newIndex < 0 || newIndex >= newSections.length) return;
     
     [newSections[index], newSections[newIndex]] = [newSections[newIndex], newSections[index]];
-    updateContent('page_layout', { sections: newSections });
+    updateContent('page_layout', 'sections', newSections);
   };
 
   const availableBlocks = [
@@ -52,12 +52,12 @@ export const VisualSidebar: React.FC = () => {
 
   const addSection = (block: any) => {
     const newSections = [...currentSections, { ...block, id: `${block.id}-${Date.now()}` }];
-    updateContent('page_layout', { sections: newSections });
+    updateContent('page_layout', 'sections', newSections);
   };
 
   const removeSection = (index: number) => {
     const newSections = currentSections.filter((_: any, i: number) => i !== index);
-    updateContent('page_layout', { sections: newSections });
+    updateContent('page_layout', 'sections', newSections);
   };
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
@@ -78,7 +78,7 @@ export const VisualSidebar: React.FC = () => {
     const newSections = [...currentSections];
     const [moved] = newSections.splice(sourceIndex, 1);
     newSections.splice(targetIndex, 0, moved);
-    updateContent('page_layout', { sections: newSections });
+    updateContent('page_layout', 'sections', newSections);
   };
 
   if (!isEditing) return null;
