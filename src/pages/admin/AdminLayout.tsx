@@ -27,7 +27,7 @@ const navItems = [
   { label: 'Academy Courses', icon: GraduationCap, path: '/admin/courses' },
   { label: 'Shop Products', icon: ShoppingBag, path: '/admin/products' },
   { label: 'Bookings', icon: Calendar, path: '/admin/bookings' },
-  { label: 'Booking Form', icon: Edit3, path: 'booking-form', isAction: true },
+  { label: 'Booking Form', icon: Edit3, path: '/admin/forms' },
   { label: 'Visual Content', icon: Globe, path: '/admin/content' },
   { label: 'Blog', icon: Edit3, path: '/admin/blog' },
   { label: 'Waitlist', icon: Users, path: '/admin/waitlist' },
@@ -89,25 +89,6 @@ const AdminLayout = () => {
           {navItems.map(item => {
             const active = location.pathname === item.path;
             
-            if (item.isAction) {
-              return (
-                <button
-                  key={item.label}
-                  onClick={() => {
-                    setIsEditing(true);
-                    navigate('/#booking');
-                    setTimeout(() => {
-                      document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' });
-                    }, 500);
-                  }}
-                  className={`flex w-full items-center gap-3 px-4 py-3 rounded-xl font-body text-sm transition-all duration-300 text-muted-foreground hover:bg-accent/5 hover:text-accent`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span className="font-medium">{item.label}</span>
-                </button>
-              );
-            }
-
             return (
               <Link
                 key={item.path}

@@ -106,12 +106,13 @@ export function SalonNavbar() {
                     onMouseEnter={() => handleDropdownEnter(link.label)}
                     onMouseLeave={handleDropdownLeave}
                   >
-                    <button
+                    <Link
+                      to={link.href}
                       className={`flex items-center gap-1 font-body text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:text-accent ${textColor} ${isActive ? 'text-accent font-medium' : ''}`}
                     >
                       {link.label}
                       <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`} />
-                    </button>
+                    </Link>
 
                     <AnimatePresence>
                       {openDropdown === link.label && (
@@ -251,13 +252,25 @@ export function SalonNavbar() {
                   >
                     {hasSubmenu ? (
                       <div>
-                        <button
-                          onClick={() => setMobileExpanded(isExpanded ? null : link.label)}
-                          className="flex items-center justify-between w-full py-3 font-display text-2xl font-light text-charcoal hover:text-accent transition-colors"
-                        >
-                          {link.label}
-                          <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
-                        </button>
+                        <div className="flex items-center justify-between w-full py-3">
+                          <Link
+                            to={link.href}
+                            onClick={() => setMobileOpen(false)}
+                            className="font-display text-2xl font-light text-charcoal hover:text-accent transition-colors flex-1"
+                          >
+                            {link.label}
+                          </Link>
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setMobileExpanded(isExpanded ? null : link.label);
+                            }}
+                            className="p-2 -mr-2 text-charcoal hover:text-accent flex items-center justify-center"
+                          >
+                            <ChevronDown className={`w-6 h-6 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                          </button>
+                        </div>
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div
