@@ -249,7 +249,7 @@ const AdminMessages = () => {
         </div>
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col bg-white relative">
+        <div className="flex-1 flex flex-col bg-white relative min-h-0">
           {selectedUser ? (
             <>
               <div className="p-4 border-b border-border flex items-center justify-between bg-white/50 backdrop-blur-sm z-10">
@@ -292,7 +292,7 @@ const AdminMessages = () => {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50 min-h-0">
                 {activeChatMessages.map((msg, i) => {
                   const { avatar } = parseNameAndAvatar(msg.name);
                   return (

@@ -472,7 +472,7 @@ export function MessengerChat() {
             ) : (
               <>
                 {/* Messages area */}
-                <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F5F5F0]">
+                <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F5F5F0] min-h-0">
 
                   {/* Salon info pill at top */}
                   <div className="flex justify-center mb-2">
