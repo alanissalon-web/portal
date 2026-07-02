@@ -16,13 +16,12 @@ export const VisualCMSBar: React.FC = () => {
   const navigate = useNavigate();
 
   if (!isAdmin) return null;
-  if (location.pathname !== '/') return null;
+
+  const isPublicPage = !location.pathname.startsWith('/admin') && !location.pathname.startsWith('/portal');
+  if (!isPublicPage) return null;
 
   const handleStartEditing = () => {
     setIsEditing(true);
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
   };
 
   const handleSave = async () => {

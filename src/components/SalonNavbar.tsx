@@ -91,17 +91,15 @@ export function SalonNavbar() {
 
             <div className="flex items-center gap-4 ml-4">
               {isAdmin && (
-                <Link to="/">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full gap-2 border-accent text-accent hover:bg-accent hover:text-white"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <Layout className="w-3.5 h-3.5" />
-                    CMS
-                  </Button>
-                </Link>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full gap-2 border-accent text-accent hover:bg-accent hover:text-white"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Layout className="w-3.5 h-3.5" />
+                  CMS
+                </Button>
               )}
 
               <Link to="/shop" className={`${textColor} hover:text-accent transition-colors`}>
