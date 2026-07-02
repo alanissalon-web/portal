@@ -63,7 +63,7 @@ const AdminMessages = () => {
     // Auto-select first conversation
     if (!selectedUser && data.length > 0) {
       const firstChat = data.find((m: any) => (m.type === 'chat' || !m.type) && m.name !== 'Alanís Salon');
-      if (firstChat) setSelectedUser(firstChat.name);
+      if (firstChat) setSelectedUser(firstChat.email);
     }
     setLoading(false);
   }, [selectedUser, incomingCall]);
