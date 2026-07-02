@@ -74,11 +74,7 @@ const AdminMessages = () => {
     return () => clearInterval(interval);
   }, [fetchMessages]);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [selectedUser, messages]);
+  // Moved down
 
   const handleReply = async () => {
     if (!replyText.trim() || !selectedUser) return;
@@ -199,6 +195,12 @@ const AdminMessages = () => {
   const activeChatMessages = messages.filter(m => 
     selectedUser && (m.email === selectedUser || m.toEmail === selectedUser) && (m.type === filterType || (filterType === 'chat' && !m.type))
   );
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [selectedUser, activeChatMessages.length]);
 
   return (
     <div className="h-[calc(100vh-120px)] flex flex-col max-w-7xl mx-auto p-4 md:p-8">
@@ -368,7 +370,7 @@ const AdminMessages = () => {
                   <label className="cursor-pointer hover:scale-110 transition-all"><Camera className="w-5 h-5" /><input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} /></label>
                   <label className="cursor-pointer hover:scale-110 transition-all"><ImageIcon className="w-5 h-5" /><input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} /></label>
                   <Mic className={`w-5 h-5 cursor-pointer ${isRecording ? 'text-red-500 animate-pulse' : ''}`} onClick={() => isRecording ? stopRecording() : startRecording()} />
-                  <Gift className="w-5 h-5 cursor-pointer" />
+
                 </div>
                 {isRecording && <div className="bg-red-50 p-3 rounded-xl mb-3 flex justify-between items-center animate-in slide-in-from-bottom-2"><span className="text-xs text-red-600 font-bold">RECORDING AUDIO...</span><Button size="sm" variant="destructive" onClick={stopRecording}>SEND NOTE</Button></div>}
                 <div className="flex items-center gap-2">

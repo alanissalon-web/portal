@@ -96,11 +96,43 @@ export function MessengerChat() {
     }, 2000);
   };
 
-  // Recording
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+
+  // Audio Playback
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const handleAudioPlayback = (id: string, audioUrl: string) => {
+    if (playingId === id && audioRef.current) {
+      audioRef.current.pause();
+      setPlayingId(null);
+      return;
+    }
+    
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    
+    audio.onended = () => {
+      setPlayingId(null);
+      setAudioProgress(0);
+    };
+    
+    audio.ontimeupdate = () => {
+      setAudioProgress((audio.currentTime / audio.duration) * 100);
+    };
+    
+    audio.play();
+    setPlayingId(id);
+  };
+
 
   // Check auth on mount
   useEffect(() => {
@@ -172,7 +204,7 @@ export function MessengerChat() {
   // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-  }, [chatHistory]);
+  }, [chatHistory.length]);
 
   // Auto-identify if logged in
   const handleOpen = () => {
@@ -466,9 +498,41 @@ export function MessengerChat() {
                           {msg.image ? (
                             <img src={msg.image} className="max-w-full rounded-lg" alt="shared" />
                           ) : msg.voice ? (
-                            <div className="flex items-center gap-2">
-                              <Mic className="w-4 h-4 opacity-70" />
-                              <span className="text-xs opacity-80">Voice message</span>
+                            <div className="flex flex-col gap-2 min-w-[180px]">
+                              <div className="flex items-center gap-3">
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (typeof msg.voice !== 'string' || !msg.voice.startsWith('data:audio')) {
+                                      // toast could go here if available
+                                      return;
+                                    }
+                                    handleAudioPlayback(msg.id, msg.voice);
+                                  }} 
+                                  className={`w-8 h-8 rounded-full flex items-center justify-center transition-all shadow-sm ${
+                                    msg.sender === 'me' ? 'bg-white/20' : 'bg-accent/10 text-accent'
+                                  }`}
+                                >
+                                  {playingId === msg.id ? (
+                                    <div className="flex gap-1">
+                                      <div className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`} />
+                                      <div className={`w-1 h-3 rounded-full ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`} />
+                                    </div>
+                                  ) : (
+                                    <div className={`w-0 h-0 border-t-[5px] border-t-transparent border-l-[8px] border-b-[5px] border-b-transparent ml-1 ${
+                                      msg.sender === 'me' ? 'border-l-white' : 'border-l-accent'
+                                    }`} />
+                                  )}
+                                </button>
+                                <div className="flex-1 space-y-1">
+                                  <div className={`w-full h-1.5 rounded-full ${msg.sender === 'me' ? 'bg-white/30' : 'bg-black/10'}`}>
+                                    <div 
+                                      className={`h-full rounded-full transition-all duration-300 ${msg.sender === 'me' ? 'bg-white' : 'bg-accent'}`}
+                                      style={{ width: playingId === msg.id ? `${audioProgress}%` : '0%' }}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           ) : (
                             <span>{msg.text}</span>
