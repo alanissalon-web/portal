@@ -205,8 +205,13 @@ export const LocalDB = {
        messageVal = `[VOICE]${msg.voice}`;
     }
     
+    let nameVal = msg.name || 'Anonymous';
+    if (msg.avatar) {
+       nameVal = `${nameVal}|||AVATAR|||${msg.avatar}`;
+    }
+
     const newItem = { 
-      name: msg.name || 'Anonymous',
+      name: nameVal,
       email: msg.email || 'no-email',
       phone: phoneVal,
       message: messageVal,

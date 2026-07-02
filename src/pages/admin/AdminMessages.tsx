@@ -163,6 +163,16 @@ const AdminMessages = () => {
     }
   };
 
+  // Helper to parse encoded name and avatar
+  const parseNameAndAvatar = (rawName: string) => {
+    if (!rawName) return { name: 'Client', avatar: null };
+    if (rawName.includes('|||AVATAR|||')) {
+      const parts = rawName.split('|||AVATAR|||');
+      return { name: parts[0] || 'Client', avatar: parts[1] };
+    }
+    return { name: rawName, avatar: null };
+  };
+
   // Group messages by user for the sidebar (Unified by Phone/Email)
   const conversations = Array.from(new Set(
     messages
@@ -171,9 +181,11 @@ const AdminMessages = () => {
   )).map(phone => {
     const userMsgs = messages.filter(m => m.email === phone || m.toEmail === phone);
     const lastMsg = userMsgs[userMsgs.length - 1];
+    const { name, avatar } = parseNameAndAvatar(lastMsg?.name || 'Client');
     return {
       phone,
-      name: lastMsg?.name || 'Client',
+      name,
+      avatar,
       lastMsg,
       unread: userMsgs.some(m => m.status === 'new' && m.email === phone)
     };
@@ -212,7 +224,13 @@ const AdminMessages = () => {
                 onClick={() => setSelectedUser(conv.phone)}
                 className={`w-full p-4 flex items-center gap-3 hover:bg-white transition-colors border-b border-black/[0.02] ${selectedUser === conv.phone ? 'bg-white border-r-4 border-accent' : ''}`}
               >
-                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-lg">{conv.name[0]}</div>
+                <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-lg overflow-hidden shrink-0">
+                  {conv.avatar ? (
+                    <img src={conv.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    conv.name[0]
+                  )}
+                </div>
                 <div className="flex-1 text-left min-w-0">
                   <div className="flex justify-between items-center mb-0.5">
                     <p className="font-display font-medium text-sm truncate">{conv.name}</p>
@@ -231,8 +249,12 @@ const AdminMessages = () => {
             <>
               <div className="p-4 border-b border-border flex items-center justify-between bg-white/50 backdrop-blur-sm z-10">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold">
-                    {conversations.find(c => c.phone === selectedUser)?.name?.[0] || 'C'}
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold overflow-hidden shrink-0">
+                    {conversations.find(c => c.phone === selectedUser)?.avatar ? (
+                      <img src={conversations.find(c => c.phone === selectedUser)?.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      conversations.find(c => c.phone === selectedUser)?.name?.[0] || 'C'
+                    )}
                   </div>
                   <div>
                     <p className="font-display font-medium text-foreground">
@@ -266,8 +288,19 @@ const AdminMessages = () => {
               </div>
 
               <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50">
-                {activeChatMessages.map((msg, i) => (
+                {activeChatMessages.map((msg, i) => {
+                  const { avatar } = parseNameAndAvatar(msg.name);
+                  return (
                   <div key={i} className={`flex ${msg.email === 'admin@alanissalon.com' ? 'justify-end' : 'justify-start'}`}>
+                    {msg.email !== 'admin@alanissalon.com' && (
+                      <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold overflow-hidden shrink-0 mr-3 mt-auto mb-1">
+                        {avatar ? (
+                          <img src={avatar} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-4 h-4" />
+                        )}
+                      </div>
+                    )}
                     <div className="max-w-[75%]">
                       <div className={`p-4 rounded-2xl text-sm shadow-sm ${msg.email === 'admin@alanissalon.com' ? 'bg-accent text-white rounded-tr-none' : 'bg-white border border-black/5 text-gray-800 rounded-tl-none'}`}>
                         {msg.image ? (
@@ -321,7 +354,8 @@ const AdminMessages = () => {
                       <p className={`text-[9px] mt-1 text-muted-foreground px-1 ${msg.email === 'admin@alanissalon.com' ? 'text-right' : 'text-left'}`}>{msg.date || 'Today'}</p>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="p-4 border-t border-border bg-white shadow-inner">

@@ -221,6 +221,7 @@ export function MessengerChat() {
       date: new Date().toLocaleTimeString(),
       status: 'new',
       type: 'chat',
+      avatar: loggedUser?.user_metadata?.avatar_url,
     });
     
     if (error) {
@@ -244,7 +245,7 @@ export function MessengerChat() {
       const base64 = reader.result as string;
       const newMsg: ChatMsg = { id: Date.now().toString(), image: base64, sender: 'me', timestamp: new Date().toISOString(), status: 'sent' };
       setChatHistory(prev => [...prev, newMsg]);
-      await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Image]', image: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
+      await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Image]', image: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat', avatar: loggedUser?.user_metadata?.avatar_url });
     };
     reader.readAsDataURL(file);
   };
@@ -263,7 +264,7 @@ export function MessengerChat() {
         reader.onloadend = async () => {
           const base64 = reader.result as string;
           setChatHistory(prev => [...prev, { id: Date.now().toString(), voice: base64, sender: 'me', timestamp: new Date().toISOString(), status: 'sent' }]);
-          await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Voice Note]', voice: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat' });
+          await LocalDB.saveMessage({ name: clientName, email: clientEmail || clientName, message: '[Voice Note]', voice: base64, date: new Date().toLocaleTimeString(), status: 'new', type: 'chat', avatar: loggedUser?.user_metadata?.avatar_url });
         };
         reader.readAsDataURL(audioBlob);
       };
