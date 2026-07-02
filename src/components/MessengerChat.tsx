@@ -43,6 +43,19 @@ export function MessengerChat() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const channelRef = useRef<any>(null);
+
+  useEffect(() => {
+    const channel = supabase.channel('typing-channel');
+    channel.subscribe((status) => {
+      if (status === 'SUBSCRIBED') {
+        channelRef.current = channel;
+      }
+    });
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const getDisplayName = () => {
     return loggedUser 
@@ -54,29 +67,32 @@ export function MessengerChat() {
     setMessage(val);
     
     // Broadcast typing = true
-    const channel = supabase.channel('typing-channel');
-    channel.send({
-      type: 'broadcast',
-      event: 'typing',
-      payload: { 
-        name: getDisplayName(), 
-        isTyping: val.length > 0, 
-        email: clientEmail || clientName 
-      }
-    });
-
-    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    
-    typingTimeoutRef.current = setTimeout(() => {
-      channel.send({
+    if (channelRef.current) {
+      channelRef.current.send({
         type: 'broadcast',
         event: 'typing',
         payload: { 
           name: getDisplayName(), 
-          isTyping: false, 
+          isTyping: val.length > 0, 
           email: clientEmail || clientName 
         }
       });
+    }
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: 'broadcast',
+          event: 'typing',
+          payload: { 
+            name: getDisplayName(), 
+            isTyping: false, 
+            email: clientEmail || clientName 
+          }
+        });
+      }
     }, 2000);
   };
 
@@ -176,16 +192,17 @@ export function MessengerChat() {
 
     // Stop typing indicator on send
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    const channel = supabase.channel('typing-channel');
-    channel.send({
-      type: 'broadcast',
-      event: 'typing',
-      payload: { 
-        name: getDisplayName(), 
-        isTyping: false, 
-        email: clientEmail || clientName 
-      }
-    });
+    if (channelRef.current) {
+      channelRef.current.send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: { 
+          name: getDisplayName(), 
+          isTyping: false, 
+          email: clientEmail || clientName 
+        }
+      });
+    }
 
     const newMsg: ChatMsg = {
       id: Date.now().toString(),
