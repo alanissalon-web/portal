@@ -137,16 +137,35 @@ export const LocalDB = {
 
   // --- Media ---
   getMedia: async () => {
-    const { data } = await supabase.from('media').select('*');
-    return { data: data || [], error: null };
+    const { data, error } = await supabase.storage.from('site-images').list('media', {
+      limit: 100,
+      offset: 0,
+      sortBy: { column: 'created_at', order: 'desc' },
+    });
+    if (error) return { data: [], error };
+    
+    // Ignore the hidden placeholder folder file if it exists
+    const validFiles = (data || []).filter(f => f.name !== '.emptyFolderPlaceholder');
+    
+    const files = validFiles.map(file => {
+      const { data: urlData } = supabase.storage.from('site-images').getPublicUrl(`media/${file.name}`);
+      return {
+        id: file.name,
+        name: file.name,
+        size: file.metadata?.size ? `${(file.metadata.size / 1024).toFixed(1)}KB` : '0KB',
+        type: file.metadata?.mimetype || 'image/jpeg',
+        url: urlData.publicUrl
+      };
+    });
+    return { data: files, error: null };
   },
-  saveMedia: async (file: any) => {
-    const newItem = { ...file, id: file.id || (Math.random().toString(36).substring(2) + Date.now().toString(36)) };
-    const { error } = await supabase.from('media').upsert(newItem);
-    return { error };
+  saveMedia: async (media: any) => {
+    // The image itself is uploaded directly to the bucket in AdminMedia.tsx.
+    // There's no need for an extra table to track this in the current architecture.
+    return { data: media, error: null };
   },
   deleteMedia: async (id: string) => {
-    const { error } = await supabase.from('media').delete().eq('id', id);
+    const { error } = await supabase.storage.from('site-images').remove([`media/${id}`]);
     return { error };
   },
 
@@ -478,6 +497,8 @@ export const LocalDB = {
     const { error } = await supabase.from('blogs').delete().eq('id', id);
     return { error };
   },
+
+
 
   // --- Auth ---
   signUp: async (email: string, pass: string) => {
