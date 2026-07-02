@@ -180,8 +180,13 @@ const AdminMessages = () => {
       .map(m => m.email) // Use email/phone as unique key
   )).map(phone => {
     const userMsgs = messages.filter(m => m.email === phone || m.toEmail === phone);
-    const lastMsg = userMsgs[userMsgs.length - 1];
-    const { name, avatar } = parseNameAndAvatar(lastMsg?.name || 'Client');
+    const lastMsg = userMsgs[0]; // Messages are ordered descending (newest first)
+    
+    // Find the newest message actually sent by the user to extract their name and avatar
+    const userSentMsgs = messages.filter(m => m.email === phone && m.name !== 'Alanís Salon' && m.name !== 'Admin');
+    const userLastMsg = userSentMsgs[0];
+    
+    const { name, avatar } = parseNameAndAvatar(userLastMsg?.name || 'Client');
     return {
       phone,
       name,
