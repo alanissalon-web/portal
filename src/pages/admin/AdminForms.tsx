@@ -249,7 +249,7 @@ export default function AdminForms() {
         <div className="flex items-center justify-between border-b pb-4">
           <div>
             <h2 className="font-display text-xl font-medium">Smart Recommendations</h2>
-            <p className="text-sm text-muted-foreground mt-1">Rules are evaluated in order. The first matching rule is displayed.</p>
+            <p className="text-sm text-muted-foreground mt-1">All matching rules are combined into a single personalized response based on the user's selections.</p>
           </div>
           <Button variant="outline" onClick={addRule} className="gap-2 rounded-xl text-xs"><Plus className="w-3.5 h-3.5" /> Add Rule</Button>
         </div>
