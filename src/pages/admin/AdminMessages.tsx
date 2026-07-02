@@ -194,7 +194,7 @@ const AdminMessages = () => {
 
   const activeChatMessages = messages.filter(m => 
     selectedUser && (m.email === selectedUser || m.toEmail === selectedUser) && (m.type === filterType || (filterType === 'chat' && !m.type))
-  );
+  ).reverse();
 
   useEffect(() => {
     if (scrollRef.current) {
