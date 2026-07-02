@@ -250,16 +250,27 @@ export function BookingWizard() {
                 </div>
               )}
 
-              {!isResultStep && (
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
-                  <button onClick={prev} disabled={currentStep === 0} className="flex items-center gap-2 font-body text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
-                    <ArrowLeft className="w-4 h-4" /> Back
-                  </button>
-                  <Button onClick={next} disabled={!canAdvance()} size="default">
-                    {isContactStep ? <><Check className="w-4 h-4" /> See Recommendation</> : <><ArrowRight className="w-4 h-4" /> Next</>}
-                  </Button>
-                </div>
-              )}
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
+                {isResultStep ? (
+                  <>
+                    <button onClick={prev} className="flex items-center gap-2 font-body text-sm text-muted-foreground hover:text-foreground transition-colors">
+                      <ArrowLeft className="w-4 h-4" /> Go Back
+                    </button>
+                    <button onClick={() => { setCurrentStep(0); setAnswers({}); }} className="font-body text-sm text-accent hover:text-accent/80 transition-colors">
+                      Start Over
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button onClick={prev} disabled={currentStep === 0} className="flex items-center gap-2 font-body text-sm text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors">
+                      <ArrowLeft className="w-4 h-4" /> Back
+                    </button>
+                    <Button onClick={next} disabled={!canAdvance()} size="default">
+                      {isContactStep ? <><Check className="w-4 h-4" /> Complete Booking</> : <><ArrowRight className="w-4 h-4" /> Next</>}
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
