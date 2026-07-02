@@ -232,18 +232,7 @@ export function MessengerChat() {
     setTimeout(() => {
       setChatHistory(prev => prev.map(m => m.id === newMsg.id ? { ...m, status: 'delivered' } : m));
     }, 1000);
-    // Simulate salon typing response (auto-reply)
-    setTimeout(() => setIsTyping(true), 2000);
-    setTimeout(() => {
-      setIsTyping(false);
-      setChatHistory(prev => [...prev, {
-        id: `reply-${Date.now()}`,
-        text: "Thank you for reaching out! ✨ A member of our team will get back to you shortly. You can also call us at (713) 524-2610.",
-        sender: 'them',
-        timestamp: new Date().toISOString(),
-        status: 'read',
-      }]);
-    }, 4000);
+
     setSending(false);
   };
 
