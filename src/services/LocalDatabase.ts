@@ -464,12 +464,13 @@ export const LocalDB = {
     
     // If updating
     if (blog.id) {
-      blog.updated_at = new Date().toISOString();
-      const { error } = await supabase.from('blogs').update(blog).eq('id', blog.id);
+      const { updated_at, ...updatePayload } = blog as any;
+      const { error } = await supabase.from('blogs').update(updatePayload).eq('id', blog.id);
       return { error };
     } else {
       // Is new
-      const { error } = await supabase.from('blogs').insert(blog);
+      const { updated_at, ...insertPayload } = blog as any;
+      const { error } = await supabase.from('blogs').insert(insertPayload);
       return { error };
     }
   },
