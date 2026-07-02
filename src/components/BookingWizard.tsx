@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Check, Sparkles, MessageCircle, MessageSquare, PhoneCall } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Sparkles, MessageSquare, PhoneCall } from 'lucide-react';
+import { EditableText } from './cms/EditableText';
 
 type StepConfig = {
   title: string;
@@ -134,10 +135,10 @@ export function BookingWizard() {
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-12 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            Book Your Visit
+            <EditableText section="booking" field="badge" defaultText="Book Your Visit" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            Your transformation starts here
+            <EditableText section="booking" field="title" defaultText="Your transformation starts here" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>
@@ -159,12 +160,14 @@ export function BookingWizard() {
           <div className="bg-card rounded-3xl p-8 md:p-10 shadow-lg shadow-foreground/5 min-h-[360px] flex flex-col">
             {isOptionStep && (
               <div className="flex-1 animate-reveal-up" key={currentStep}>
-                <h3 className="font-display text-2xl font-medium text-foreground mb-2">
-                  {steps[currentStep].title}
-                </h3>
-                <p className="font-body text-sm text-muted-foreground mb-8">
-                  {steps[currentStep].subtitle}
-                </p>
+                <div className="mb-8">
+                  <h3 className="font-display text-2xl font-medium text-foreground mb-2">
+                    <EditableText section="booking" field={`step${currentStep}_title`} defaultText={steps[currentStep].title} as="span" />
+                  </h3>
+                  <p className="font-body text-sm text-muted-foreground">
+                    <EditableText section="booking" field={`step${currentStep}_subtitle`} defaultText={steps[currentStep].subtitle} as="span" />
+                  </p>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   {steps[currentStep].options?.map((option) => {
                     const selected = answers[currentStep]?.includes(option);
@@ -178,7 +181,7 @@ export function BookingWizard() {
                             : 'bg-secondary text-secondary-foreground hover:bg-secondary/70'
                         }`}
                       >
-                        {option}
+                        <EditableText section="booking" field={`step${currentStep}_opt_${option.replace(/[^a-zA-Z0-9]/g, '')}`} defaultText={option} as="span" />
                       </button>
                     );
                   })}

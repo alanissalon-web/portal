@@ -41,13 +41,13 @@ const ShopPage = () => {
           </p>
           <div className="flex flex-wrap justify-center gap-8 md:gap-12">
             {[
-              { icon: Truck, label: 'Free Shipping Over $75' },
-              { icon: ShieldCheck, label: 'Salon-Grade Guaranteed' },
-              { icon: Award, label: 'Stylist Curated' },
+              { id: 'feature_1', icon: Truck, label: 'Free Shipping Over $75' },
+              { id: 'feature_2', icon: ShieldCheck, label: 'Salon-Grade Guaranteed' },
+              { id: 'feature_3', icon: Award, label: 'Stylist Curated' },
             ].map(b => (
-              <div key={b.label} className="flex items-center gap-2.5 text-primary-foreground/50">
+              <div key={b.id} className="flex items-center gap-2.5 text-primary-foreground/50">
                 <b.icon className="w-4 h-4 text-accent" />
-                <span className="font-body text-sm">{b.label}</span>
+                <EditableText section="shop_page" field={b.id} defaultText={b.label} as="span" className="font-body text-sm" />
               </div>
             ))}
           </div>

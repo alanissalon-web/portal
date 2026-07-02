@@ -35,6 +35,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
       contentEditable
       suppressContentEditableWarning
       onBlur={handleChange}
+      onClick={(e: React.MouseEvent) => e.stopPropagation()}
       className={cn(
         className,
         'outline-none focus:ring-2 focus:ring-accent/50 rounded-sm transition-all',

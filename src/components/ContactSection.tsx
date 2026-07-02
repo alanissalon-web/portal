@@ -4,6 +4,7 @@ import { Phone, MapPin, Clock, Instagram, Facebook, MessageCircle, Mail, ArrowRi
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { EditableText } from './cms/EditableText';
+import { EditableLink } from './cms/EditableLink';
 import salonAmbienceImage from '@/assets/salon-ambience-real.jpg';
 
 export function ContactSection() {
@@ -51,32 +52,32 @@ export function ContactSection() {
           <div className={`${isVisible ? 'animate-reveal-left delay-200' : 'opacity-0'}`}>
             {/* Contact details */}
             <div className="grid sm:grid-cols-2 gap-4 mb-10">
-              <a href="tel:7135242610" className="flex items-start gap-4 bg-cream rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
+              <EditableLink section="contact" field="phone_link" defaultHref="tel:7135242610" className="flex items-start gap-4 bg-cream rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                   <Phone className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">Phone</p>
-                  <p className="font-body text-sm text-muted-foreground">713-524-2610</p>
+                  <EditableText section="contact" field="phone_title" defaultText="Phone" as="p" className="font-display text-sm font-medium text-foreground" />
+                  <EditableText section="contact" field="phone_text" defaultText="713-524-2610" as="p" className="font-body text-sm text-muted-foreground" />
                 </div>
-              </a>
-              <a href="mailto:alanissalon@gmail.com" className="flex items-start gap-4 bg-cream rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
+              </EditableLink>
+              <EditableLink section="contact" field="email_link" defaultHref="mailto:alanissalon@gmail.com" className="flex items-start gap-4 bg-cream rounded-xl p-5 hover:shadow-md transition-all duration-300 group">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
                   <Mail className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">Email</p>
-                  <p className="font-body text-sm text-muted-foreground">alanissalon@gmail.com</p>
+                  <EditableText section="contact" field="email_title" defaultText="Email" as="p" className="font-display text-sm font-medium text-foreground" />
+                  <EditableText section="contact" field="email_text" defaultText="alanissalon@gmail.com" as="p" className="font-body text-sm text-muted-foreground" />
                 </div>
-              </a>
+              </EditableLink>
               <div className="flex items-start gap-4 bg-cream rounded-xl p-5">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">Location</p>
-                  <p className="font-body text-sm text-muted-foreground">Houston, TX</p>
-                  <p className="font-body text-xs text-muted-foreground">Near Downtown, Montrose & River Oaks</p>
+                  <EditableText section="contact" field="location_title" defaultText="Location" as="p" className="font-display text-sm font-medium text-foreground" />
+                  <EditableText section="contact" field="location_text_1" defaultText="Houston, TX" as="p" className="font-body text-sm text-muted-foreground" />
+                  <EditableText section="contact" field="location_text_2" defaultText="Near Downtown, Montrose & River Oaks" as="p" className="font-body text-xs text-muted-foreground" />
                 </div>
               </div>
               <div className="flex items-start gap-4 bg-cream rounded-xl p-5">
@@ -84,24 +85,24 @@ export function ContactSection() {
                   <Clock className="w-5 h-5 text-primary" />
                 </div>
                 <div>
-                  <p className="font-display text-sm font-medium text-foreground">Hours</p>
-                  <p className="font-body text-xs text-muted-foreground">Mon–Fri: 10am – 7pm</p>
-                  <p className="font-body text-xs text-muted-foreground">Sat: 9am – 5pm · Sun: Closed</p>
+                  <EditableText section="contact" field="hours_title" defaultText="Hours" as="p" className="font-display text-sm font-medium text-foreground" />
+                  <EditableText section="contact" field="hours_text_1" defaultText="Mon–Fri: 10am – 7pm" as="p" className="font-body text-xs text-muted-foreground" />
+                  <EditableText section="contact" field="hours_text_2" defaultText="Sat: 9am – 5pm · Sun: Closed" as="p" className="font-body text-xs text-muted-foreground" />
                 </div>
               </div>
             </div>
 
             {/* Social */}
             <div className="flex gap-3 mb-10">
-              <a href="https://www.instagram.com/alanissalon" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
+              <EditableLink section="contact" field="social_instagram" defaultHref="https://www.instagram.com/alanissalon" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
                 <Instagram className="w-5 h-5 text-foreground/70" />
-              </a>
-              <a href="https://www.facebook.com/alanissalon" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
+              </EditableLink>
+              <EditableLink section="contact" field="social_facebook" defaultHref="https://www.facebook.com/alanissalon" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
                 <Facebook className="w-5 h-5 text-foreground/70" />
-              </a>
-              <a href="sms:17135242610" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
+              </EditableLink>
+              <EditableLink section="contact" field="social_sms" defaultHref="sms:17135242610" className="w-10 h-10 rounded-full bg-cream flex items-center justify-center hover:bg-accent/10 transition-colors">
                 <MessageSquare className="w-5 h-5 text-foreground/70" />
-              </a>
+              </EditableLink>
             </div>
 
             {/* Contact Form */}

@@ -121,13 +121,13 @@ export function AboutSection() {
 
         {/* Stats */}
         <div className={`grid grid-cols-2 md:grid-cols-4 gap-6 mb-24 max-w-4xl mx-auto ${isVisible ? 'animate-reveal-up delay-300' : 'opacity-0'}`}>
-          {stats.map((stat) => (
+          {stats.map((stat, i) => (
             <div key={stat.label} className="text-center p-6 rounded-2xl bg-cream hover:shadow-lg transition-all duration-500 hover:-translate-y-1">
               <stat.icon className="w-6 h-6 text-accent mx-auto mb-3" />
               <p className="font-display text-3xl font-medium text-foreground">
-                {stat.displayValue ? stat.displayValue : <AnimatedCounter target={stat.value} suffix={stat.suffix} />}
+                <EditableText section="about" field={`stat_${i}_value`} defaultText={stat.displayValue ? stat.displayValue : `${stat.value}${stat.suffix}`} as="span" />
               </p>
-              <p className="font-body text-xs text-muted-foreground uppercase tracking-wider mt-1">{stat.label}</p>
+              <EditableText section="about" field={`stat_${i}_label`} defaultText={stat.label} as="p" className="font-body text-xs text-muted-foreground uppercase tracking-wider mt-1" />
             </div>
           ))}
         </div>
