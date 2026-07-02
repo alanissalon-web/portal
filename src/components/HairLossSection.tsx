@@ -1,6 +1,7 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Zap, Shield, RefreshCw, Clock, Scissors } from 'lucide-react';
+import { EditableText } from './cms/EditableText';
 
 const features = [
   {
@@ -68,17 +69,17 @@ export function HairLossSection() {
           {/* Left — content */}
           <div className={`${isVisible ? 'animate-reveal-left' : 'opacity-0'}`}>
             <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-              Hair Loss Solutions
+              <EditableText section="hairloss" field="badge" defaultText="Hair Loss Solutions" as="span" />
             </span>
             <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 mb-6 text-balance" style={{ lineHeight: '1.15' }}>
-              CombLine & Micro Point Technology
+              <EditableText section="hairloss" field="title" defaultText="CombLine & Micro Point Technology" as="span" />
             </h2>
-            <p className="font-body text-muted-foreground leading-relaxed mb-4 text-pretty">
-              As pioneers in hair-to-hair technology, we've developed CombLine — a method that seamlessly bonds extensions even to the thinnest areas, including delicate sections like bangs, sides, and the nape.
-            </p>
-            <p className="font-body text-muted-foreground leading-relaxed mb-8 text-pretty">
-              If you want thicker hair instantly, Micro Point adds strands to your existing hair at the root, making it virtually undetectable. This breakthrough technology has the same characteristics of human hair but is four times lighter — no stress or tension on natural hair.
-            </p>
+            <div className="font-body text-muted-foreground leading-relaxed mb-4 text-pretty">
+              <EditableText section="hairloss" field="para1" defaultText="As pioneers in hair-to-hair technology, we've developed CombLine — a method that seamlessly bonds extensions even to the thinnest areas, including delicate sections like bangs, sides, and the nape." />
+            </div>
+            <div className="font-body text-muted-foreground leading-relaxed mb-8 text-pretty">
+              <EditableText section="hairloss" field="para2" defaultText="If you want thicker hair instantly, Micro Point adds strands to your existing hair at the root, making it virtually undetectable. This breakthrough technology has the same characteristics of human hair but is four times lighter — no stress or tension on natural hair." />
+            </div>
 
             <div className="space-y-4 mb-10">
               {features.map((f) => (

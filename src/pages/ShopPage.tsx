@@ -6,6 +6,8 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Sparkles, Truck, ShieldCheck, Award, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import salonProducts from '@/assets/salon-products.jpg';
+import { EditableText } from '@/components/cms/EditableText';
+import { EditableImage } from '@/components/cms/EditableImage';
 
 const ShopPage = () => {
   const { ref, isVisible } = useScrollReveal();
@@ -17,19 +19,25 @@ const ShopPage = () => {
       {/* Premium Hero */}
       <section className="relative pt-40 pb-20 md:pt-56 md:pb-28 bg-charcoal overflow-hidden min-h-[60vh] flex items-center">
         <div className="absolute inset-0">
-          <img src={salonProducts} alt="Alanís Shop" className="w-full h-full object-cover opacity-20" />
+          <EditableImage
+            section="shop_page"
+            field="banner_bg"
+            defaultImage={salonProducts}
+            alt="Alanís Shop"
+            className="w-full h-full object-cover opacity-20"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-charcoal/60 via-charcoal/40 to-charcoal" />
         </div>
         <div className="relative z-10 container mx-auto px-6 text-center">
           <span className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 text-accent rounded-full px-5 py-2 mb-8 font-body text-xs uppercase tracking-[0.2em]">
             <Sparkles className="w-3.5 h-3.5" />
-            Curated Collection
+            <EditableText section="shop_page" field="badge" defaultText="Curated Collection" as="span" />
           </span>
           <h1 className="font-display text-5xl md:text-7xl font-light text-primary-foreground mb-6 tracking-tight">
-            Professional Hair Care
+            <EditableText section="shop_page" field="title" defaultText="Professional Hair Care" as="span" />
           </h1>
           <p className="font-body text-lg md:text-xl text-primary-foreground/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-            The same premium products our stylists trust in-salon — handpicked for extensions, color-treated, and thinning hair.
+            <EditableText section="shop_page" field="description" defaultText="The same premium products our stylists trust in-salon — handpicked for extensions, color-treated, and thinning hair." />
           </p>
           <div className="flex flex-wrap justify-center gap-8 md:gap-12">
             {[

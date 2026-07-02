@@ -475,7 +475,7 @@ export function MessengerChat() {
                   )}
                   <div className="flex items-center gap-2">
                     {/* Media buttons */}
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-shrink-0">
                       <label className="w-9 h-9 rounded-full flex items-center justify-center text-accent hover:bg-accent/5 transition-colors cursor-pointer">
                         <Camera className="w-5 h-5" />
                         <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} />
@@ -493,7 +493,7 @@ export function MessengerChat() {
                     </div>
 
                     {/* Text input */}
-                    <div className="flex-1 bg-gray-100 rounded-full flex items-center px-4 gap-2">
+                    <div className="flex-1 bg-gray-100 rounded-full flex items-center px-4 gap-2 min-w-0">
                       <input
                         type="text"
                         value={message}

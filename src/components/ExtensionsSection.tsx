@@ -2,6 +2,8 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
+import { EditableText } from './cms/EditableText';
+import { EditableImage } from './cms/EditableImage';
 
 const galleryImages = [
   'https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1712180689466-9VVMGVOL2BPRG27WO807/IMG_9818.jpeg',
@@ -72,25 +74,26 @@ export function ExtensionsSection() {
         {/* Header */}
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            Hair Extensions
+            <EditableText section="extensions" field="badge" defaultText="Hair Extensions" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            Houston's premiere extension salon
+            <EditableText section="extensions" field="title" defaultText="Houston's premiere extension salon" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
           <p className="font-body text-muted-foreground mt-6 leading-relaxed text-pretty max-w-xl mx-auto">
-            Over 20 years customizing individual hair extensions on all types of hair. Whether you're looking for length, volume, or solutions for thinning hair — we customize extensions that blend seamlessly. Certified by Great Lengths, Mago, Micro Point, Dream Catcher, HairDreams, and more.
+            <EditableText section="extensions" field="description" defaultText="Over 20 years customizing individual hair extensions on all types of hair. Whether you're looking for length, volume, or solutions for thinning hair — we customize extensions that blend seamlessly. Certified by Great Lengths, Mago, Micro Point, Dream Catcher, HairDreams, and more." />
           </p>
         </div>
 
         {/* Hero extension image */}
         <div className={`max-w-4xl mx-auto mb-16 ${isVisible ? 'animate-reveal-scale delay-100' : 'opacity-0'}`}>
           <div className="rounded-2xl overflow-hidden shadow-xl shadow-foreground/10 group">
-            <img
-              src="https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1603381349501-NID1QSSHZLWD7A894B3U/Micro+Points++.jpg"
+            <EditableImage
+              section="extensions"
+              field="hero_image"
+              defaultImage="https://images.squarespace-cdn.com/content/v1/5b03616f9772ae0c5a7c199b/1603381349501-NID1QSSHZLWD7A894B3U/Micro+Points++.jpg"
               alt="Hair extensions application at Alanis Salon"
               className="w-full h-auto transition-transform duration-700 group-hover:scale-[1.02]"
-              loading="lazy"
             />
           </div>
         </div>

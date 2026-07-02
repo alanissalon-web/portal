@@ -9,6 +9,8 @@ import salonReception from '@/assets/salon-reception.jpg';
 import salonMirror from '@/assets/salon-mirror-station.jpg';
 import serviceColor from '@/assets/service-color.jpg';
 import serviceCut from '@/assets/service-cut.jpg';
+import { EditableText } from '@/components/cms/EditableText';
+import { EditableImage } from '@/components/cms/EditableImage';
 
 const ServicesPage = () => {
   return (
@@ -17,15 +19,23 @@ const ServicesPage = () => {
       {/* Hero banner */}
       <section className="relative pt-40 pb-16 md:pt-56 bg-charcoal overflow-hidden min-h-[50vh] flex items-center">
         <div className="absolute inset-0">
-          <img src={salonReception} alt="Alanís Salon reception" className="w-full h-full object-cover opacity-30" />
+          <EditableImage
+            section="services_page"
+            field="banner_bg"
+            defaultImage={salonReception}
+            alt="Alanís Salon reception"
+            className="w-full h-full object-cover opacity-30"
+          />
         </div>
         <div className="relative z-10 container mx-auto px-6 py-16 text-center">
-          <span className="font-body text-xs uppercase tracking-[0.3em] text-accent mb-4 block">Expert Hair Care</span>
+          <span className="font-body text-xs uppercase tracking-[0.3em] text-accent mb-4 block">
+            <EditableText section="services_page" field="badge" defaultText="Expert Hair Care" as="span" />
+          </span>
           <h1 className="font-display text-5xl md:text-6xl font-light text-primary-foreground mb-4">
-            Our Services
+            <EditableText section="services_page" field="title" defaultText="Our Services" as="span" />
           </h1>
           <p className="font-body text-lg text-primary-foreground/70 max-w-lg mx-auto">
-            From precision cuts to transformative color — every service is a premium experience tailored to you.
+            <EditableText section="services_page" field="description" defaultText="From precision cuts to transformative color — every service is a premium experience tailored to you." />
           </p>
         </div>
       </section>

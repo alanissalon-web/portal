@@ -1,6 +1,7 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Phone } from 'lucide-react';
+import { EditableText } from './cms/EditableText';
 
 const categories = [
   {
@@ -68,10 +69,10 @@ export function PricingSection() {
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
-            Our Prices
+            <EditableText section="pricing" field="badge" defaultText="Our Prices" as="span" />
           </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            Services & Pricing
+            <EditableText section="pricing" field="title" defaultText="Services & Pricing" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>

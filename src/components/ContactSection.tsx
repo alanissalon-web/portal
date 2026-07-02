@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Phone, MapPin, Clock, Instagram, Facebook, MessageCircle, Mail, ArrowRight, Send, MessageSquare } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { EditableText } from './cms/EditableText';
 import salonAmbienceImage from '@/assets/salon-ambience-real.jpg';
 
 export function ContactSection() {
@@ -36,9 +37,11 @@ export function ContactSection() {
     <section id="contact" className="py-24 md:py-32 bg-background" ref={ref}>
       <div className="container mx-auto px-6">
         <div className={`text-center max-w-2xl mx-auto mb-16 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
-          <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">Get In Touch</span>
+          <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
+            <EditableText section="contact" field="badge" defaultText="Get In Touch" as="span" />
+          </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            We'd love to hear from you
+            <EditableText section="contact" field="title" defaultText="We'd love to hear from you" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
         </div>

@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { PlayCircle, Clock, Star, Users, BookOpen, Video, ArrowRight, CheckCircle, Award, GraduationCap, Heart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { EditableText } from './cms/EditableText';
 import { Link } from 'react-router-dom';
 import { LocalDB } from '@/services/LocalDatabase';
 import { supabase } from '@/lib/supabase';
@@ -260,11 +261,11 @@ export function AcademySection() {
         {/* Section Header */}
         <div className={`text-center max-w-3xl mx-auto mb-20 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground text-balance" style={{ lineHeight: '1.15' }}>
-            Elevate your craft with expert-led education
+            <EditableText section="academy" field="title" defaultText="Elevate your craft with expert-led education" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
           <p className="font-body text-muted-foreground mt-6 leading-relaxed max-w-xl mx-auto">
-            Over 20 years of premium salon expertise, now available as on-demand courses and live workshops.
+            <EditableText section="academy" field="description" defaultText="Over 20 years of premium salon expertise, now available as on-demand courses and live workshops." />
           </p>
         </div>
 
