@@ -52,7 +52,7 @@ const AdminAnalytics = () => {
       const totalMessages = messages?.length || 0;
       const totalReservations = reservations?.length || 0;
 
-      const calculatedVisits = 14200 + totalWaitlist + totalBookings + totalMessages;
+      const calculatedVisits = totalWaitlist + totalBookings + totalMessages;
 
       // Count unique emails
       const uniqueEmails = new Set<string>();
@@ -60,7 +60,7 @@ const AdminAnalytics = () => {
       (bookings || []).forEach((b: any) => b.email && uniqueEmails.add(b.email));
       (messages || []).forEach((m: any) => m.email && uniqueEmails.add(m.email));
       
-      const calculatedUsers = uniqueEmails.size > 0 ? uniqueEmails.size : 840;
+      const calculatedUsers = uniqueEmails.size;
 
       // Calculate Revenue
       let academyRevenue = 0;
@@ -80,14 +80,14 @@ const AdminAnalytics = () => {
       }
       
       const calculatedSales = academyRevenue + shopRevenue;
-      const displaySales = calculatedSales > 0 ? calculatedSales : 8450;
+      const displaySales = calculatedSales;
 
       // Conversion Rate
       const totalConversions = totalBookings + totalReservations;
       const calculatedConvRate = calculatedVisits > 0 
         ? Number(((totalConversions / calculatedVisits) * 100).toFixed(1)) 
-        : 3.2;
-      const displayConvRate = calculatedConvRate > 0 ? calculatedConvRate : 3.2;
+        : 0;
+      const displayConvRate = calculatedConvRate;
 
       setStats({
         visits: calculatedVisits,
@@ -133,12 +133,11 @@ const AdminAnalytics = () => {
         });
       }
 
-      const finalChartData = aggregated.map((item, idx) => {
-        const defaultBaseline = defaultBaselineData[idx];
+      const finalChartData = aggregated.map((item) => {
         return {
           name: item.name,
-          visits: item.visits > 0 ? item.visits * 10 : defaultBaseline.visits,
-          sales: item.sales > 0 ? item.sales : defaultBaseline.sales
+          visits: item.visits,
+          sales: item.sales
         };
       });
 
