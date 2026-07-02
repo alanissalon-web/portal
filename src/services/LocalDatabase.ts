@@ -210,7 +210,6 @@ export const LocalDB = {
       email: msg.email || 'no-email',
       phone: phoneVal,
       message: messageVal,
-      date: msg.date || new Date().toISOString(),
       status: msg.status || 'new'
     };
 

@@ -50,11 +50,7 @@ const AdminBookings = () => {
           <h1 className="font-display text-3xl font-light text-foreground">Booking Management</h1>
           <p className="font-body text-sm text-muted-foreground mt-1">Manage your clients' appointments and schedules.</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2 rounded-xl bg-white shadow-sm border-black/5">
-            <Calendar className="w-4 h-4" /> View Calendar
-          </Button>
-        </div>
+        {/* Calendar view is not available yet */}
       </div>
 
       <div className="flex gap-4 mb-8">

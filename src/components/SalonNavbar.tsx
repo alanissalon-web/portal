@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Phone, ShoppingBag, PhoneCall, Fingerprint } from 'lucide-react';
+import { Menu, X, Phone, ShoppingBag, PhoneCall, Fingerprint, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '@/assets/logo-alanis.png';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
@@ -9,7 +9,7 @@ import { useCMS } from '@/contexts/CMSContext';
 import { Layout, User } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
-const navLinks = [
+const DEFAULT_NAV_LINKS = [
   { label: 'About', href: '/about' },
   { label: 'Services', href: '/services' },
   { label: 'Extensions', href: '/extensions' },
@@ -23,11 +23,19 @@ const navLinks = [
 export function SalonNavbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  const dropdownTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
   const isHome = location.pathname === '/';
   const { isAdmin } = useAdminAuth();
-  const { setIsEditing } = useCMS();
+  const { setIsEditing, content } = useCMS();
   const [loggedUser, setLoggedUser] = useState<any>(null);
+
+  // ── Read nav links from CMS, fall back to defaults ──────────────────────────
+  const navLinks: any[] = content['navigation']?.links?.length
+    ? content['navigation'].links
+    : DEFAULT_NAV_LINKS;
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -45,7 +53,22 @@ export function SalonNavbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Close dropdown on route change
+  useEffect(() => {
+    setOpenDropdown(null);
+    setMobileOpen(false);
+  }, [location.pathname]);
+
   const textColor = scrolled || !isHome ? 'text-charcoal' : 'text-primary-foreground';
+
+  const handleDropdownEnter = (label: string) => {
+    if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current);
+    setOpenDropdown(label);
+  };
+
+  const handleDropdownLeave = () => {
+    dropdownTimerRef.current = setTimeout(() => setOpenDropdown(null), 150);
+  };
 
   return (
     <>
@@ -70,8 +93,53 @@ export function SalonNavbar() {
 
           {/* Desktop links */}
           <div className="hidden lg:flex items-center gap-8">
-            {navLinks.map((link) => {
-              const isActive = location.pathname === link.href;
+            {navLinks.map((link: any) => {
+              const hasSubmenu = link.submenu && link.submenu.length > 0;
+              const isActive = location.pathname === link.href ||
+                (hasSubmenu && link.submenu.some((s: any) => location.pathname === s.href));
+
+              if (hasSubmenu) {
+                return (
+                  <div
+                    key={link.href}
+                    className="relative"
+                    onMouseEnter={() => handleDropdownEnter(link.label)}
+                    onMouseLeave={handleDropdownLeave}
+                  >
+                    <button
+                      className={`flex items-center gap-1 font-body text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:text-accent ${textColor} ${isActive ? 'text-accent font-medium' : ''}`}
+                    >
+                      {link.label}
+                      <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${openDropdown === link.label ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    <AnimatePresence>
+                      {openDropdown === link.label && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 6, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 6, scale: 0.97 }}
+                          transition={{ duration: 0.15 }}
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-3 min-w-[180px] bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-black/5 py-2 overflow-hidden"
+                          onMouseEnter={() => handleDropdownEnter(link.label)}
+                          onMouseLeave={handleDropdownLeave}
+                        >
+                          {link.submenu.map((sub: any) => (
+                            <Link
+                              key={sub.href}
+                              to={sub.href}
+                              className={`block px-5 py-2.5 font-body text-xs uppercase tracking-widest transition-colors hover:bg-accent/5 hover:text-accent ${location.pathname === sub.href ? 'text-accent font-medium' : 'text-charcoal'}`}
+                            >
+                              {sub.label}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={link.href}
@@ -116,9 +184,9 @@ export function SalonNavbar() {
                 </Button>
               </a>
               {loggedUser ? (
-                <Link 
-                  to={isAdmin ? "/admin" : "/portal"} 
-                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg border-2 border-accent" 
+                <Link
+                  to={isAdmin ? "/admin" : "/portal"}
+                  className="flex items-center gap-2 pl-2 pr-4 py-1.5 rounded-full bg-accent hover:bg-accent/90 transition-all shadow-md hover:shadow-lg border-2 border-accent"
                   title={isAdmin ? "Admin Panel" : "Client Portal"}
                 >
                   <div className="w-7 h-7 rounded-full overflow-hidden flex items-center justify-center bg-white/20">
@@ -170,25 +238,61 @@ export function SalonNavbar() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-6 px-8 flex flex-col gap-5">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <Link
-                    to={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="block font-display text-2xl font-light text-charcoal hover:text-accent transition-colors"
+            <div className="flex-1 overflow-y-auto py-6 px-8 flex flex-col gap-2">
+              {navLinks.map((link: any, i: number) => {
+                const hasSubmenu = link.submenu && link.submenu.length > 0;
+                const isExpanded = mobileExpanded === link.label;
+                return (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
                   >
-                    {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              
-
+                    {hasSubmenu ? (
+                      <div>
+                        <button
+                          onClick={() => setMobileExpanded(isExpanded ? null : link.label)}
+                          className="flex items-center justify-between w-full py-3 font-display text-2xl font-light text-charcoal hover:text-accent transition-colors"
+                        >
+                          {link.label}
+                          <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden pl-4 border-l-2 border-accent/20 mb-2"
+                            >
+                              {link.submenu.map((sub: any) => (
+                                <Link
+                                  key={sub.href}
+                                  to={sub.href}
+                                  onClick={() => setMobileOpen(false)}
+                                  className="block py-2 font-body text-base text-charcoal/70 hover:text-accent transition-colors"
+                                >
+                                  {sub.label}
+                                </Link>
+                              ))}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block py-3 font-display text-2xl font-light text-charcoal hover:text-accent transition-colors"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
 
             <div className="p-6 border-t border-black/5 space-y-4">
@@ -228,3 +332,5 @@ export function SalonNavbar() {
     </>
   );
 }
+
+
