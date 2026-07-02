@@ -84,7 +84,7 @@ const AdminDashboard = () => {
         .filter((m: any) => m.status === 'new' && m.name !== 'Alanís Salon')
         .map((m: any) => ({
           type: 'message',
-          user: m.name,
+          user: m.name?.split('|||AVATAR|||')[0] || 'Unknown',
           action: 'sent message',
           course: m.message,
           timestamp: new Date(m.created_at || m.date || Date.now())
