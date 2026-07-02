@@ -213,7 +213,7 @@ const AdminMessages = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xl overflow-hidden flex">
+      <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xl overflow-hidden flex min-h-0">
         {/* Sidebar */}
         <div className="w-80 border-r border-border flex flex-col bg-[#FAFAFA]">
           <div className="p-4 border-b border-border">
@@ -292,7 +292,7 @@ const AdminMessages = () => {
                 </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50 min-h-0">
+              <div className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4 bg-[#F8F9FA]/50 min-h-0">
                 {activeChatMessages.map((msg, i) => {
                   const { avatar } = parseNameAndAvatar(msg.name);
                   return (
