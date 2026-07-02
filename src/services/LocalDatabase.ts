@@ -229,15 +229,37 @@ export const LocalDB = {
 
   // --- Bookings ---
   getBookings: async () => {
-    const { data } = await supabase.from('bookings').select('*');
-    return { data: data || [], error: null };
+    const { data, error } = await supabase.from('bookings').select('*');
+    const mapped = (data || []).map((b: any) => ({
+      id: b.id,
+      clientName: b.customer_name || '',
+      email: b.customer_email || '',
+      phone: b.customer_phone || '',
+      service: b.service || '',
+      date: b.booking_date || '',
+      time: b.booking_time || '',
+      status: b.status || 'pending',
+      notes: b.notes || '',
+      created_at: b.created_at
+    }));
+    return { data: mapped, error };
   },
   saveBooking: async (booking: any) => {
-    const updated = { ...booking };
-    if (!updated.id) {
-      updated.id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    }
+    const updated = {
+      id: booking.id || (Math.random().toString(36).substring(2) + Date.now().toString(36)),
+      customer_name: booking.clientName || booking.name || 'Anonymous',
+      customer_email: booking.email || null,
+      customer_phone: booking.phone || null,
+      service: booking.service || 'General Treatment',
+      booking_date: booking.date || null,
+      booking_time: booking.time || null,
+      status: booking.status || 'pending',
+      notes: booking.notes || null
+    };
     const { error } = await supabase.from('bookings').upsert(updated);
+    if (error) {
+      console.error('Supabase error saving booking:', error);
+    }
     return { error };
   },
   deleteBooking: async (id: string) => {

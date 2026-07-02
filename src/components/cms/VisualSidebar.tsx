@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCMS } from '@/contexts/CMSContext';
 import { motion } from 'framer-motion';
-import { GripVertical, Trash2, Plus, ArrowUp, ArrowDown, Layout, Link2 } from 'lucide-react';
+import { 
+  GripVertical, 
+  Trash2, 
+  Plus, 
+  ArrowUp, 
+  ArrowDown, 
+  Layout, 
+  Link2,
+  ChevronLeft,
+  ChevronRight,
+  CornerDownRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLocation } from 'react-router-dom';
 
@@ -15,72 +26,191 @@ export const VisualSidebar: React.FC = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'layout' | 'navigation'>('layout');
 
+  // Flat menu items representation for Drag & Drop
+  const [flatLinks, setFlatLinks] = useState<any[]>([]);
+  const [hasInitializedMenu, setHasInitializedMenu] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragStartX, setDragStartX] = useState<number>(0);
+  const [dragCurrentX, setDragCurrentX] = useState<number>(0);
+
+  // Sync flatLinks from CMS context initially on tab switch
+  useEffect(() => {
+    if (activeTab === 'navigation' && !hasInitializedMenu) {
+      const rawLinks = content['navigation']?.links || [
+        { label: 'About', href: '/about' },
+        { label: 'Services', href: '/services' },
+        { label: 'Extensions', href: '/extensions' },
+        { label: 'Hair Loss', href: '/hair-loss' },
+        { label: 'Academy', href: '/academy' },
+        { label: 'Blog', href: '/blog' },
+        { label: 'Shop', href: '/shop' },
+        { label: 'Contact', href: '/contact' },
+      ];
+      
+      const flat: any[] = [];
+      rawLinks.forEach((link: any, pIdx: number) => {
+        flat.push({
+          id: `item-${pIdx}-${Date.now()}`,
+          label: link.label,
+          href: link.href,
+          isSubmenu: false
+        });
+        if (link.submenu) {
+          link.submenu.forEach((sub: any, sIdx: number) => {
+            flat.push({
+              id: `item-${pIdx}-${sIdx}-${Date.now()}`,
+              label: sub.label,
+              href: sub.href,
+              isSubmenu: true
+            });
+          });
+        }
+      });
+      setFlatLinks(flat);
+      setHasInitializedMenu(true);
+    } else if (activeTab !== 'navigation') {
+      setHasInitializedMenu(false);
+    }
+  }, [activeTab, content['navigation']?.links, hasInitializedMenu]);
+
   if (!isEditing) return null;
-  
-  // Navigation Default
-  const navLinks = content['navigation']?.links || [
-    { label: 'About', href: '/about' },
-    { label: 'Services', href: '/services' },
-    { label: 'Extensions', href: '/extensions' },
-    { label: 'Hair Loss', href: '/hair-loss' },
-    { label: 'Academy', href: '/academy' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Shop', href: '/shop' },
-    { label: 'Contact', href: '/contact' },
-  ];
 
-  const updateLinks = (newLinks: any[]) => {
-    updateContent('navigation', 'links', newLinks);
+  // Convert flat representation back to nested structure and save to CMS Context
+  const saveFlatLinks = (flat: any[]) => {
+    setFlatLinks(flat);
+    const nested: any[] = [];
+    flat.forEach((item) => {
+      if (!item.isSubmenu) {
+        nested.push({
+          label: item.label,
+          href: item.href,
+          submenu: []
+        });
+      } else {
+        if (nested.length === 0) {
+          // If first item is set to submenu, force it to be parent
+          nested.push({
+            label: item.label,
+            href: item.href,
+            submenu: []
+          });
+        } else {
+          nested[nested.length - 1].submenu = nested[nested.length - 1].submenu || [];
+          nested[nested.length - 1].submenu.push({
+            label: item.label,
+            href: item.href
+          });
+        }
+      }
+    });
+
+    // Clean up empty submenus
+    const cleaned = nested.map(n => {
+      const copy = { ...n };
+      if (!copy.submenu || copy.submenu.length === 0) {
+        delete copy.submenu;
+      }
+      return copy;
+    });
+
+    updateContent('navigation', 'links', cleaned);
   };
 
-  const handleEditLink = (index: number, field: 'label' | 'href', value: string) => {
-    const updated = [...navLinks];
+  const handleEditFlatLink = (index: number, field: 'label' | 'href', value: string) => {
+    const updated = [...flatLinks];
     updated[index] = { ...updated[index], [field]: value };
-    updateLinks(updated);
+    saveFlatLinks(updated);
   };
 
-  const handleMoveLink = (index: number, direction: 'up' | 'down') => {
-    const updated = [...navLinks];
+  const handleDeleteFlatLink = (index: number) => {
+    const updated = flatLinks.filter((_, i) => i !== index);
+    saveFlatLinks(updated);
+  };
+
+  const handleAddFlatLink = () => {
+    const updated = [
+      ...flatLinks,
+      {
+        id: `item-new-${Date.now()}`,
+        label: 'New Link',
+        href: '#',
+        isSubmenu: false
+      }
+    ];
+    saveFlatLinks(updated);
+  };
+
+  const handleToggleLevel = (index: number, forceSubmenu?: boolean) => {
+    if (index === 0) return; // First item must always be a parent link
+    const updated = [...flatLinks];
+    const item = updated[index];
+    item.isSubmenu = forceSubmenu !== undefined ? forceSubmenu : !item.isSubmenu;
+    saveFlatLinks(updated);
+  };
+
+  const handleMoveFlatLink = (index: number, direction: 'up' | 'down') => {
+    const updated = [...flatLinks];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
     if (targetIndex < 0 || targetIndex >= updated.length) return;
+    
+    // Swap items
     [updated[index], updated[targetIndex]] = [updated[targetIndex], updated[index]];
-    updateLinks(updated);
+    
+    // First item must always be parent
+    if (updated[0].isSubmenu) {
+      updated[0].isSubmenu = false;
+    }
+    
+    saveFlatLinks(updated);
   };
 
-  const handleDeleteLink = (index: number) => {
-    const updated = navLinks.filter((_, i) => i !== index);
-    updateLinks(updated);
+  // Drag & Drop Handlers for flat links list
+  const handleLinkDragStart = (e: React.DragEvent, index: number) => {
+    setDraggedIndex(index);
+    setDragStartX(e.clientX);
+    setDragCurrentX(e.clientX);
+    
+    // Create an empty transparent drag image to prevent native ghost card behavior which is ugly in sidebars
+    const img = new Image();
+    img.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    e.dataTransfer.setDragImage(img, 0, 0);
+    e.dataTransfer.effectAllowed = 'move';
   };
 
-  const handleAddLink = () => {
-    const updated = [...navLinks, { label: 'New Link', href: '#' }];
-    updateLinks(updated);
+  const handleLinkDragOver = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex === null) return;
+    setDragCurrentX(e.clientX);
+
+    if (draggedIndex !== targetIndex) {
+      const updated = [...flatLinks];
+      const [moved] = updated.splice(draggedIndex, 1);
+      updated.splice(targetIndex, 0, moved);
+      
+      // Prevent first item from being submenu
+      if (updated[0].isSubmenu) {
+        updated[0].isSubmenu = false;
+      }
+
+      setFlatLinks(updated);
+      setDraggedIndex(targetIndex);
+    }
   };
 
-  const handleAddSubmenu = (linkIndex: number) => {
-    const updated = [...navLinks];
-    const link = updated[linkIndex];
-    const submenu = link.submenu ? [...link.submenu] : [];
-    submenu.push({ label: 'New Submenu', href: '#' });
-    updated[linkIndex] = { ...link, submenu };
-    updateLinks(updated);
-  };
-
-  const handleEditSubmenu = (linkIndex: number, subIndex: number, field: 'label' | 'href', value: string) => {
-    const updated = [...navLinks];
-    const link = updated[linkIndex];
-    const submenu = [...link.submenu];
-    submenu[subIndex] = { ...submenu[subIndex], [field]: value };
-    updated[linkIndex] = { ...link, submenu };
-    updateLinks(updated);
-  };
-
-  const handleDeleteSubmenu = (linkIndex: number, subIndex: number) => {
-    const updated = [...navLinks];
-    const link = updated[linkIndex];
-    const submenu = link.submenu.filter((_: any, i: number) => i !== subIndex);
-    updated[linkIndex] = { ...link, submenu };
-    updateLinks(updated);
+  const handleLinkDragEnd = () => {
+    if (draggedIndex === null) return;
+    
+    const deltaX = dragCurrentX - dragStartX;
+    const updated = [...flatLinks];
+    
+    if (deltaX > 25 && draggedIndex > 0) {
+      updated[draggedIndex].isSubmenu = true;
+    } else if (deltaX < -25) {
+      updated[draggedIndex].isSubmenu = false;
+    }
+    
+    saveFlatLinks(updated);
+    setDraggedIndex(null);
   };
 
   // Layout Section logic
@@ -262,116 +392,123 @@ export const VisualSidebar: React.FC = () => {
           <section className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <h4 className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold px-2">Navigation Links</h4>
-              <Button size="sm" variant="outline" onClick={handleAddLink} className="h-8 rounded-lg text-xs gap-1">
+              <Button size="sm" variant="outline" onClick={handleAddFlatLink} className="h-8 rounded-lg text-xs gap-1">
                 <Plus className="w-3.5 h-3.5" /> Add Link
               </Button>
             </div>
             
-            <div className="space-y-4">
-              {navLinks.map((link: any, index: number) => (
-                <div key={index} className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm hover:border-accent/40 transition-colors">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex-1 space-y-2 min-w-0">
-                      <div className="flex items-center gap-1.5 bg-background border border-border rounded-xl px-3 py-1">
-                        <Link2 className="w-3.5 h-3.5 text-muted-foreground" />
-                        <input 
-                          type="text" 
-                          value={link.label} 
-                          onChange={(e) => handleEditLink(index, 'label', e.target.value)}
-                          placeholder="Link Name"
-                          className="w-full bg-transparent border-0 p-0 text-xs font-semibold outline-none focus:ring-0"
-                        />
+            <div className="space-y-2">
+              {flatLinks.map((link: any, index: number) => {
+                const isFirst = index === 0;
+                
+                return (
+                  <div 
+                    key={link.id} 
+                    draggable
+                    onDragStart={(e) => handleLinkDragStart(e, index)}
+                    onDragOver={(e) => handleLinkDragOver(e, index)}
+                    onDragEnd={handleLinkDragEnd}
+                    className={`bg-card border rounded-2xl p-3 shadow-sm hover:border-accent/40 transition-all select-none ${
+                      link.isSubmenu ? 'ml-6 border-l-4 border-l-accent' : 'border-border'
+                    } ${draggedIndex === index ? 'opacity-40 scale-95 border-dashed border-accent' : ''}`}
+                    style={{
+                      transform: draggedIndex === index ? `translateX(${dragCurrentX - dragStartX}px)` : undefined,
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="cursor-grab active:cursor-grabbing text-muted-foreground p-1 hover:text-foreground">
+                        <GripVertical className="w-4 h-4" />
                       </div>
-                      <input 
-                        type="text" 
-                        value={link.href} 
-                        onChange={(e) => handleEditLink(index, 'href', e.target.value)}
-                        placeholder="Path (e.g. /about)"
-                        className="w-full bg-background border border-border rounded-xl px-3 py-1 text-[10px] outline-none focus:border-accent text-muted-foreground"
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1 flex-shrink-0">
-                      <div className="flex gap-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6" 
-                          onClick={() => handleMoveLink(index, 'up')}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="w-3 h-3" />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6" 
-                          onClick={() => handleMoveLink(index, 'down')}
-                          disabled={index === navLinks.length - 1}
-                        >
-                          <ArrowDown className="w-3 h-3" />
-                        </Button>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-6 w-6 text-destructive hover:bg-destructive/10 self-end"
-                        onClick={() => handleDeleteLink(index)}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </div>
 
-                  <div className="pl-4 border-l-2 border-accent/20 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-bold">Submenus</span>
-                      <button 
-                        onClick={() => handleAddSubmenu(index)}
-                        className="text-[9px] text-accent hover:underline flex items-center gap-0.5 font-bold"
-                      >
-                        <Plus className="w-2.5 h-2.5" /> Add Submenu
-                      </button>
-                    </div>
-                    
-                    {link.submenu && link.submenu.map((sub: any, subIndex: number) => (
-                      <div key={subIndex} className="flex items-center gap-2 bg-background p-2 border border-border rounded-xl">
-                        <div className="flex-1 space-y-1 min-w-0">
+                      {link.isSubmenu && (
+                        <CornerDownRight className="w-3.5 h-3.5 text-accent/60 flex-shrink-0" />
+                      )}
+
+                      <div className="flex-1 space-y-1.5 min-w-0">
+                        <div className="flex items-center gap-1.5 bg-background border border-border rounded-xl px-2.5 py-1">
+                          <Link2 className="w-3 h-3 text-muted-foreground flex-shrink-0" />
                           <input 
                             type="text" 
-                            value={sub.label} 
-                            onChange={(e) => handleEditSubmenu(index, subIndex, 'label', e.target.value)}
-                            placeholder="Submenu Label"
-                            className="w-full bg-transparent border-0 p-0 text-[10px] font-semibold outline-none focus:ring-0 truncate"
-                          />
-                          <input 
-                            type="text" 
-                            value={sub.href} 
-                            onChange={(e) => handleEditSubmenu(index, subIndex, 'href', e.target.value)}
-                            placeholder="Subpath"
-                            className="w-full bg-transparent border-0 p-0 text-[8px] text-muted-foreground outline-none focus:ring-0 truncate"
+                            value={link.label} 
+                            onChange={(e) => handleEditFlatLink(index, 'label', e.target.value)}
+                            placeholder="Label"
+                            className="w-full bg-transparent border-0 p-0 text-[11px] font-semibold outline-none focus:ring-0"
                           />
                         </div>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-5 w-5 text-destructive hover:bg-destructive/10 flex-shrink-0"
-                          onClick={() => handleDeleteSubmenu(index, subIndex)}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
+                        <input 
+                          type="text" 
+                          value={link.href} 
+                          onChange={(e) => handleEditFlatLink(index, 'href', e.target.value)}
+                          placeholder="Path (/services)"
+                          className="w-full bg-background border border-border rounded-xl px-2.5 py-0.5 text-[9px] outline-none focus:border-accent text-muted-foreground"
+                        />
                       </div>
-                    ))}
+
+                      <div className="flex flex-col gap-1 items-end flex-shrink-0">
+                        <div className="flex gap-0.5">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5" 
+                            onClick={() => handleToggleLevel(index, false)}
+                            disabled={isFirst || !link.isSubmenu}
+                            title="Outdent to Parent"
+                          >
+                            <ChevronLeft className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5" 
+                            onClick={() => handleToggleLevel(index, true)}
+                            disabled={isFirst || link.isSubmenu}
+                            title="Indent to Submenu"
+                          >
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+
+                        <div className="flex gap-0.5">
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5" 
+                            onClick={() => handleMoveFlatLink(index, 'up')}
+                            disabled={isFirst}
+                          >
+                            <ArrowUp className="w-3 h-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5" 
+                            onClick={() => handleMoveFlatLink(index, 'down')}
+                            disabled={index === flatLinks.length - 1}
+                          >
+                            <ArrowDown className="w-3 h-3" />
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-5 w-5 text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteFlatLink(index)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
       </div>
 
       <div className="p-4 border-t border-border bg-accent/5">
-        <p className="text-[10px] text-muted-foreground text-center">
-          Click "Save Changes" on the main sidebar to apply.
+        <p className="text-[10px] text-muted-foreground text-center font-medium">
+          Drag up/down to reorder, drag left/right to indent/outdent. Or use ◀ and ▶.
         </p>
       </div>
     </motion.div>
