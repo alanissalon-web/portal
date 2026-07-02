@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
 import { 
@@ -19,6 +20,7 @@ import {
 import logo from '@/assets/logo-alanis.png';
 import { Button } from '@/components/ui/button';
 import { useCMS } from '@/contexts/CMSContext';
+import { supabase } from '@/lib/supabase';
 
 const navItems = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin' },
@@ -39,6 +41,29 @@ const AdminLayout = () => {
   const navigate = useNavigate();
   const { signOut, user } = useAdminAuth();
   const { isEditing, setIsEditing, saveChanges } = useCMS();
+  const [typingUsers, setTypingUsers] = useState<{ [email: string]: string }>({});
+
+  useEffect(() => {
+    const channel = supabase.channel('typing-channel')
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        if (!payload) return;
+        const { name, isTyping, email } = payload;
+        setTypingUsers(prev => {
+          const next = { ...prev };
+          if (isTyping) {
+            next[email] = name;
+          } else {
+            delete next[email];
+          }
+          return next;
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleStartEditing = () => {
     setIsEditing(true);
@@ -135,8 +160,18 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-auto relative">
         <Outlet />
+        
+        {/* Real-time typing indicator banner */}
+        {Object.keys(typingUsers).length > 0 && (
+          <div className="fixed bottom-6 right-6 z-[100] bg-white border border-accent/20 rounded-2xl shadow-xl p-4 flex items-center gap-3 animate-bounce">
+            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-ping" />
+            <p className="font-body text-xs text-foreground font-medium">
+              {Object.values(typingUsers).join(', ')} {Object.keys(typingUsers).length === 1 ? 'is typing...' : 'are typing...'}
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );

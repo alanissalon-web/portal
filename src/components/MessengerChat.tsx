@@ -42,6 +42,43 @@ export function MessengerChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const getDisplayName = () => {
+    return loggedUser 
+      ? (loggedUser.user_metadata?.full_name || loggedUser.email?.split('@')?.[0] || 'there')
+      : clientName || 'there';
+  };
+
+  const handleInputChange = (val: string) => {
+    setMessage(val);
+    
+    // Broadcast typing = true
+    const channel = supabase.channel('typing-channel');
+    channel.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { 
+        name: getDisplayName(), 
+        isTyping: val.length > 0, 
+        email: clientEmail || clientName 
+      }
+    });
+
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    
+    typingTimeoutRef.current = setTimeout(() => {
+      channel.send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: { 
+          name: getDisplayName(), 
+          isTyping: false, 
+          email: clientEmail || clientName 
+        }
+      });
+    }, 2000);
+  };
 
   // Recording
   const [isRecording, setIsRecording] = useState(false);
@@ -136,6 +173,20 @@ export function MessengerChat() {
   const handleSend = async () => {
     if (!message.trim() || sending) return;
     setSending(true);
+
+    // Stop typing indicator on send
+    if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    const channel = supabase.channel('typing-channel');
+    channel.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { 
+        name: getDisplayName(), 
+        isTyping: false, 
+        email: clientEmail || clientName 
+      }
+    });
+
     const newMsg: ChatMsg = {
       id: Date.now().toString(),
       text: message,
@@ -497,7 +548,7 @@ export function MessengerChat() {
                       <input
                         type="text"
                         value={message}
-                        onChange={e => setMessage(e.target.value)}
+                        onChange={e => handleInputChange(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && !e.shiftKey && handleSend()}
                         placeholder="Aa"
                         className="flex-1 bg-transparent py-2.5 text-sm outline-none text-foreground placeholder:text-muted-foreground/70 min-w-0"

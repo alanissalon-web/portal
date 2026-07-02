@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { 
   GraduationCap, 
   ShoppingBag, 
@@ -10,15 +10,40 @@ import {
   Clock,
   CheckCircle2,
   Globe,
-  Settings
+  Settings,
+  MessageSquare
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { LocalDB } from '@/services/LocalDatabase';
 
+const formatRelativeTime = (date: Date) => {
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  const diffHours = Math.floor(diffMins / 60);
+  if (diffHours < 24) return `${diffHours}h ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays === 1) return 'Yesterday';
+  return date.toLocaleDateString();
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ courses: 0, products: 0, waitlist: 0 });
   const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState<any[]>([]);
+  const [estRevenue, setEstRevenue] = useState(12450);
+  const [currentDate, setCurrentDate] = useState('');
+
+  useEffect(() => {
+    const formatted = new Date().toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+    setCurrentDate(formatted);
+  }, []);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -31,6 +56,63 @@ const AdminDashboard = () => {
         products: products?.length || 0,
         waitlist: waitlist?.length || 0,
       });
+
+      // Fetch bookings & messages
+      const { data: bookings } = await LocalDB.getBookings();
+      const { data: messages } = await LocalDB.getMessages();
+
+      // Convert waitlist to activities
+      const waitlistActivities = (waitlist || []).map((w: any) => ({
+        type: 'waitlist',
+        user: w.email.split('@')[0],
+        action: 'joined waitlist',
+        course: w.source || 'Academy Workshop',
+        timestamp: new Date(w.created_at || Date.now())
+      }));
+
+      // Convert bookings to activities
+      const bookingActivities = (bookings || []).map((b: any) => ({
+        type: 'booking',
+        user: b.clientName,
+        action: `booked ${b.service}`,
+        course: `${b.date} at ${b.time}`,
+        timestamp: new Date(b.created_at || b.date || Date.now())
+      }));
+
+      // Convert messages to activities
+      const messageActivities = (messages || [])
+        .filter((m: any) => m.status === 'new' && m.name !== 'Alanís Salon')
+        .map((m: any) => ({
+          type: 'message',
+          user: m.name,
+          action: 'sent message',
+          course: m.message,
+          timestamp: new Date(m.created_at || m.date || Date.now())
+        }));
+
+      // Combine and sort
+      const combined = [
+        ...waitlistActivities,
+        ...bookingActivities,
+        ...messageActivities
+      ].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+       .slice(0, 5);
+
+      setActivities(combined);
+
+      // Estimate monthly revenue from product reservations
+      const { data: reservations } = await supabase.from('product_reservations').select('*');
+      let totalRevenue = 0;
+      if (reservations && products) {
+        reservations.forEach((res: any) => {
+          const prod = products.find((p: any) => p.id === res.product_id);
+          if (prod) {
+            totalRevenue += Number(prod.price || 0);
+          }
+        });
+      }
+      setEstRevenue(totalRevenue > 0 ? totalRevenue : 12450);
+
       setLoading(false);
     };
     fetchStats();
@@ -39,8 +121,8 @@ const AdminDashboard = () => {
   const metrics = [
     { label: 'Active Courses', value: stats.courses, icon: GraduationCap, color: 'bg-blue-500', trend: '+2 this month' },
     { label: 'Shop Products', value: stats.products, icon: ShoppingBag, color: 'bg-emerald-500', trend: 'Stock ok' },
-    { label: 'Academy Waitlist', value: stats.waitlist, icon: Users, color: 'bg-amber-500', trend: '+12 new' },
-    { label: 'Est. Revenue (Month)', value: '$12,450', icon: TrendingUp, color: 'bg-violet-500', trend: '+15.2%' },
+    { label: 'Academy Waitlist', value: stats.waitlist, icon: Users, color: 'bg-amber-500', trend: `+${stats.waitlist} total` },
+    { label: 'Est. Revenue (Month)', value: `$${estRevenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-violet-500', trend: '+15.2%' },
   ];
 
   return (
@@ -53,7 +135,7 @@ const AdminDashboard = () => {
         <div className="flex gap-3">
           <div className="bg-white border border-black/5 rounded-xl px-4 py-2 flex items-center gap-2 shadow-sm">
             <Calendar className="w-4 h-4 text-accent" />
-            <span className="font-body text-xs font-medium text-foreground">May 12, 2026</span>
+            <span className="font-body text-xs font-medium text-foreground">{currentDate}</span>
           </div>
         </div>
       </div>
@@ -86,27 +168,39 @@ const AdminDashboard = () => {
               <Link to="/admin/waitlist" className="text-accent font-body text-xs font-bold hover:underline">View all</Link>
             </div>
             <div className="space-y-6">
-              {[
-                { type: 'waitlist', user: 'Laura G.', action: 'joined the waitlist', time: '2 hours ago', course: 'Extensiones Masterclass' },
-                { type: 'product', user: 'Shop', action: 'New product added', time: '5 hours ago', course: 'Wella Brilliance Mask' },
-                { type: 'waitlist', user: 'Maria S.', action: 'joined the waitlist', time: 'Yesterday', course: 'Color Science' },
-              ].map((activity, i) => (
-                <div key={i} className="flex items-start gap-4 pb-6 border-b border-black/5 last:border-0 last:pb-0">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${activity.type === 'waitlist' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'}`}>
-                    {activity.type === 'waitlist' ? <Users className="w-5 h-5" /> : <ShoppingBag className="w-5 h-5" />}
+              {activities.length === 0 ? (
+                <p className="font-body text-sm text-muted-foreground">No recent activity detected.</p>
+              ) : (
+                activities.map((activity, i) => (
+                  <div key={i} className="flex items-start gap-4 pb-6 border-b border-black/5 last:border-0 last:pb-0">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      activity.type === 'waitlist' 
+                        ? 'bg-amber-50 text-amber-600' 
+                        : activity.type === 'booking' 
+                        ? 'bg-emerald-50 text-emerald-600' 
+                        : 'bg-blue-50 text-blue-600'
+                    }`}>
+                      {activity.type === 'waitlist' ? (
+                        <Users className="w-5 h-5" />
+                      ) : activity.type === 'booking' ? (
+                        <Calendar className="w-5 h-5" />
+                      ) : (
+                        <MessageSquare className="w-5 h-5" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-sm text-foreground truncate">
+                        <span className="font-bold">{activity.user}</span> {activity.action}
+                      </p>
+                      <p className="font-body text-xs text-muted-foreground mt-0.5 truncate">{activity.course}</p>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-muted-foreground font-body text-[10px] flex-shrink-0">
+                      <Clock className="w-3 h-3" />
+                      {formatRelativeTime(activity.timestamp)}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-body text-sm text-foreground">
-                      <span className="font-bold">{activity.user}</span> {activity.action}
-                    </p>
-                    <p className="font-body text-xs text-muted-foreground mt-0.5">{activity.course}</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-muted-foreground font-body text-[10px]">
-                    <Clock className="w-3 h-3" />
-                    {activity.time}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -117,7 +211,7 @@ const AdminDashboard = () => {
               <CheckCircle2 className="w-12 h-12 text-white/40 mb-4" />
               <h3 className="font-display text-2xl font-medium mb-2">Alanis Academy</h3>
               <p className="font-body text-sm text-white/70 mb-6 leading-relaxed">
-                You have 12 new enrollment requests pending review.
+                You have {stats.waitlist} new enrollment request{stats.waitlist !== 1 ? 's' : ''} pending review.
               </p>
               <Link to="/admin/waitlist">
                 <button className="bg-white text-accent font-body text-xs font-bold px-6 py-3 rounded-xl hover:bg-white/90 transition-all">
@@ -155,3 +249,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

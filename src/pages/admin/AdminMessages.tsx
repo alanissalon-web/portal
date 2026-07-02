@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/lib/supabase';
 
 const AdminMessages = () => {
   const [messages, setMessages] = useState<any[]>([]);
@@ -21,6 +22,29 @@ const AdminMessages = () => {
 
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isRecording, setIsRecording] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<{ [email: string]: string }>({});
+
+  useEffect(() => {
+    const channel = supabase.channel('typing-channel')
+      .on('broadcast', { event: 'typing' }, ({ payload }) => {
+        if (!payload) return;
+        const { name, isTyping, email } = payload;
+        setTypingUsers(prev => {
+          const next = { ...prev };
+          if (isTyping) {
+            next[email] = name;
+          } else {
+            delete next[email];
+          }
+          return next;
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const fetchMessages = useCallback(async () => {
     // 1. Download new messages from server
@@ -214,7 +238,9 @@ const AdminMessages = () => {
                     <p className="font-display font-medium text-foreground">
                       {conversations.find(c => c.phone === selectedUser)?.name || 'Client'}
                     </p>
-                    <p className="text-[10px] text-green-500 font-medium">Active Chat · {selectedUser}</p>
+                    <p className="text-[10px] text-green-500 font-medium">
+                      {selectedUser && typingUsers[selectedUser] ? 'is typing...' : `Active Chat · ${selectedUser}`}
+                    </p>
                   </div>
                 </div>
                 <div className="flex gap-2">

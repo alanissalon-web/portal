@@ -14,18 +14,31 @@ const supabaseKey = env['VITE_SUPABASE_PUBLISHABLE_KEY'];
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  console.log("Testing anonymous insert...");
-  const newItem = { 
-    name: "Anonymous User",
-    email: "anon@example.com",
-    phone: "CHAT_MSG",
-    message: "Test message from anon",
-    status: "new"
-  };
-
-  const { data, error } = await supabase.from('messages').insert([newItem]).select();
-  console.log("Result:", data);
-  console.log("Error:", error);
+  console.log("Signing in as admin...");
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email: 'alanis.salon@gmail.com',
+    password: 'alanis2026',
+  });
+  if (authError) {
+    console.error("Auth error:", authError);
+    return;
+  }
+  const token = authData.session.access_token;
+  console.log("Fetching schema with admin token...");
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/?apikey=${supabaseKey}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    const doc = await res.json();
+    console.log("Keys of doc:", Object.keys(doc));
+    if (doc.paths) {
+      console.log("Available paths:", Object.keys(doc.paths));
+    }
+  } catch (err) {
+    console.error("Schema fetch error:", err);
+  }
 }
 
 run();
