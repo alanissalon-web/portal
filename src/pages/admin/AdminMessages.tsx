@@ -13,7 +13,7 @@ const AdminMessages = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [replyText, setReplyText] = useState('');
   const { toast } = useToast();
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
@@ -197,9 +197,7 @@ const AdminMessages = () => {
   ).reverse();
 
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [selectedUser, activeChatMessages.length]);
 
   return (
@@ -294,7 +292,7 @@ const AdminMessages = () => {
                 </div>
               </div>
 
-              <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#F8F9FA]/50">
                 {activeChatMessages.map((msg, i) => {
                   const { avatar } = parseNameAndAvatar(msg.name);
                   return (
@@ -363,6 +361,7 @@ const AdminMessages = () => {
                   </div>
                   );
                 })}
+                <div ref={messagesEndRef} />
               </div>
 
               <div className="p-4 border-t border-border bg-white shadow-inner">
