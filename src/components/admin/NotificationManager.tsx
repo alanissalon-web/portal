@@ -3,14 +3,18 @@ import { LocalDB } from '@/services/LocalDatabase';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, Mail, Phone } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { useAdminAuth } from '@/contexts/AdminAuthContext';
 
 export const NotificationManager = () => {
   const { toast } = useToast();
   const location = useLocation();
+  const { user } = useAdminAuth();
   const notifiedIds = useRef<Set<string>>(new Set());
   const hasInitialized = useRef(false);
 
   useEffect(() => {
+    if (!user) return;
+
     const initialize = async () => {
       if (hasInitialized.current) return;
       hasInitialized.current = true;
@@ -79,8 +83,13 @@ export const NotificationManager = () => {
     };
 
     const interval = setInterval(checkNewMessages, 3000);
-    return () => clearInterval(interval);
-  }, [location.pathname, toast]);
+    return () => {
+      clearInterval(interval);
+      hasInitialized.current = false;
+    };
+  }, [location.pathname, toast, user]);
+
+  if (!user) return null;
 
   return null;
 };
