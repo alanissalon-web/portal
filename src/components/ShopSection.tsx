@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { LocalDB } from '@/services/LocalDatabase';
 import { supabase } from '@/lib/supabase';
 import { StudentAuthModal } from '@/components/StudentAuthModal';
+import { EditableText } from './cms/EditableText';
 
 interface Product {
   id: string;
@@ -348,13 +349,15 @@ export function ShopSection() {
 
         {/* Header */}
         <div className={`text-center max-w-2xl mx-auto mb-8 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
-          <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">Curated Collection</span>
+          <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
+            <EditableText section="shop" field="badge" defaultText="Curated Collection" as="span" />
+          </span>
           <h2 className="font-display text-4xl md:text-5xl font-light text-foreground mt-3 text-balance" style={{ lineHeight: '1.15' }}>
-            Professional hair care, delivered
+            <EditableText section="shop" field="title" defaultText="Professional hair care, delivered" as="span" />
           </h2>
           <div className="luxury-divider mx-auto mt-6" />
           <p className="font-body text-muted-foreground mt-6 leading-relaxed max-w-xl mx-auto">
-            The same premium products our stylists use in-salon — now available for home care. Handpicked for extensions, color-treated, and thinning hair.
+            <EditableText section="shop" field="description" defaultText="The same premium products our stylists use in-salon — now available for home care. Handpicked for extensions, color-treated, and thinning hair." />
           </p>
         </div>
 

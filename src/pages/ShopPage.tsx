@@ -58,7 +58,7 @@ const ShopPage = () => {
       <div className="bg-accent text-accent-foreground py-3">
         <div className="container mx-auto px-6 text-center">
           <p className="font-body text-sm font-medium tracking-wide">
-            ✨ Use code <span className="font-semibold">GLOW15</span> for 15% off your first order — Free shipping on orders $75+
+            <EditableText section="shop_page" field="promo_text" defaultText="✨ Use code GLOW15 for 15% off your first order — Free shipping on orders $75+" />
           </p>
         </div>
       </div>
@@ -72,9 +72,11 @@ const ShopPage = () => {
       <section className="py-20 bg-cream" ref={ref}>
         <div className="container mx-auto px-6">
           <div className={`text-center mb-14 ${isVisible ? 'animate-reveal-up' : 'opacity-0'}`}>
-            <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">Why Alanís</span>
+            <span className="font-body text-xs uppercase tracking-[0.2em] text-accent font-medium">
+              <EditableText section="shop_page" field="why_badge" defaultText="Why Alanís" as="span" />
+            </span>
             <h2 className="font-display text-3xl md:text-4xl font-light text-foreground mt-3">
-              Why shop with us
+              <EditableText section="shop_page" field="why_title" defaultText="Why shop with us" as="span" />
             </h2>
           </div>
           <div className={`grid sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto ${isVisible ? 'animate-reveal-up delay-100' : 'opacity-0'}`}>
@@ -83,11 +85,15 @@ const ShopPage = () => {
               { icon: '💎', title: 'Premium Quality', desc: 'We only carry professional-grade brands trusted by top salons worldwide.' },
               { icon: '📦', title: 'Fast Delivery', desc: 'Orders ship within 24 hours. Free shipping on purchases over $75.' },
               { icon: '💬', title: 'Stylist Support', desc: 'Need help choosing? Our stylists are available to recommend the perfect products.' },
-            ].map(item => (
+            ].map((item, idx) => (
               <div key={item.title} className="text-center bg-background rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
                 <span className="text-3xl mb-4 block">{item.icon}</span>
-                <h3 className="font-display text-lg font-medium text-foreground mb-2">{item.title}</h3>
-                <p className="font-body text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                <h3 className="font-display text-lg font-medium text-foreground mb-2">
+                  <EditableText section="shop_page" field={`why_title_${idx}`} defaultText={item.title} as="span" />
+                </h3>
+                <p className="font-body text-sm text-muted-foreground leading-relaxed">
+                  <EditableText section="shop_page" field={`why_desc_${idx}`} defaultText={item.desc} />
+                </p>
               </div>
             ))}
           </div>
@@ -98,10 +104,10 @@ const ShopPage = () => {
       <section className="py-16 bg-charcoal">
         <div className="container mx-auto px-6 text-center">
           <h2 className="font-display text-3xl md:text-4xl font-light text-primary-foreground mb-4">
-            Not sure what you need?
+            <EditableText section="shop_page" field="cta_title" defaultText="Not sure what you need?" />
           </h2>
           <p className="font-body text-primary-foreground/60 mb-8 max-w-lg mx-auto">
-            Book a free consultation and our stylists will create a personalized product regimen for your hair type.
+            <EditableText section="shop_page" field="cta_description" defaultText="Book a free consultation and our stylists will create a personalized product regimen for your hair type." />
           </p>
           <a href="/contact">
             <Button variant="default" size="lg" className="bg-accent hover:bg-accent/90 text-accent-foreground">
