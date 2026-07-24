@@ -15,7 +15,7 @@ envContent.split('\n').forEach(line => {
 const supabase = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
 async function run() {
-  const { data, error } = await supabase.from('site_content').select('*').eq('section_key', 'hero');
-  console.log(data, error);
+  const { data, error } = await supabase.from('site_content').select('*');
+  console.log(JSON.stringify(data, null, 2), error);
 }
 run();

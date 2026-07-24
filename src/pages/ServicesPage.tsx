@@ -45,8 +45,14 @@ const ServicesPage = () => {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[salonReception, salonMirror, serviceColor, serviceCut].map((img, i) => (
-              <div key={i} className="rounded-xl overflow-hidden aspect-square group">
-                <img src={img} alt="Salon interior" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" loading="lazy" />
+              <div key={i} className="rounded-xl overflow-hidden aspect-square group relative">
+                <EditableImage
+                  section="services_page"
+                  field={`gallery_image_${i}`}
+                  defaultImage={img}
+                  alt="Salon interior"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                />
               </div>
             ))}
           </div>

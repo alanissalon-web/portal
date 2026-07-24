@@ -1,6 +1,6 @@
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Plus, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import serviceColor from '@/assets/service-color.jpg';
 import serviceCut from '@/assets/service-cut.jpg';
@@ -8,36 +8,67 @@ import serviceTreatment from '@/assets/service-treatment.jpg';
 import transformation1 from '@/assets/transformation-1.jpg';
 import { EditableText } from './cms/EditableText';
 import { EditableImage } from './cms/EditableImage';
-
-const services = [
-  {
-    title: 'Color + Highlights',
-    description: 'One process color, full/partial highlights, ombré, balayage, glaze, and color correction. Wella certified expertise by Master Color Experts.',
-    image: serviceColor,
-    price: 'From $85+',
-  },
-  {
-    title: 'Cut & Style',
-    description: 'Precision cuts for women, men, and kids. Curly cuts, blowouts, formal updos, and special event styling.',
-    image: serviceCut,
-    price: 'From $35+',
-  },
-  {
-    title: 'Treatments + Texture',
-    description: 'Brazilian Blowout, keratin treatments, deep conditioning, perms, and relaxers — professional-grade hair repair and texture.',
-    image: serviceTreatment,
-    price: 'From $125+',
-  },
-  {
-    title: 'Hair Extensions',
-    description: 'Great Lengths, Mago, CombLine, tape-ins, and Micro Point. 20+ years customizing extensions for all hair types. Free consultations available.',
-    image: transformation1,
-    price: 'Free Consult',
-  },
-];
+import { useCMS } from '@/contexts/CMSContext';
+import { cn } from '@/lib/utils';
 
 export function ServicesSection() {
   const { ref, isVisible } = useScrollReveal();
+  const { content, updateContent, isEditing } = useCMS();
+
+  const defaultServices = [
+    {
+      title: 'Color + Highlights',
+      description: 'One process color, full/partial highlights, ombré, balayage, glaze, and color correction. Wella certified expertise by Master Color Experts.',
+      image: serviceColor,
+      price: 'From $85+',
+    },
+    {
+      title: 'Cut & Style',
+      description: 'Precision cuts for women, men, and kids. Curly cuts, blowouts, formal updos, and special event styling.',
+      image: serviceCut,
+      price: 'From $35+',
+    },
+    {
+      title: 'Treatments + Texture',
+      description: 'Brazilian Blowout, keratin treatments, deep conditioning, perms, and relaxers — professional-grade hair repair and texture.',
+      image: serviceTreatment,
+      price: 'From $125+',
+    },
+    {
+      title: 'Hair Extensions',
+      description: 'Great Lengths, Mago, CombLine, tape-ins, and Micro Point. 20+ years customizing extensions for all hair types. Free consultations available.',
+      image: transformation1,
+      price: 'Free Consult',
+    },
+  ];
+
+  const items = content.services?.items || defaultServices;
+
+  const updateItem = (index: number, field: string, value: any) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    updateContent('services', 'items', newItems);
+  };
+
+  const addItem = () => {
+    const newItems = [
+      ...items,
+      {
+        title: 'New Service',
+        description: 'Service description goes here.',
+        image: serviceCut,
+        price: 'From $50',
+      }
+    ];
+    updateContent('services', 'items', newItems);
+  };
+
+  const removeItem = (index: number) => {
+    if (confirm('Are you sure you want to delete this service?')) {
+      const newItems = items.filter((_: any, i: number) => i !== index);
+      updateContent('services', 'items', newItems);
+    }
+  };
 
   return (
     <section id="services" className="py-24 md:py-32 bg-cream" ref={ref}>
@@ -53,35 +84,68 @@ export function ServicesSection() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {services.map((service, i) => (
+          {items.map((service: any, i: number) => (
             <div
-              key={service.title}
+              key={i}
               className={`group relative overflow-hidden rounded-2xl bg-card shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-1 ${
                 isVisible ? 'animate-reveal-up' : 'opacity-0'
               }`}
               style={{ animationDelay: `${(i + 1) * 120}ms` }}
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              {isEditing && (
+                <button
+                  onClick={() => removeItem(i)}
+                  className="absolute top-4 right-4 z-20 bg-destructive text-destructive-foreground hover:bg-destructive/90 rounded-full p-2 shadow-md hover:scale-105 transition-all"
+                  title="Delete Service"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+
+              <div className="aspect-[4/3] overflow-hidden relative">
                 <EditableImage
-                  section="services"
-                  field={`service_${i}_image`}
                   defaultImage={service.image}
+                  onSave={(url) => updateItem(i, 'image', url)}
                   alt={service.title}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
               </div>
               <div className="p-6 md:p-8">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-display text-2xl font-medium text-foreground">
-                    <EditableText section="services" field={`service_${i}_title`} defaultText={service.title} as="span" />
+                <div className="flex items-center justify-between mb-2 gap-2">
+                  <h3
+                    contentEditable={isEditing}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateItem(i, 'title', e.currentTarget.innerText.trim())}
+                    className={cn(
+                      "font-display text-2xl font-medium text-foreground outline-none flex-1",
+                      isEditing && "hover:bg-accent/5 focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 rounded px-1 cursor-text border border-dashed border-accent/30"
+                    )}
+                  >
+                    {service.title}
                   </h3>
-                  <span className="font-body text-sm text-accent font-medium bg-accent/10 px-3 py-1 rounded-full">
-                    <EditableText section="services" field={`service_${i}_price`} defaultText={service.price} as="span" />
+                  <span
+                    contentEditable={isEditing}
+                    suppressContentEditableWarning
+                    onBlur={(e) => updateItem(i, 'price', e.currentTarget.innerText.trim())}
+                    className={cn(
+                      "font-body text-sm text-accent font-medium bg-accent/10 px-3 py-1 rounded-full outline-none",
+                      isEditing && "hover:bg-accent/5 focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 cursor-text border border-dashed border-accent/30"
+                    )}
+                  >
+                    {service.price}
                   </span>
                 </div>
-                <div className="font-body text-muted-foreground text-sm leading-relaxed mb-5 text-pretty">
-                  <EditableText section="services" field={`service_${i}_description`} defaultText={service.description} />
+                <div
+                  contentEditable={isEditing}
+                  suppressContentEditableWarning
+                  onBlur={(e) => updateItem(i, 'description', e.currentTarget.innerText.trim())}
+                  className={cn(
+                    "font-body text-muted-foreground text-sm leading-relaxed mb-5 text-pretty outline-none min-h-[3.5em]",
+                    isEditing && "hover:bg-accent/5 focus:bg-accent/5 focus:ring-1 focus:ring-accent/50 rounded px-1 cursor-text border border-dashed border-accent/30"
+                  )}
+                >
+                  {service.description}
                 </div>
                 <Link to="/services">
                   <Button variant="outline" size="sm" className="group/btn">
@@ -93,6 +157,17 @@ export function ServicesSection() {
             </div>
           ))}
         </div>
+
+        {isEditing && (
+          <div className="flex justify-center mt-12">
+            <Button
+              onClick={addItem}
+              className="gap-2 bg-accent hover:bg-accent/90 text-white rounded-full px-6 py-5 shadow-md hover:scale-105 transition-all"
+            >
+              <Plus className="w-4 h-4" /> Add New Service
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCMS } from '@/contexts/CMSContext';
 import { cn } from '@/lib/utils';
 import { ImagePlus, X, Upload, Loader2, CheckCircle } from 'lucide-react';
@@ -9,11 +9,12 @@ import { LocalDB } from '@/services/LocalDatabase';
 import { useToast } from '@/hooks/use-toast';
 
 interface EditableImageProps {
-  section: string;
-  field: string;
+  section?: string;
+  field?: string;
   defaultImage: string;
   className?: string;
   alt?: string;
+  onSave?: (url: string) => void;
 }
 
 // Upload a file to Supabase Storage and return the public URL
@@ -37,15 +38,23 @@ export const EditableImage: React.FC<EditableImageProps> = ({
   defaultImage,
   className,
   alt = 'Image',
+  onSave,
 }) => {
   const { content, updateContent, isEditing } = useCMS();
   const { toast } = useToast();
 
-  const imageUrl = content[section]?.[field] || defaultImage;
+  const imageUrl = onSave 
+    ? defaultImage 
+    : ((section && field) ? content[section]?.[field] || defaultImage : defaultImage);
+
   const [tempUrl, setTempUrl] = useState(imageUrl);
   const [uploading, setUploading] = useState(false);
   const [saved, setSaved] = useState(false);
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setTempUrl(imageUrl);
+  }, [imageUrl]);
 
   // When editing mode is off, just render the img
   if (!isEditing) {
@@ -80,24 +89,37 @@ export const EditableImage: React.FC<EditableImageProps> = ({
     setUploading(true);
     setSaved(false);
     try {
-      // 1. Update React state so the page reflects it immediately
-      updateContent(section, field, tempUrl);
+      if (onSave) {
+        onSave(tempUrl);
+        setSaved(true);
+        toast({ title: '✅ Image updated', description: 'The photo was updated in the editor.' });
+        setTimeout(() => {
+          setSaved(false);
+          setOpen(false);
+        }, 1200);
+      } else {
+        if (!section || !field) {
+          throw new Error('Section and field are required when onSave is not provided.');
+        }
+        // 1. Update React state so the page reflects it immediately
+        updateContent(section, field, tempUrl);
 
-      // 2. Immediately persist this section to Supabase so refresh works
-      const currentSection = content[section] || {};
-      const updatedSection = { ...currentSection, [field]: tempUrl };
-      const result = await LocalDB.saveContent(section, updatedSection);
+        // 2. Immediately persist this section to Supabase so refresh works
+        const currentSection = content[section] || {};
+        const updatedSection = { ...currentSection, [field]: tempUrl };
+        const result = await LocalDB.saveContent(section, updatedSection);
 
-      if ((result as any)?.error) {
-        throw new Error((result as any).error.message);
+        if ((result as any)?.error) {
+          throw new Error((result as any).error.message);
+        }
+
+        setSaved(true);
+        toast({ title: '✅ Image saved', description: 'The photo was updated successfully.' });
+        setTimeout(() => {
+          setSaved(false);
+          setOpen(false);
+        }, 1200);
       }
-
-      setSaved(true);
-      toast({ title: '✅ Image saved', description: 'The photo was updated successfully.' });
-      setTimeout(() => {
-        setSaved(false);
-        setOpen(false);
-      }, 1200);
     } catch (err: any) {
       console.error('EditableImage save error:', err);
       toast({
