@@ -25,6 +25,7 @@ export const VisualSidebar: React.FC = () => {
   const { isEditing, content, updateContent } = useCMS();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState<'layout' | 'navigation'>('layout');
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Flat menu items representation for Drag & Drop
   const [flatLinks, setFlatLinks] = useState<any[]>([]);
@@ -74,6 +75,24 @@ export const VisualSidebar: React.FC = () => {
   }, [activeTab, content['navigation']?.links, hasInitializedMenu]);
 
   if (!isEditing) return null;
+
+  if (isCollapsed) {
+    return (
+      <motion.button
+        initial={{ x: -20, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        onClick={() => setIsCollapsed(false)}
+        className="fixed left-0 top-24 z-50 bg-background/95 backdrop-blur-xl border border-l-0 border-border px-3.5 py-2.5 rounded-r-2xl shadow-xl flex items-center gap-2.5 text-accent hover:bg-accent/10 transition-all font-display text-xs font-bold group"
+        title="Expand Alanis Builder"
+      >
+        <div className="w-7 h-7 bg-accent/10 rounded-xl flex items-center justify-center group-hover:bg-accent group-hover:text-white transition-colors">
+          <Layout className="w-3.5 h-3.5" />
+        </div>
+        <span className="font-display font-medium text-foreground">Alanis Builder</span>
+        <ChevronRight className="w-4 h-4 text-accent" />
+      </motion.button>
+    );
+  }
 
   // Convert flat representation back to nested structure and save to CMS Context
   const saveFlatLinks = (flat: any[]) => {
@@ -286,11 +305,20 @@ export const VisualSidebar: React.FC = () => {
       exit={{ x: -300 }}
       className="fixed left-0 top-20 bottom-0 w-80 bg-background/95 backdrop-blur-xl border-r border-border z-50 shadow-2xl overflow-hidden flex flex-col"
     >
-      <div className="p-6 border-b border-border flex items-center justify-between">
+      <div className="p-5 border-b border-border flex items-center justify-between">
         <h3 className="font-display text-lg font-medium flex items-center gap-2">
           <Layout className="w-4 h-4 text-accent" />
           Alanis Builder
         </h3>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => setIsCollapsed(true)} 
+          className="h-8 w-8 rounded-xl hover:bg-accent/10 text-muted-foreground hover:text-accent transition-colors"
+          title="Collapse Panel"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
       </div>
 
       <div className="flex border-b border-border bg-[#FAFAFA]">
