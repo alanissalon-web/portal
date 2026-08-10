@@ -83,7 +83,10 @@ export function ServicesSection() {
           <div className="luxury-divider mx-auto mt-6" />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+        <div className={cn(
+          "grid gap-8 mx-auto transition-all duration-500",
+          items.length >= 3 ? "md:grid-cols-2 lg:grid-cols-3 max-w-6xl" : "md:grid-cols-2 max-w-5xl"
+        )}>
           {items.map((service: any, i: number) => (
             <div
               key={i}
