@@ -16,22 +16,37 @@ export function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const { LocalDB } = await import('@/services/LocalDatabase');
+    const { EmailService } = await import('@/services/EmailService');
     
-    // Save to LocalDB
-    await LocalDB.saveMessage({
+    const payload = {
       id: `msg-${Date.now()}`,
       name: formData.name,
       email: formData.email,
       phone: formData.phone,
+      service: formData.service,
       subject: `Interest in ${formData.service || 'Salon Services'}`,
       message: formData.message,
-      date: new Date().toISOString(),
+      date: new Date().toLocaleString(),
       status: 'unread',
       type: 'form'
+    };
+
+    // 1. Save to database for Admin Inbox
+    await LocalDB.saveMessage(payload);
+
+    // 2. Dispatch email notification to Salon
+    await EmailService.sendContactNotification({
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      service: formData.service,
+      subject: payload.subject,
+      message: formData.message,
+      date: payload.date
     });
 
     setFormSubmitted(true);
-    toast({ title: 'Message sent!', description: "We will contact you in less than 24 hours." });
+    toast({ title: '¡Mensaje enviado con éxito!', description: "Te contactaremos en menos de 24 horas." });
   };
 
   return (

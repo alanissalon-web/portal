@@ -229,10 +229,11 @@ export const LocalDB = {
        nameVal = `${nameVal}|||AVATAR|||${msg.avatar}`;
     }
 
-    const newItem = { 
+    const newItem: any = { 
       name: nameVal,
       email: msg.email || 'no-email',
       phone: phoneVal,
+      subject: msg.subject || (msg.service ? `Interest in ${msg.service}` : 'Contact Form'),
       message: messageVal,
       status: msg.status || 'new'
     };

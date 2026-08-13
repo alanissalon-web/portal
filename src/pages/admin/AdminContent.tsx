@@ -103,7 +103,7 @@ const defaultPricingCategoriesList = [
 
 const AdminContent = () => {
   const { content, updateContent, saveChanges } = useCMS();
-  const [activeTab, setActiveTab] = useState<'services' | 'pricing' | 'titles' | 'layout'>('services');
+  const [activeTab, setActiveTab] = useState<'services' | 'pricing' | 'titles' | 'pages' | 'layout'>('services');
   const [saving, setSaving] = useState(false);
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
   const { toast } = useToast();
@@ -131,6 +131,28 @@ const AdminContent = () => {
   const [aboutBadge, setAboutBadge] = useState('About Us');
   const [aboutTitle, setAboutTitle] = useState('Our Legacy of Excellence');
 
+  // Subpages Titles Local State
+  const [aboutPageBadge, setAboutPageBadge] = useState('Our Story');
+  const [aboutPageTitle, setAboutPageTitle] = useState('About Alanís');
+  const [aboutPageDesc, setAboutPageDesc] = useState('25+ years of passion, expertise, and dedication to transforming lives through the art of hair.');
+
+  const [extPageBadge, setExtPageBadge] = useState('Certified Specialists');
+  const [extPageTitle, setExtPageTitle] = useState('Hair Extensions');
+  const [extPageDesc, setExtPageDesc] = useState('Great Lengths, Mago, CombLine, tape-ins — 20+ years perfecting the art of seamless extensions.');
+
+  const [hlPageBadge, setHlPageBadge] = useState('Innovative Technology');
+  const [hlPageTitle, setHlPageTitle] = useState('Hair Loss Solutions');
+  const [hlPageDesc, setHlPageDesc] = useState('CombLine & Micro Point technology — pioneering hair-to-hair solutions for natural-looking fullness.');
+
+  const [srvPageBadge, setSrvPageBadge] = useState('Expert Hair Care');
+  const [srvPageTitle, setSrvPageTitle] = useState('Our Services');
+  const [srvPageDesc, setSrvPageDesc] = useState('From precision cuts to transformative color — every service is a premium experience tailored to you.');
+
+  const [contactPhone, setContactPhone] = useState('713-524-2610');
+  const [contactEmail, setContactEmail] = useState('alanissalon@gmail.com');
+  const [contactLocation, setContactLocation] = useState('Houston, TX');
+  const [contactHours, setContactHours] = useState('Mon–Fri: 10am – 7pm | Sat: 9am – 5pm');
+
   useEffect(() => {
     // Services
     const initialServices = content.services?.items || defaultServicesList;
@@ -157,6 +179,28 @@ const AdminContent = () => {
 
     setAboutBadge(content.about?.badge || 'About Us');
     setAboutTitle(content.about?.title || 'Our Legacy of Excellence');
+
+    // Subpages
+    setAboutPageBadge(content.about_page?.badge || 'Our Story');
+    setAboutPageTitle(content.about_page?.title || 'About Alanís');
+    setAboutPageDesc(content.about_page?.description || '25+ years of passion, expertise, and dedication to transforming lives through the art of hair.');
+
+    setExtPageBadge(content.extensions_page?.badge || 'Certified Specialists');
+    setExtPageTitle(content.extensions_page?.title || 'Hair Extensions');
+    setExtPageDesc(content.extensions_page?.description || 'Great Lengths, Mago, CombLine, tape-ins — 20+ years perfecting the art of seamless extensions.');
+
+    setHlPageBadge(content.hairloss_page?.badge || 'Innovative Technology');
+    setHlPageTitle(content.hairloss_page?.title || 'Hair Loss Solutions');
+    setHlPageDesc(content.hairloss_page?.description || 'CombLine & Micro Point technology — pioneering hair-to-hair solutions for natural-looking fullness.');
+
+    setSrvPageBadge(content.services_page?.badge || 'Expert Hair Care');
+    setSrvPageTitle(content.services_page?.title || 'Our Services');
+    setSrvPageDesc(content.services_page?.description || 'From precision cuts to transformative color — every service is a premium experience tailored to you.');
+
+    setContactPhone(content.contact?.phone_text || '713-524-2610');
+    setContactEmail(content.contact?.email_text || 'alanissalon@gmail.com');
+    setContactLocation(content.contact?.location_text_1 || 'Houston, TX');
+    setContactHours(content.contact?.hours_text_1 || 'Mon–Fri: 10am – 7pm');
 
     // Layout
     const layout = content.page_layout?.sections || [
@@ -217,16 +261,34 @@ const AdminContent = () => {
         title: bookingTitle,
       });
 
-      // 5. About
-      updateContent('about', 'badge', aboutBadge);
-      updateContent('about', 'title', aboutTitle);
-      await LocalDB.saveContent('about', {
-        ...(content.about || {}),
-        badge: aboutBadge,
-        title: aboutTitle,
-      });
+      // 6. Subpages
+      updateContent('about_page', 'badge', aboutPageBadge);
+      updateContent('about_page', 'title', aboutPageTitle);
+      updateContent('about_page', 'description', aboutPageDesc);
+      await LocalDB.saveContent('about_page', { ...(content.about_page || {}), badge: aboutPageBadge, title: aboutPageTitle, description: aboutPageDesc });
 
-      // 6. Layout
+      updateContent('extensions_page', 'badge', extPageBadge);
+      updateContent('extensions_page', 'title', extPageTitle);
+      updateContent('extensions_page', 'description', extPageDesc);
+      await LocalDB.saveContent('extensions_page', { ...(content.extensions_page || {}), badge: extPageBadge, title: extPageTitle, description: extPageDesc });
+
+      updateContent('hairloss_page', 'badge', hlPageBadge);
+      updateContent('hairloss_page', 'title', hlPageTitle);
+      updateContent('hairloss_page', 'description', hlPageDesc);
+      await LocalDB.saveContent('hairloss_page', { ...(content.hairloss_page || {}), badge: hlPageBadge, title: hlPageTitle, description: hlPageDesc });
+
+      updateContent('services_page', 'badge', srvPageBadge);
+      updateContent('services_page', 'title', srvPageTitle);
+      updateContent('services_page', 'description', srvPageDesc);
+      await LocalDB.saveContent('services_page', { ...(content.services_page || {}), badge: srvPageBadge, title: srvPageTitle, description: srvPageDesc });
+
+      updateContent('contact', 'phone_text', contactPhone);
+      updateContent('contact', 'email_text', contactEmail);
+      updateContent('contact', 'location_text_1', contactLocation);
+      updateContent('contact', 'hours_text_1', contactHours);
+      await LocalDB.saveContent('contact', { ...(content.contact || {}), phone_text: contactPhone, email_text: contactEmail, location_text_1: contactLocation, hours_text_1: contactHours });
+
+      // 7. Layout
       updateContent('page_layout', 'sections', sections);
       await LocalDB.saveContent('page_layout', { sections });
 
@@ -447,6 +509,17 @@ const AdminContent = () => {
           }`}
         >
           <Type className="w-4 h-4" /> Títulos & Encabezados
+        </button>
+
+        <button
+          onClick={() => setActiveTab('pages')}
+          className={`flex items-center gap-2 px-5 py-3 rounded-2xl text-xs font-bold transition-all whitespace-nowrap ${
+            activeTab === 'pages'
+              ? 'bg-accent text-white shadow-md shadow-accent/20'
+              : 'bg-white text-foreground hover:bg-secondary/50 border border-black/5'
+          }`}
+        >
+          <FileText className="w-4 h-4" /> Páginas del Sitio
         </button>
 
         <button
@@ -797,7 +870,192 @@ const AdminContent = () => {
         </div>
       )}
 
-      {/* ── TAB 4: ESTRUCTURA DE PÁGINAS ── */}
+      {/* ── TAB 4: SUBPÁGINAS DEL SITIO ── */}
+      {activeTab === 'pages' && (
+        <div className="space-y-6">
+          <div className="bg-cream p-6 rounded-3xl border border-black/5">
+            <h2 className="font-display text-xl font-medium">Contenido y Encabezados de Subpáginas</h2>
+            <p className="font-body text-xs text-muted-foreground mt-1">
+              Personaliza los encabezados, descripciones e información de las páginas individuales (*Sobre Nosotros*, *Extensiones*, *Pérdida de Cabello*, *Servicios* y *Contacto*).
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* About Page */}
+            <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4">
+              <h3 className="font-display text-base font-bold text-accent pb-2 border-b border-black/5">Página: Sobre Nosotros (About)</h3>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Insignia (Badge)</label>
+                <input
+                  type="text"
+                  value={aboutPageBadge}
+                  onChange={(e) => setAboutPageBadge(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Título de la Página</label>
+                <input
+                  type="text"
+                  value={aboutPageTitle}
+                  onChange={(e) => setAboutPageTitle(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Descripción de la Banner</label>
+                <textarea
+                  rows={2}
+                  value={aboutPageDesc}
+                  onChange={(e) => setAboutPageDesc(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Extensions Page */}
+            <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4">
+              <h3 className="font-display text-base font-bold text-accent pb-2 border-b border-black/5">Página: Extensiones de Cabello</h3>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Insignia (Badge)</label>
+                <input
+                  type="text"
+                  value={extPageBadge}
+                  onChange={(e) => setExtPageBadge(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Título de la Página</label>
+                <input
+                  type="text"
+                  value={extPageTitle}
+                  onChange={(e) => setExtPageTitle(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Descripción</label>
+                <textarea
+                  rows={2}
+                  value={extPageDesc}
+                  onChange={(e) => setExtPageDesc(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Hair Loss Page */}
+            <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4">
+              <h3 className="font-display text-base font-bold text-accent pb-2 border-b border-black/5">Página: Pérdida de Cabello</h3>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Insignia (Badge)</label>
+                <input
+                  type="text"
+                  value={hlPageBadge}
+                  onChange={(e) => setHlPageBadge(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Título de la Página</label>
+                <input
+                  type="text"
+                  value={hlPageTitle}
+                  onChange={(e) => setHlPageTitle(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Descripción</label>
+                <textarea
+                  rows={2}
+                  value={hlPageDesc}
+                  onChange={(e) => setHlPageDesc(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Services Page */}
+            <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4">
+              <h3 className="font-display text-base font-bold text-accent pb-2 border-b border-black/5">Página: Servicios Completo</h3>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Insignia (Badge)</label>
+                <input
+                  type="text"
+                  value={srvPageBadge}
+                  onChange={(e) => setSrvPageBadge(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Título de la Página</label>
+                <input
+                  type="text"
+                  value={srvPageTitle}
+                  onChange={(e) => setSrvPageTitle(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Descripción</label>
+                <textarea
+                  rows={2}
+                  value={srvPageDesc}
+                  onChange={(e) => setSrvPageDesc(e.target.value)}
+                  className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Contact Details */}
+            <div className="bg-white rounded-3xl p-6 border border-black/5 shadow-sm space-y-4 col-span-2">
+              <h3 className="font-display text-base font-bold text-accent pb-2 border-b border-black/5">Información Pública de Contacto (Tarjetas y Pie de Página)</h3>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Teléfono de Contacto</label>
+                  <input
+                    type="text"
+                    value={contactPhone}
+                    onChange={(e) => setContactPhone(e.target.value)}
+                    className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Correo de Contacto</label>
+                  <input
+                    type="text"
+                    value={contactEmail}
+                    onChange={(e) => setContactEmail(e.target.value)}
+                    className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Ubicación / Dirección</label>
+                  <input
+                    type="text"
+                    value={contactLocation}
+                    onChange={(e) => setContactLocation(e.target.value)}
+                    className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest block mb-1">Horario de Atención</label>
+                  <input
+                    type="text"
+                    value={contactHours}
+                    onChange={(e) => setContactHours(e.target.value)}
+                    className="w-full bg-[#FAFAFA] border border-black/5 rounded-xl px-4 py-2 text-sm font-body outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 5: ESTRUCTURA DE PÁGINAS ── */}
       {activeTab === 'layout' && (
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">

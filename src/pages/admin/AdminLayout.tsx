@@ -44,6 +44,22 @@ const AdminLayout = () => {
   const { isEditing, setIsEditing, saveChanges } = useCMS();
   const [typingUsers, setTypingUsers] = useState<{ [email: string]: string }>({});
 
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      const { LocalDB } = await import('@/services/LocalDatabase');
+      const { data } = await LocalDB.getMessages();
+      if (data) {
+        const unread = data.filter((m: any) => m.status === 'new' || m.status === 'unread').length;
+        setUnreadCount(unread);
+      }
+    };
+    fetchUnread();
+    const interval = setInterval(fetchUnread, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     const channel = supabase.channel('typing-channel')
       .on('broadcast', { event: 'typing' }, ({ payload }) => {
@@ -101,7 +117,12 @@ const AdminLayout = () => {
               >
                 <item.icon className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
                 <span className="font-medium">{item.label}</span>
-                {active && (
+                {item.path === '/admin/messages' && unreadCount > 0 && (
+                  <span className="ml-auto px-2 py-0.5 text-[10px] font-bold bg-rose-500 text-white rounded-full animate-pulse shadow-sm">
+                    {unreadCount}
+                  </span>
+                )}
+                {active && item.path !== '/admin/messages' && (
                   <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full" />
                 )}
               </Link>

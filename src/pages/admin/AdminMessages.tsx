@@ -204,15 +204,145 @@ const AdminMessages = () => {
     <div className="h-[calc(100vh-120px)] flex flex-col max-w-7xl mx-auto p-4 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-3xl font-light text-foreground">Communication Center</h1>
-          <p className="font-body text-sm text-muted-foreground mt-1">Real-time chat and lead management.</p>
+          <h1 className="font-display text-3xl font-light text-foreground">Centro de Comunicaciones</h1>
+          <p className="font-body text-sm text-muted-foreground mt-1">Buzón de mensajes de contacto y chat en vivo.</p>
         </div>
         <div className="flex bg-white rounded-xl p-1 border border-black/5 shadow-sm">
-          <button onClick={() => setFilterType('chat')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'chat' ? 'bg-accent text-white shadow-md' : 'text-muted-foreground'}`}>Messenger Live</button>
-          <button onClick={() => setFilterType('form')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'form' ? 'bg-accent text-white shadow-md' : 'text-muted-foreground'}`}>Forms</button>
+          <button onClick={() => setFilterType('chat')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'chat' ? 'bg-accent text-white shadow-md font-bold' : 'text-muted-foreground'}`}>Messenger Live</button>
+          <button onClick={() => setFilterType('form')} className={`px-4 py-1.5 rounded-lg font-body text-xs transition-all ${filterType === 'form' ? 'bg-accent text-white shadow-md font-bold' : 'text-muted-foreground'}`}>
+            Buzón de Contacto {messages.filter(m => m.type === 'form' && m.status === 'new').length > 0 && (
+              <span className="ml-1 px-1.5 py-0.5 bg-rose-500 text-white rounded-full text-[10px]">{messages.filter(m => m.type === 'form' && m.status === 'new').length}</span>
+            )}
+          </button>
         </div>
       </div>
 
+      {filterType === 'form' ? (
+        <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xl p-6 overflow-y-auto space-y-4">
+          <div className="flex items-center justify-between pb-4 border-b border-black/5">
+            <div>
+              <h2 className="font-display text-xl font-medium">Buzón de Formularios de Contacto</h2>
+              <p className="font-body text-xs text-muted-foreground">Mensajes enviados directamente desde la sección "Contáctanos" del sitio web.</p>
+            </div>
+            <span className="text-xs font-bold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
+              Total: {messages.filter(m => m.type === 'form').length} Mensajes
+            </span>
+          </div>
+
+          {messages.filter(m => m.type === 'form').length === 0 ? (
+            <div className="text-center py-20 text-muted-foreground">
+              <Mail className="w-12 h-12 mx-auto mb-3 text-accent/30" />
+              <p className="font-display text-lg">No hay mensajes de contacto recibidos aún.</p>
+              <p className="font-body text-xs opacity-75 mt-1">Los mensajes del formulario de contacto aparecerán aquí inmediatamente.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {messages.filter(m => m.type === 'form').map((msg) => {
+                const isNew = msg.status === 'new' || msg.status === 'unread';
+                return (
+                  <div key={msg.id} className={`p-6 rounded-2xl border transition-all ${isNew ? 'bg-amber-50/40 border-accent/30 shadow-sm' : 'bg-white border-black/5'}`}>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-accent/10 text-accent font-bold flex items-center justify-center font-display text-lg">
+                          {msg.name?.[0]?.toUpperCase() || 'C'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-display font-bold text-foreground text-base">{msg.name}</h3>
+                            {isNew && (
+                              <span className="bg-accent text-white font-bold text-[10px] px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                                Nuevo
+                              </span>
+                            )}
+                          </div>
+                          <p className="font-body text-xs text-muted-foreground flex items-center gap-3 mt-0.5">
+                            <span>✉️ {msg.email}</span>
+                            {msg.phone && msg.phone !== 'CHAT_MSG' && <span>📞 {msg.phone}</span>}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="font-body text-xs text-muted-foreground bg-secondary/60 px-3 py-1 rounded-xl">
+                        {msg.created_at ? new Date(msg.created_at).toLocaleString() : msg.date || 'Reciente'}
+                      </span>
+                    </div>
+
+                    <div className="bg-cream/60 p-4 rounded-xl mb-4 border border-black/5">
+                      <p className="font-display text-xs font-bold text-accent mb-1 uppercase tracking-wider">
+                        {msg.subject || 'Consulta de Servicio'}
+                      </p>
+                      <p className="font-body text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
+                        {msg.message}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <div className="flex gap-2">
+                        <a
+                          href={`mailto:${msg.email}?subject=Re: ${encodeURIComponent(msg.subject || 'Tu consulta en Alanis Salon')}`}
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-white font-body text-xs font-bold hover:bg-accent/90 shadow-md shadow-accent/20 transition-all"
+                        >
+                          <Mail className="w-3.5 h-3.5" /> Responder por Email
+                        </a>
+                        {msg.phone && msg.phone !== 'CHAT_MSG' && (
+                          <a
+                            href={`tel:${msg.phone}`}
+                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white border border-black/10 text-foreground font-body text-xs font-bold hover:bg-secondary transition-all"
+                          >
+                            <Phone className="w-3.5 h-3.5" /> Llamar
+                          </a>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {isNew ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              await LocalDB.updateMessageStatus(msg.id, 'read');
+                              fetchMessages();
+                              toast({ title: 'Marcado como leído' });
+                            }}
+                            className="text-xs font-semibold rounded-xl"
+                          >
+                            <Check className="w-3.5 h-3.5 mr-1" /> Marcar como Leído
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              await LocalDB.updateMessageStatus(msg.id, 'new');
+                              fetchMessages();
+                            }}
+                            className="text-xs text-muted-foreground rounded-xl"
+                          >
+                            Marcar como No Leído
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            if (confirm('¿Eliminar este mensaje de contacto?')) {
+                              await LocalDB.deleteMessage(msg.id);
+                              fetchMessages();
+                              toast({ title: 'Mensaje eliminado' });
+                            }
+                          }}
+                          className="text-xs text-destructive hover:bg-destructive/10 rounded-xl"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xl overflow-hidden flex min-h-0">
         {/* Sidebar */}
         <div className="w-80 border-r border-border flex flex-col bg-[#FAFAFA]">
@@ -364,7 +494,7 @@ const AdminMessages = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              <div className="p-4 border-t border-border bg-white shadow-inner">
+              <div className="p-4 border-t border-border bg-[#FAFAFA]">
                 <div className="flex items-center gap-4 text-accent mb-3 px-1">
                   <label className="cursor-pointer hover:scale-110 transition-all"><Camera className="w-5 h-5" /><input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} /></label>
                   <label className="cursor-pointer hover:scale-110 transition-all"><ImageIcon className="w-5 h-5" /><input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} /></label>
@@ -373,9 +503,9 @@ const AdminMessages = () => {
                 </div>
                 {isRecording && <div className="bg-red-50 p-3 rounded-xl mb-3 flex justify-between items-center animate-in slide-in-from-bottom-2"><span className="text-xs text-red-600 font-bold">RECORDING AUDIO...</span><Button size="sm" variant="destructive" onClick={stopRecording}>SEND NOTE</Button></div>}
                 <div className="flex items-center gap-2">
-                  <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleReply()} placeholder="Type your response..." className="flex-1 bg-muted rounded-full px-5 py-3 text-sm outline-none border border-black/5" />
+                  <input type="text" value={replyText} onChange={(e) => setReplyText(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && handleReply()} placeholder="Type your response..." className="flex-1 bg-white rounded-full px-5 py-3 text-sm outline-none border border-black/10 shadow-sm" />
                   <div className="text-accent">
-                    {replyText.trim() ? <Button onClick={handleReply} size="icon" className="bg-accent hover:bg-accent/90 rounded-full w-12 h-12 shadow-lg transition-transform active:scale-95"><Send className="w-5 h-5" /></Button> : <ThumbsUp className="w-8 h-8 cursor-pointer hover:scale-110 active:scale-90 transition-all" onClick={() => { setReplyText('👍'); setTimeout(handleReply, 50); }} />}
+                    {replyText.trim() ? <Button onClick={handleReply} size="icon" className="bg-accent hover:bg-accent/90 rounded-full w-12 h-12 shadow-lg transition-transform active:scale-95"><Send className="w-5 h-5 text-white" /></Button> : <ThumbsUp className="w-8 h-8 cursor-pointer hover:scale-110 active:scale-90 transition-all" onClick={() => { setReplyText('👍'); setTimeout(handleReply, 50); }} />}
                   </div>
                 </div>
               </div>
@@ -389,6 +519,7 @@ const AdminMessages = () => {
           )}
         </div>
       </div>
+      )}
 
       {/* Incoming Call Overlay */}
       <AnimatePresence>
